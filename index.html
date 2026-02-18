@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freedom Engine – Smart Suggestion Engine</title>
+<style>
+:root{
+  --bg:#0b1220; --card:#121b2e; --text:#eef4ff; --muted:#9fb0c9;
+  --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --line:#263654;
+}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+body{margin:0;background:linear-gradient(180deg,#0b1220,#0f1830);color:var(--text)}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+h1{margin:0 0 6px;font-size:24px}
+h2{margin:0 0 8px;font-size:18px}
+.small{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
+label{font-size:12px;color:var(--muted)}
+input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #2b3d61;background:#0f172a;color:var(--text)}
+.kpi{font-size:34px;font-weight:800;line-height:1.1}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.ok{background:rgba(34,197,94,.15);color:#86efac}
+.warn{background:rgba(245,158,11,.15);color:#fcd34d}
+.bad{background:rgba(239,68,68,.15);color:#fecaca}
+.hr{height:1px;background:var(--line);margin:12px 0}
+.note{font-size:12px;color:var(--muted)}
+.btn{padding:10px 12px;border-radius:10px;border:1px solid #34507f;background:#13203a;color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>DIN MULIGE PENSION vs NORMAL PENSION</h1>
+    <div class="small">Illustration baseret på dine egne input og historiske referenceafkast. Ikke rådgivning.</div>
+    <div class="hr"></div>
+    <div class="grid">
+      <div>
+        <div class="small">Din mulige pension</div>
+        <div class="kpi" id="possibleAge">–</div>
+      </div>
+      <div>
+        <div class="small">Normal pension (vejledende)</div>
+        <div class="kpi" id="normalAge">–</div>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <span id="deltaBadge" class="badge ok">–</span>
+      <span class="small" id="deltaText"></span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Onboarding (dine egne tal)</h2>
+      <div class="grid">
+        <div><label>Alder nu</label><input id="age" type="number" min="18" max="80" value="46"></div>
+        <div><label>Single / par</label>
+          <select id="household">
+            <option value="single">Single</option>
+            <option value="couple" selected>Par</option>
+          </select>
+        </div>
+        <div><label>Opsparing nu (kr)</label><input id="start" type="number" value="0"></div>
+        <div><label>Månedlig opsparing (kr)</label><input id="monthly" type="number" value="10000"></div>
+      </div>
+      <div class="note" style="margin-top:8px">Ingen standard-gæt bruges. Kun dine inputs.</div>
+    </div>
+
+    <div class="card">
+      <h2>SMART forslag (kan ændres)</h2>
+      <label>Forslag til månedlig udbetaling (kr/md)</label>
+      <input id="suggestedNeed" type="number" value="35000">
+      <div class="small" id="suggestedText" style="margin-top:6px"></div>
+      <div class="hr"></div>
+      <div class="small">Impact ved +1.000 kr/md opsparing</div>
+      <div id="impact" style="margin-top:6px">–</div>
+      <div class="hr"></div>
+      <button class="btn" id="saveBtn">Gem månedligt check-in</button>
+      <div class="small" style="margin-top:6px">Momentum siden sidst: <b id="momentum">–</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>OWNER / ADMIN</h2>
+    <div class="grid">
+      <div>
+        <label>Forventet afkast (% p.a.)</label>
+        <select id="ret">
+          <option>6</option><option selected>7</option><option>8</option><option>9</option>
+        </select>
+      </div>
+      <div>
+        <label>Skattefaktor (0-1)</label>
+        <input id="tax" type="number" step="0.01" value="0.73">
+      </div>
+      <div>
+        <label>Sikkerhedsbuffer (år)</label>
+        <input id="buffer" type="number" value="2">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function statePensionAge(age){
+  if(age<=45) return 70;
+  if(age<=55) return 69;
+  return 68;
+}
+function fmt1(x){ return x.toFixed(1).replace('.',','); }
+
+function suggestedNeed(household){
+  return household === 'couple' ? 35000 : 22000;
+}
+
+function calcMonths(age,start,monthly,need,ret,tax,buffer,household){
+  const r = ret/100/12;
+  const monthlyNeed = need * (household==='couple'?1:1);
+  const annualNeedGross = (monthlyNeed*12)/tax;
+  const target = annualNeedGross*(25+buffer*2); // simple, stable rule
+  let cap = start;
+  let m = 0;
+  while(cap < target && m < 12*70){
+    cap = cap*(1+r) + monthly;
+    m++;
+  }
+  return m;
+}
+
+function momentumFormat(deltaMonths){
+  const abs=Math.abs(deltaMonths);
+  if(abs<0.1){
+    const d=Math.round(abs*30);
+    return (deltaMonths>=0?"+":"−")+d+" dage";
+  } else if(abs<6){
+    return (deltaMonths>=0?"+":"−")+fmt1(abs)+" måneder";
+  } else {
+    return (deltaMonths>=0?"+":"−")+fmt1(abs/12)+" år";
+  }
+}
+
+function update(){
+  const age = +document.getElementById('age').value || 46;
+  const household = document.getElementById('household').value;
+  const start = +document.getElementById('start').value || 0;
+  const monthly = +document.getElementById('monthly').value || 0;
+  const ret = +document.getElementById('ret').value || 7;
+  const tax = +document.getElementById('tax').value || 0.73;
+  const buffer = +document.getElementById('buffer').value || 2;
+
+  const suggested = suggestedNeed(household);
+  const needInput = document.getElementById('suggestedNeed');
+  if(!needInput.dataset.userEdited){
+    needInput.value = suggested;
+  }
+  const need = +needInput.value || suggested;
+
+  document.getElementById('suggestedText').textContent =
+    "Forslag baseret på typisk niveau for " + (household==='couple' ? "par (35.000 kr/md)." : "single (22.000 kr/md).") + " Du kan justere frit.";
+
+  const months = calcMonths(age,start,monthly,need,ret,tax,buffer,household);
+  const possibleAge = age + months/12;
+  const normalAge = statePensionAge(age);
+
+  document.getElementById('possibleAge').textContent = fmt1(possibleAge) + " år";
+  document.getElementById('normalAge').textContent = normalAge + " år";
+
+  const diff = normalAge - possibleAge;
+  const badge = document.getElementById('deltaBadge');
+  const text = document.getElementById('deltaText');
+
+  if(diff > 0.5){
+    badge.className = "badge ok";
+    badge.textContent = "Tidligere pension";
+    text.textContent = "Ca. " + fmt1(diff) + " år tidligere end normal pension.";
+  } else if(diff > -0.5){
+    badge.className = "badge warn";
+    badge.textContent = "Tæt på normal pension";
+    text.textContent = "Du ligger cirka på niveau med normal pensionsalder.";
+  } else {
+    badge.className = "badge bad";
+    badge.textContent = "Senere end normal pension";
+    text.textContent = "Ca. " + fmt1(Math.abs(diff)) + " år senere end normal pension.";
+  }
+
+  const plusMonths = calcMonths(age,start,monthly+1000,need,ret,tax,buffer,household);
+  const gain = months - plusMonths;
+  document.getElementById('impact').innerHTML =
+    "Som nu: ca. " + fmt1(possibleAge) + " år<br>" +
+    "+1.000 kr/md: ca. " + fmt1(age + plusMonths/12) + " år<br>" +
+    "<b>Forskel: " + fmt1(gain/12) + " år</b>";
+
+  const prev = localStorage.getItem("fe_months");
+  document.getElementById('momentum').textContent = prev ? momentumFormat((+prev)-months) : "Ingen tidligere check‑in";
+}
+
+document.querySelectorAll('input,select').forEach(el=>{
+  el.addEventListener('input', ()=>{
+    if(el.id==='suggestedNeed'){ el.dataset.userEdited = "1"; }
+    update();
+  });
+});
+
+document.getElementById('saveBtn').addEventListener('click', ()=>{
+  const age = +document.getElementById('age').value || 46;
+  const household = document.getElementById('household').value;
+  const start = +document.getElementById('start').value || 0;
+  const monthly = +document.getElementById('monthly').value || 0;
+  const ret = +document.getElementById('ret').value || 7;
+  const tax = +document.getElementById('tax').value || 0.73;
+  const buffer = +document.getElementById('buffer').value || 2;
+  const need = +document.getElementById('suggestedNeed').value || suggestedNeed(household);
+  const months = calcMonths(age,start,monthly,need,ret,tax,buffer,household);
+  localStorage.setItem("fe_months", months);
+  update();
+});
+
+update();
+</script>
+</body>
+</html>
