@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DepotTracker FIRE PRO v14</title>
+<style>
+  :root{
+    --bg:#0b1220; --card:#111a2b; --line:#2a3650; --text:#e8eefc; --muted:#a9b7d3;
+    --red:#ff4d4f; --yellow:#f7b500; --green:#19c37d; --accent:#6aa6ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  .wrap{max-width:980px;margin:0 auto;padding:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  label{display:block;font-size:12px;color:var(--muted);font-weight:900;margin-bottom:6px}
+  input,select,button,textarea{
+    width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);
+    background:#0f1728;color:var(--text);font-weight:900;outline:none
+  }
+  textarea{min-height:80px;font-weight:800}
+  button{background:linear-gradient(180deg, var(--accent), rgba(106,166,255,.78));color:#071021;border:0;cursor:pointer}
+  button.secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.14)}
+  button.danger{background:rgba(255,77,79,.12);color:#ffd2d2;border:1px solid rgba(255,77,79,.25)}
+  .small{color:var(--muted);font-size:13px;line-height:1.35}
+  .signal{
+    padding:14px;border-radius:14px;font-weight:1100;display:block;
+    border:1px solid rgba(255,255,255,.10)
+  }
+  .sigRed{background:rgba(255,77,79,.12);color:#ffd2d2;border-color:rgba(255,77,79,.25)}
+  .sigYel{background:rgba(247,181,0,.12);color:#ffe7a3;border-color:rgba(247,181,0,.25)}
+  .sigGre{background:rgba(25,195,125,.12);color:#b7ffd8;border-color:rgba(25,195,125,.25)}
+  .kpi{font-size:34px;font-weight:1100}
+  .kpi2{font-size:18px;font-weight:1000}
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  details{margin-top:10px}
+  summary{cursor:pointer;font-weight:1100}
+  .pill{display:inline-block;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.12);font-weight:1000}
+  .divider{height:1px;background:rgba(255,255,255,.10);margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="grid">
+    <div class="card">
+      <div id="fireSignal" class="signal sigYel">🟡 TÆT PÅ</div>
+      <div class="small" id="fireReason" style="margin-top:8px">—</div>
+
+      <div class="divider"></div>
+
+      <div class="small">🎯 Forventet frihed</div>
+      <div class="kpi" id="fireDate">—</div>
+      <div class="kpi2" id="fireAge">—</div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div style="flex:1 1 220px">
+          <div class="small">📊 Interval (8% / 7% / 5%)</div>
+          <div class="pill" id="interval">—</div>
+        </div>
+        <div style="flex:1 1 220px">
+          <div class="small">💰 Effekt af ±<span id="deltaLbl">2.000</span> kr/md</div>
+          <div class="pill" id="deltaEff">—</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div style="flex:1 1 220px">
+          <div class="small">📈 Måneder foran/bagud</div>
+          <div class="kpi2" id="monthsAhead">—</div>
+        </div>
+        <div style="flex:1 1 220px">
+          <div class="small">🧭 Tid til mål</div>
+          <div class="kpi2" id="timeToGoal">—</div>
+        </div>
+      </div>
+
+      <div class="small" style="margin-top:10px" id="motivationTxt">—</div>
+    </div>
+
+    <div class="card">
+      <div class="small" style="font-weight:1100">Månedlig opdatering</div>
+      <div class="row" style="margin-top:10px">
+        <div style="flex:1 1 220px">
+          <label for="dep">Depotværdi (kr)</label>
+          <input id="dep" inputmode="numeric" placeholder="fx 325000">
+        </div>
+        <div style="flex:1 1 220px">
+          <label for="ym">Måned (YYYY-MM)</label>
+          <input id="ym" type="month">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div style="flex:1 1 220px"><button id="save">Gem måned</button></div>
+        <div style="flex:1 1 220px"><button class="secondary" id="edit">Ret seneste</button></div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div style="flex:1 1 220px"><button class="secondary" id="export">Eksportér backup</button></div>
+        <div style="flex:1 1 220px"><button class="secondary" id="import">Importér backup</button></div>
+      </div>
+
+      <div style="margin-top:10px">
+        <button class="danger" id="reset">Nulstil</button>
+      </div>
+
+      <div class="small" style="margin-top:10px">Data gemmes lokalt i browser. Brug backup 1×/måned.</div>
+
+      <details>
+        <summary>Admin (bagved)</summary>
+        <div class="small" style="margin-top:8px">
+          Forsiden er for din kone. Her ændrer du antagelser og scenarier.
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div style="flex:1 1 180px">
+            <label for="ageNow">Alder nu</label>
+            <input id="ageNow" inputmode="decimal" value="46">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="pmt">Indbetaling (kr/md)</label>
+            <input id="pmt" inputmode="numeric" value="10000">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="delta">Test ændring (kr/md)</label>
+            <input id="delta" inputmode="numeric" value="2000">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="needNet">Ønsket udbetalt (kr/md)</label>
+            <input id="needNet" inputmode="numeric" value="35000">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="taxFactor">Skattefaktor (salg = netto × faktor)</label>
+            <input id="taxFactor" inputmode="decimal" value="1.30">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="retSave">Afkast opsparing (% p.a.)</label>
+            <input id="retSave" inputmode="decimal" value="7">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="retWith">Afkast under udbetaling (% p.a.)</label>
+            <input id="retWith" inputmode="decimal" value="3">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="strategy">Udbetalingsstrategi</label>
+            <select id="strategy">
+              <option value="A">A: Hele depot defensivt</option>
+              <option value="B" selected>B: Kun bridge defensivt</option>
+            </select>
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="aldAge">Aldersopsparing udbetales (alder)</label>
+            <input id="aldAge" inputmode="decimal" value="65">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="aldAmt">Aldersopsparing beløb (kr)</label>
+            <input id="aldAmt" inputmode="numeric" value="1000000">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="bufferMonths">Sikkerhedsbuffer (mdr)</label>
+            <input id="bufferMonths" inputmode="numeric" value="12">
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div style="flex:1 1 220px"><button class="secondary" id="saveParams">Gem parametre</button></div>
+        </div>
+
+        <div class="small" style="margin-top:10px" id="adminSummary">—</div>
+      </details>
+    </div>
+  </div>
+
+</div>
+
+<input id="filePick" type="file" accept="application/json" style="display:none"/>
+
+<script>
+(function(){
+  const K = "dt_fire_pro_v14";
+  const $ = (id)=>document.getElementById(id);
+
+  function nowYM(){ return new Date().toISOString().slice(0,7); }
+  function parseNum(x, d){
+    const v = Number(String(x??"").replace(/\./g,"").replace(/\s/g,"").replace(/,/g,"."));
+    return (isFinite(v) ? v : d);
+  }
+  function fmt(n){ if(!isFinite(n)) return "–"; return new Intl.NumberFormat("da-DK").format(Math.round(n)); }
+  function fmt1(n){ if(!isFinite(n)) return "–"; return (Math.round(n*10)/10).toLocaleString("da-DK",{minimumFractionDigits:1,maximumFractionDigits:1}); }
+  function ymAdd(ym, m){
+    const [y,mo] = ym.split("-").map(Number);
+    const t = (y*12 + (mo-1)) + Math.round(m);
+    const ny = Math.floor(t/12);
+    const nm = (t%12)+1;
+    return `${ny}-${String(nm).padStart(2,"0")}`;
+  }
+  function ymPretty(ym){
+    const months = ["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"];
+    const [y,m] = ym.split("-").map(Number);
+    return `${months[m-1]} ${y}`;
+  }
+  function monthDiff(a,b){
+    const [ay,am]=a.split("-").map(Number);
+    const [by,bm]=b.split("-").map(Number);
+    return (ay-by)*12 + (am-bm);
+  }
+  function rMon(pct){
+    const a = pct/100;
+    const r = Math.pow(1+a, 1/12) - 1;
+    return (isFinite(r) ? r : 0);
+  }
+  function fvDeposits(n, pmt, r){
+    if(n<=0) return 0;
+    if(Math.abs(r) < 1e-10) return pmt*n;
+    return pmt * ((Math.pow(1+r, n) - 1) / r);
+  }
+  function pvWithdrawals(monthly, n, r){
+    if(n<=0) return 0;
+    if(Math.abs(r) < 1e-10) return monthly*n;
+    return monthly * (1 - Math.pow(1+r, -n)) / r;
+  }
+
+  function load(){
+    try{ return JSON.parse(localStorage.getItem(K)) || {data:[], s:{}}; }
+    catch(e){ return {data:[], s:{}}; }
+  }
+  function save(obj){
+    localStorage.setItem(K, JSON.stringify(obj));
+  }
+
+  function getSettings(){
+    const o = load();
+    const s0 = o.s || {};
+    const s = {
+      ageNow: parseNum(s0.ageNow, 46),
+      pmt: parseNum(s0.pmt, 10000),
+      delta: parseNum(s0.delta, 2000),
+      needNet: parseNum(s0.needNet, 35000),
+      taxFactor: parseNum(s0.taxFactor, 1.30),
+      retSave: parseNum(s0.retSave, 7),
+      retWith: parseNum(s0.retWith, 3),
+      strategy: (s0.strategy==="A" ? "A" : "B"),
+      aldAge: parseNum(s0.aldAge, 65),
+      aldAmt: parseNum(s0.aldAmt, 1000000),
+      bufferMonths: Math.max(0, Math.round(parseNum(s0.bufferMonths, 12))),
+    };
+    return s;
+  }
+
+  function setAdminFields(s){
+    $("ageNow").value = String(s.ageNow);
+    $("pmt").value = String(Math.round(s.pmt));
+    $("delta").value = String(Math.round(s.delta));
+    $("needNet").value = String(Math.round(s.needNet));
+    $("taxFactor").value = String(s.taxFactor);
+    $("retSave").value = String(s.retSave);
+    $("retWith").value = String(s.retWith);
+    $("strategy").value = s.strategy;
+    $("aldAge").value = String(s.aldAge);
+    $("aldAmt").value = String(Math.round(s.aldAmt));
+    $("bufferMonths").value = String(Math.round(s.bufferMonths));
+  }
+
+  // ---- Core: find FIRE month from last known depot value by simulating forward ----
+  function findFireMonths(lastValue, startYM, s, retSavePct){
+    const rS = rMon(retSavePct);
+    const rW = rMon(s.retWith);
+    const gross = s.needNet * s.taxFactor;
+
+    // We want to fund until aldersopsparing age, so months of withdrawals depends on retirement age.
+    // We search month by month forward:
+    // 1) simulate accumulation: value grows + contribution
+    // 2) at each candidate month t, compute retirement age, bridge months, and required PV for (bridge + buffer)
+    // Strategy A/B affects returns assumption for PV discounting.
+    let value = lastValue;
+    let t = 0;
+    const maxMonths = 12*60; // hard cap 60 years
+    for(t=0; t<=maxMonths; t++){
+      // Candidate retirement now:
+      const ageAtRet = s.ageNow + (t/12);
+      const bridgeMonths = Math.max(0, Math.round((s.aldAge - ageAtRet)*12));
+      const neededMonths = bridgeMonths + s.bufferMonths;
+
+      // Required capital at retirement start (PV of gross withdrawals).
+      // Strategy A: all defensive -> discount at rW
+      // Strategy B: bridge bucket defensive -> still PV discounted at rW (bucket), remainder irrelevant for bridge test.
+      const pvNeed = pvWithdrawals(gross, neededMonths, rW);
+
+      if(value >= pvNeed){
+        return {months:t, pvNeed, ageAtRet, bridgeMonths, neededMonths, gross};
+      }
+
+      // Not enough yet -> advance one month of saving
+      value = value * (1 + rS) + s.pmt;
+    }
+    return {months:Infinity, pvNeed:Infinity, ageAtRet:NaN, bridgeMonths:NaN, neededMonths:NaN, gross};
+  }
+
+  function render(){
+    const o = load();
+    const s = getSettings();
+    setAdminFields(s);
+
+    const data = (o.data||[]).slice().sort((a,b)=>a.m.localeCompare(b.m));
+
+    // If no data, show placeholders
+    if(!data.length){
+      $("fireReason").textContent = "Indtast første måned.";
+      $("fireDate").textContent = "—";
+      $("fireAge").textContent = "—";
+      $("interval").textContent = "—";
+      $("deltaLbl").textContent = fmt(s.delta);
+      $("deltaEff").textContent = "—";
+      $("monthsAhead").textContent = "—";
+      $("timeToGoal").textContent = "—";
+      $("motivationTxt").textContent = "Når du indtaster første måned, får du dato + alder + interval.";
+      return;
+    }
+
+    const firstYM = data[0].m;
+    const last = data[data.length-1];
+
+    const rS_base = rMon(s.retSave);
+    const plan = fvDeposits(data.length, s.pmt, rS_base);
+    const dev = last.v - plan;
+    const gross = s.needNet * s.taxFactor;
+    const monthsAhead = (gross>0) ? (dev / gross) : 0;
+    $("monthsAhead").textContent = `${monthsAhead>=0?"+":""}${fmt1(monthsAhead)} mdr (vs brutto behov)`;
+    $("motivationTxt").textContent = monthsAhead>=0
+      ? "Du ligger foran den mekaniske plan. Hold strategien kedelig."
+      : "Du ligger bag plan. Justér småt og stabilt – ikke med store beslutninger.";
+
+    // FIRE estimates (basis + interval)
+    const base = findFireMonths(last.v, last.m, s, 7);
+    const early = findFireMonths(last.v, last.m, s, 8);
+    const cautious = findFireMonths(last.v, last.m, s, 5);
+
+    function showIfFinite(x, f){ return (isFinite(x) && x<1e8) ? f(x) : "—"; }
+
+    // Base date uses basis (7%)
+    const fireYM = ymAdd(last.m, base.months);
+    $("fireDate").textContent = showIfFinite(base.months, ()=> ymPretty(fireYM));
+    $("fireAge").textContent = showIfFinite(base.ageAtRet, (a)=> `Alder ca. ${fmt1(a)} år`);
+
+    // Interval display
+    const i1 = ymAdd(last.m, early.months);
+    const i2 = ymAdd(last.m, cautious.months);
+    $("interval").textContent = `${showIfFinite(early.months, ()=> ymPretty(i1))} → ${showIfFinite(cautious.months, ()=> ymPretty(i2))}`;
+
+    // Delta effect (±delta on contributions) using basis return 7%
+    const sPlus = {...s, pmt: s.pmt + s.delta};
+    const sMinus = {...s, pmt: Math.max(0, s.pmt - s.delta)};
+    const plus = findFireMonths(last.v, last.m, sPlus, 7);
+    const minus = findFireMonths(last.v, last.m, sMinus, 7);
+    $("deltaLbl").textContent = fmt(s.delta);
+    if(isFinite(plus.months) && isFinite(minus.months) && plus.months<1e8 && minus.months<1e8){
+      const diff = Math.round(minus.months - plus.months);
+      $("deltaEff").textContent = `${Math.max(0, Math.round(diff/2))} mdr (typisk)`;
+    }else{
+      $("deltaEff").textContent = "—";
+    }
+
+    // Time to goal
+    if(isFinite(base.months) && base.months<1e8){
+      const y = Math.floor(base.months/12);
+      const m = Math.round(base.months%12);
+      $("timeToGoal").textContent = `${y} år ${m} mdr`;
+    }else{
+      $("timeToGoal").textContent = "—";
+    }
+
+    // FIRE signal based on basis estimate and 12m buffer already embedded
+    const sig = $("fireSignal");
+    const reason = $("fireReason");
+
+    if(!isFinite(base.months) || base.months>=1e8){
+      sig.className = "signal sigRed";
+      sig.textContent = "🔴 IKKE ENDNU";
+      reason.textContent = "Modellen kan ikke finde et realistisk tidspunkt (check parametre).";
+    }else if(base.months <= 0){
+      sig.className = "signal sigGre";
+      sig.textContent = "🟢 KLAR";
+      reason.textContent = `Krav opfyldt nu: bro + ${s.bufferMonths} mdr buffer (model).`;
+    }else if(base.months <= s.bufferMonths){
+      sig.className = "signal sigYel";
+      sig.textContent = "🟡 TÆT PÅ";
+      reason.textContent = `Indenfor ${s.bufferMonths} mdr ifølge basis-scenarie (model).`;
+    }else{
+      sig.className = "signal sigRed";
+      sig.textContent = "🔴 IKKE ENDNU";
+      reason.textContent = `Manglende tid til mål: ca. ${Math.floor(base.months/12)} år ${Math.round(base.months%12)} mdr (basis).`;
+    }
+
+    // Admin summary
+    $("adminSummary").innerHTML =
+      `• Netto mål: <b>${fmt(s.needNet)}</b> kr/md | Skattefaktor: <b>x${fmt1(s.taxFactor)}</b> → brutto salg ca. <b>${fmt(gross)}</b> kr/md<br>` +
+      `• Afkast: opsparing <b>${fmt1(s.retSave)}%</b> (basis bruger 7%) | udbetaling <b>${fmt1(s.retWith)}%</b><br>` +
+      `• Aldersopsparing: <b>${fmt(s.aldAmt)}</b> kr ved alder <b>${fmt1(s.aldAge)}</b> | buffer: <b>${s.bufferMonths}</b> mdr<br>` +
+      `• Strategi: <b>${s.strategy}</b> (A=alt defensivt, B=bridge defensivt).`;
+  }
+
+  // ---- CRUD ----
+  function upsert(m, v){
+    const o = load();
+    o.data = o.data || [];
+    const i = o.data.findIndex(x=>x.m===m);
+    if(i>=0) o.data[i] = {m, v};
+    else o.data.push({m, v});
+    save(o);
+  }
+
+  $("save").addEventListener("click", ()=>{
+    const v = parseNum($("dep").value, NaN);
+    const m = $("ym").value || nowYM();
+    if(!isFinite(v) || v<=0){ alert("Indtast depotværdi (tal)."); return; }
+    upsert(m, v);
+    $("dep").value=""; $("ym").value="";
+    render();
+  });
+
+  $("edit").addEventListener("click", ()=>{
+    const o = load();
+    const data = (o.data||[]).slice().sort((a,b)=>a.m.localeCompare(b.m));
+    if(!data.length){ alert("Ingen data endnu."); return; }
+    const last = data[data.length-1];
+    $("ym").value = last.m;
+    $("dep").value = String(last.v);
+    $("dep").focus();
+  });
+
+  $("export").addEventListener("click", ()=>{
+    const o = load();
+    const blob = new Blob([JSON.stringify({version:14, ...o}, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "depottracker-fire-pro-v14-backup.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  $("import").addEventListener("click", ()=> $("filePick").click());
+  $("filePick").addEventListener("change", async ()=>{
+    const f = $("filePick").files[0];
+    if(!f) return;
+    const txt = await f.text();
+    try{
+      const obj = JSON.parse(txt);
+      if(!obj || !Array.isArray(obj.data)) throw new Error("bad");
+      save({data: obj.data, s: obj.s || {}});
+      $("filePick").value="";
+      render();
+    }catch(e){
+      alert("Backup-format ikke genkendt.");
+    }
+  });
+
+  $("reset").addEventListener("click", ()=>{
+    if(confirm("Nulstil alt?")){
+      localStorage.removeItem(K);
+      render();
+    }
+  });
+
+  $("saveParams").addEventListener("click", ()=>{
+    const o = load();
+    o.s = {
+      ageNow: parseNum($("ageNow").value, 46),
+      pmt: parseNum($("pmt").value, 10000),
+      delta: parseNum($("delta").value, 2000),
+      needNet: parseNum($("needNet").value, 35000),
+      taxFactor: parseNum($("taxFactor").value, 1.30),
+      retSave: parseNum($("retSave").value, 7),
+      retWith: parseNum($("retWith").value, 3),
+      strategy: $("strategy").value,
+      aldAge: parseNum($("aldAge").value, 65),
+      aldAmt: parseNum($("aldAmt").value, 1000000),
+      bufferMonths: Math.max(0, Math.round(parseNum($("bufferMonths").value, 12))),
+    };
+    save(o);
+    render();
+    alert("Parametre gemt.");
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
