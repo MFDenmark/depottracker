@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Freedom Engine – Product v1</title>
+<style>
+:root{
+  --bg:#0b1220; --card:#121b2e; --muted:#9fb0c9; --text:#eaf1ff;
+  --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --accent:#60a5fa;
+}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+body{margin:0;background:linear-gradient(180deg,#0b1220,#0e1628);color:var(--text)}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid #22304d;border-radius:16px;padding:16px;margin:12px 0}
+h1{font-size:24px;margin:4px 0 10px}
+h2{font-size:18px;margin:0 0 8px}
+.small{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #2a3a5f;background:#0f172a;color:#eaf1ff}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:600;font-size:12px}
+.ok{background:rgba(34,197,94,.15);color:#86efac}
+.warn{background:rgba(245,158,11,.15);color:#fcd34d}
+.bad{background:rgba(239,68,68,.15);color:#fca5a5}
+.kpi{font-size:34px;font-weight:800;line-height:1.1}
+.btn{padding:10px 12px;border-radius:10px;border:1px solid #33507f;background:#13203a;color:#eaf1ff;cursor:pointer}
+.note{font-size:12px;color:var(--muted)}
+.hr{height:1px;background:#253655;margin:12px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>DIN ØKONOMISKE RETNING</h1>
+    <div class="small">Baseret på dine nuværende valg og historiske referenceantagelser (ikke garanti).</div>
+    <div class="hr"></div>
+    <div class="row">
+      <div>
+        <div class="small">Estimeret retning</div>
+        <div class="kpi" id="targetText">–</div>
+      </div>
+      <div>
+        <div class="small">Alder ved retning</div>
+        <div class="kpi" id="ageText">–</div>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <span id="statusBadge" class="badge ok">Stabil kurs</span>
+      <span class="small" id="statusExplain" style="margin-left:8px"></span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Onboarding (basis)</h2>
+      <div class="small">Kun disse felter er nødvendige for brugeren.</div>
+      <div style="margin-top:10px" class="grid">
+        <div><label class="small">Alder nu</label><input id="age" type="number" min="18" max="80" value="46"></div>
+        <div><label class="small">Single / par</label>
+          <select id="household"><option value="single">Single</option><option value="couple" selected>Par</option></select>
+        </div>
+        <div><label class="small">Opsparing nu (kr)</label><input id="start" type="number" value="0"></div>
+        <div><label class="small">Månedlig indbetaling (kr)</label><input id="monthly" type="number" value="10000"></div>
+      </div>
+      <div style="margin-top:10px" class="note">Folkepension (vejledende): <span id="stateAge">70</span> år</div>
+    </div>
+
+    <div class="card">
+      <h2>Momentum & impact</h2>
+      <div class="row"><div class="small">Fremdrift siden sidste check-in</div><div id="momentum" class="kpi" style="font-size:26px">+0 dage</div></div>
+      <div class="hr"></div>
+      <div class="small">Impact ved +1.000 kr/md</div>
+      <div id="impact" style="margin-top:6px">Som nu: –<br/>+1.000 kr/md: –<br/><b>Forskel: –</b></div>
+      <div style="margin-top:10px">
+        <button class="btn" id="save">Gem månedligt check‑in</button>
+      </div>
+      <div class="note" style="margin-top:8px">Gemmer lokalt på enheden (ingen upload).</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>OWNER / ADMIN (avanceret)</h2>
+    <div class="small">Skjult logik – kan ændres af ejer.</div>
+    <div class="grid" style="margin-top:10px">
+      <div><label class="small">Forventet afkast (% p.a.)</label>
+        <select id="ret">
+          <option>6</option><option selected>7</option><option>8</option><option>9</option>
+        </select>
+      </div>
+      <div><label class="small">Udbetalingsmål (kr/md, efter stop)</label><input id="need" type="number" value="35000"></div>
+      <div><label class="small">Sikkerhedsbuffer (år)</label><input id="buffer" type="number" value="2"></div>
+      <div><label class="small">Skattefaktor (forenklet, 0-1)</label><input id="tax" type="number" step="0.01" value="0.73"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function fmt(n){return new Intl.NumberFormat('da-DK').format(Math.round(n));}
+function monthYearFromNow(months){
+  const d=new Date();
+  d.setMonth(d.getMonth()+Math.max(0,Math.round(months)));
+  return d.toLocaleDateString('da-DK',{month:'short',year:'numeric'});
+}
+function calcTargetAge(age,start,monthly,ret,need,tax,buffer,household){
+  const r = ret/100/12;
+  const monthlyNeed = need * (household==='couple'?1:0.65);
+  const annualNeed = monthlyNeed*12/tax;
+  const targetCapital = annualNeed*(25+buffer*2); // simple rule-of-thumb
+  let cap=start;
+  let m=0;
+  while(cap<targetCapital && m<12*60){
+    cap = cap*(1+r) + monthly;
+    m++;
+  }
+  return {months:m, targetCapital, cap};
+}
+function statePensionAge(currentAge){
+  // simple placeholder policy estimate
+  if(currentAge<=45) return 70;
+  if(currentAge<=55) return 69;
+  return 68;
+}
+function momentumText(deltaMonths){
+  const abs=Math.abs(deltaMonths);
+  if(abs<0.1){
+    const days=Math.round(abs*30);
+    return (deltaMonths>=0?"+":"−")+days+" dage";
+  }else if(abs<6){
+    return (deltaMonths>=0?"+":"−")+abs.toFixed(1).replace('.',',')+" måneder";
+  }else{
+    const years=abs/12;
+    return (deltaMonths>=0?"+":"−")+years.toFixed(1).replace('.',',')+" år";
+  }
+}
+function update(){
+  const age=+document.getElementById('age').value||46;
+  const start=+document.getElementById('start').value||0;
+  const monthly=+document.getElementById('monthly').value||0;
+  const ret=+document.getElementById('ret').value||7;
+  const need=+document.getElementById('need').value||35000;
+  const tax=+document.getElementById('tax').value||0.73;
+  const buffer=+document.getElementById('buffer').value||2;
+  const household=document.getElementById('household').value;
+
+  const base=calcTargetAge(age,start,monthly,ret,need,tax,buffer,household);
+  const ageAt=age + base.months/12;
+  document.getElementById('targetText').textContent = monthYearFromNow(base.months);
+  document.getElementById('ageText').textContent = ageAt.toFixed(1).replace('.',',')+" år";
+  document.getElementById('stateAge').textContent = statePensionAge(age);
+
+  const plus=calcTargetAge(age,start,monthly+1000,ret,need,tax,buffer,household);
+  const diffMonths = base.months - plus.months;
+  document.getElementById('impact').innerHTML =
+    "Som nu: ca. "+(age+base.months/12).toFixed(1).replace('.',',')+" år<br/>"+
+    "+1.000 kr/md: ca. "+(age+plus.months/12).toFixed(1).replace('.',',')+" år<br/>"+
+    "<b>Forskel: "+(diffMonths/12).toFixed(1).replace('.',',')+" år</b>";
+
+  let badge=document.getElementById('statusBadge');
+  let explain=document.getElementById('statusExplain');
+  const stateAge=statePensionAge(age);
+  if(ageAt <= stateAge-6){badge.className='badge ok'; badge.textContent='Stabil kurs'; explain.textContent='Du ligger markant før vejledende pensionsalder.';}
+  else if(ageAt <= stateAge){badge.className='badge warn'; badge.textContent='Små justeringer'; explain.textContent='Du ligger tæt på vejledende pensionsalder.';}
+  else {badge.className='badge bad'; badge.textContent='Retning svækket'; explain.textContent='Overvej højere indbetaling eller længere tid.';}
+
+  const key="fe_last_months";
+  const prev=localStorage.getItem(key);
+  if(prev!==null){
+    const delta = (+prev) - base.months;
+    document.getElementById('momentum').textContent = momentumText(delta);
+  } else {
+    document.getElementById('momentum').textContent = "+0 dage";
+  }
+}
+document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',update));
+document.getElementById('save').addEventListener('click',()=>{
+  const age=+document.getElementById('age').value||46;
+  const start=+document.getElementById('start').value||0;
+  const monthly=+document.getElementById('monthly').value||0;
+  const ret=+document.getElementById('ret').value||7;
+  const need=+document.getElementById('need').value||35000;
+  const tax=+document.getElementById('tax').value||0.73;
+  const buffer=+document.getElementById('buffer').value||2;
+  const household=document.getElementById('household').value;
+  const base=calcTargetAge(age,start,monthly,ret,need,tax,buffer,household);
+  localStorage.setItem("fe_last_months", String(base.months));
+  update();
+});
+update();
+</script>
+</body>
+</html>
