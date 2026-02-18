@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>DepotTracker PRO v11</title>
+<style>
+  :root{
+    --bg:#0b1220; --text:#e8eefc; --muted:#a9b7d3;
+    --good:#19c37d; --warn:#f7b500; --bad:#ff4d4f; --accent:#6aa6ff;
+    --shadow: 0 10px 28px rgba(0,0,0,.35);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 10% 0%, rgba(106,166,255,.18), transparent 55%),
+      radial-gradient(900px 500px at 90% 10%, rgba(25,195,125,.14), transparent 55%),
+      var(--bg);
+    color:var(--text);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:16px 14px 42px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .tag{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 10px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.16);
+    font-weight:900; font-size:12px; color:var(--muted);
+  }
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:14px;
+  }
+  .grid{display:grid;grid-template-columns:1.25fr .95fr;gap:12px}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+  .h1{font-size:12px;color:var(--muted);font-weight:1000;letter-spacing:.2px}
+  .kpiRow{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:10px}
+  .big{font-size:48px;font-weight:1100;line-height:1}
+  .unit{font-size:14px;color:var(--muted);font-weight:900}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 10px;border-radius:999px;font-weight:1000;font-size:13px;
+    border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.16);
+  }
+  .pill.good{color:var(--good)} .pill.warn{color:var(--warn)} .pill.bad{color:var(--bad)}
+  .sub{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.35}
+  .heroBox{
+    margin-top:12px;padding:12px;border-radius:16px;
+    border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16);
+    display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;align-items:flex-start;
+  }
+  .heroBox .t{font-size:12px;color:var(--muted);font-weight:1000}
+  .heroBox .v{font-size:18px;font-weight:1100}
+  .progress{height:12px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.22);margin-top:10px}
+  .progress>div{height:100%;width:0%;background:linear-gradient(90deg, rgba(25,195,125,1), rgba(106,166,255,1))}
+  .miniGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  @media (max-width:520px){.miniGrid{grid-template-columns:1fr}}
+  .mini{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16)}
+  .mini .k{font-size:12px;color:var(--muted);font-weight:1000;letter-spacing:.2px}
+  .mini .v{margin-top:8px;font-size:22px;font-weight:1100}
+  .mini .h{margin-top:6px;font-size:12px;color:var(--muted)}
+  label{font-size:12px;color:var(--muted);font-weight:1000}
+  input, textarea{
+    width:100%;
+    padding:12px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.16);color:var(--text);font-weight:1000;outline:none;
+  }
+  textarea{min-height:90px;font-weight:800;line-height:1.35}
+  .form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  @media (max-width:860px){.form{grid-template-columns:1fr}}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  button{
+    border:0;border-radius:12px;padding:12px 12px;font-weight:1100;cursor:pointer;
+    background:linear-gradient(180deg, rgba(106,166,255,1), rgba(106,166,255,.78));
+    color:#071021;
+    box-shadow:0 12px 26px rgba(106,166,255,.25);
+  }
+  button.secondary{
+    background:rgba(255,255,255,.06);color:var(--text);
+    border:1px solid rgba(255,255,255,.12);box-shadow:none;
+  }
+  button.danger{
+    background:rgba(255,77,79,.12);color:#ffd2d2;
+    border:1px solid rgba(255,77,79,.25);box-shadow:none;
+  }
+  button.ghost{
+    background:transparent;color:var(--text);
+    border:1px solid rgba(255,255,255,.12);box-shadow:none;
+  }
+  details{
+    margin-top:12px;
+    border:1px solid rgba(255,255,255,.10);border-radius:16px;background:rgba(0,0,0,.14);
+    padding:10px 12px;
+  }
+  summary{cursor:pointer;font-weight:1100}
+  .small{font-size:12px;color:var(--muted)}
+  canvas{width:100%;height:260px;display:block;margin-top:12px}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+  th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}
+  th{color:var(--muted);font-size:12px;letter-spacing:.2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="tag" id="storageTag">Storage: tester…</div>
+    <div class="tag" id="baselineTag">Baseline</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="h1">FORSIDE (simpel)</div>
+
+      <div class="kpiRow">
+        <div class="big" id="monthsAhead">–</div>
+        <div class="unit">måneder</div>
+        <div class="pill warn" id="monthsPill">–</div>
+      </div>
+      <div class="sub" id="monthsSub">Indtast depotværdi og tryk Gem måned.</div>
+
+      <div class="heroBox">
+        <div>
+          <div class="t">BRO til aldersopsparing</div>
+          <div class="v" id="bridgeStatus">–</div>
+          <div class="small" id="bridgeDetail">–</div>
+        </div>
+        <div style="min-width:220px;flex:1 1 220px">
+          <div class="t">Dækning</div>
+          <div class="v"><span id="bridgeCover">–</span> <span class="small">/ <span id="bridgeNeed">–</span> mdr</span></div>
+          <div class="progress"><div id="bridgeBar"></div></div>
+        </div>
+      </div>
+
+      <div class="miniGrid">
+        <div class="mini">
+          <div class="k">NÆSTE INDBETALING (forslag)</div>
+          <div class="v" id="suggestedPay">–</div>
+          <div class="h">Justerer roligt over 12 måneder</div>
+        </div>
+        <div class="mini">
+          <div class="k">MOTIVATION</div>
+          <div class="v" id="motivation">–</div>
+          <div class="h" id="motivationSub">–</div>
+        </div>
+      </div>
+
+      <details>
+        <summary>Vejledning (1 minut / måned)</summary>
+        <div class="small" style="margin-top:8px;line-height:1.45">
+          1) Skriv depotværdi (total) for måneden.<br>
+          2) Tryk <strong>Gem måned</strong>.<br>
+          3) Se: <strong>måneder foran/bagud</strong>, <strong>bro-status</strong>, og <strong>næste indbetaling</strong>.
+          <br><br>
+          Tip: brug <strong>Eksportér backup</strong> en gang om måneden.
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="h1">OPDATERING</div>
+
+      <div class="form">
+        <div class="field">
+          <label for="depValue">Depotværdi (kr)</label>
+          <input id="depValue" inputmode="numeric" placeholder="fx 325000">
+        </div>
+        <div class="field">
+          <label for="monthPick">Måned (valgfri)</label>
+          <input id="monthPick" type="month">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="saveBtn">Gem måned</button>
+        <button class="secondary" id="editBtn">Ret seneste</button>
+        <button class="secondary" id="exportBtn">Eksportér backup</button>
+        <button class="secondary" id="importBtn">Importér backup</button>
+        <button class="danger" id="resetBtn">Nulstil</button>
+      </div>
+
+      <details>
+        <summary>Admin (bagved) — parametre</summary>
+
+        <div class="small" style="margin-top:8px">PIN er valgfri. Formålet er at undgå fejlklik (ikke sikkerhed).</div>
+        <div class="form" style="margin-top:10px">
+          <div class="field">
+            <label for="pin">PIN (valgfri)</label>
+            <input id="pin" inputmode="numeric" placeholder="fx 1234">
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button class="secondary" id="setPinBtn" type="button">Sæt/ændr PIN</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="ghost" id="unlockBtn" type="button">Lås op</button>
+          <button class="ghost" id="lockBtn" type="button">Lås igen</button>
+        </div>
+
+        <div id="adminPanel" style="display:none;margin-top:12px">
+
+          <div class="card" style="padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16)">
+            <div style="font-weight:1100;margin-bottom:6px">Plan</div>
+            <div class="form" style="margin-top:0">
+              <div class="field">
+                <label for="startAge">Alder nu</label>
+                <input id="startAge" inputmode="decimal" placeholder="46">
+              </div>
+              <div class="field">
+                <label for="stopAge">Stop-alder (mål)</label>
+                <input id="stopAge" inputmode="decimal" placeholder="63">
+              </div>
+              <div class="field">
+                <label for="basePmt">Base indbetaling (kr/md)</label>
+                <input id="basePmt" inputmode="numeric" placeholder="10000">
+              </div>
+              <div class="field">
+                <label for="annualReturn">Afkast p.a. (%)</label>
+                <input id="annualReturn" inputmode="decimal" placeholder="7">
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:10px;padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16)">
+            <div style="font-weight:1100;margin-bottom:6px">Udbetaling / skat</div>
+            <div class="form" style="margin-top:0">
+              <div class="field">
+                <label for="netNeed">Ønsket udbetalt (kr/md)</label>
+                <input id="netNeed" inputmode="numeric" placeholder="35000">
+              </div>
+              <div class="field">
+                <label for="withdrawFactor">Skattefaktor (salg = netto × faktor)</label>
+                <input id="withdrawFactor" inputmode="decimal" placeholder="1.30">
+              </div>
+              <div class="field">
+                <label for="aldersAge">Aldersopsparing alder</label>
+                <input id="aldersAge" inputmode="decimal" placeholder="65">
+              </div>
+              <div class="field">
+                <label for="aldersAmt">Aldersopsparing beløb (kr)</label>
+                <input id="aldersAmt" inputmode="numeric" placeholder="1000000">
+              </div>
+              <div class="field" style="grid-column:1/-1">
+                <label for="rules">Regler (vises som tekst)</label>
+                <textarea id="rules" placeholder="Eksempel: Ingen gearing normalt. Start gearing ved -30% globalt fald. Maks 20%. Afvikl ved tidligere top."></textarea>
+              </div>
+            </div>
+            <div class="small" id="adminSummary" style="margin-top:10px;line-height:1.45">–</div>
+          </div>
+
+          <div class="actions">
+            <button class="secondary" id="saveParamsBtn" type="button">Gem parametre</button>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="h1">PLAN VS. FAKTISK</div>
+    <div class="small" id="chartMeta">–</div>
+    <canvas id="chart"></canvas>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="h1">SENESTE 18 MÅNEDER</div>
+    <table>
+      <thead>
+        <tr><th>Periode</th><th>Faktisk</th><th>Plan</th><th>Afvigelse</th><th>Måneder</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="small" style="margin-top:12px">
+    iPhone: Safari → Del → “Føj til hjemmeskærm”. Data gemmes lokalt. Brug backup.
+  </div>
+</div>
+
+<input id="filePick" type="file" accept="application/json" style="display:none"/>
+
+<script>
+(function(){
+  const $ = (id)=>document.getElementById(id);
+
+  const DEFAULTS = {
+    startAge: 46,
+    stopAge: 63,
+    basePmt: 10000,
+    annualReturn: 7.0,
+    netNeed: 35000,
+    withdrawFactor: 1.30,
+    aldersAge: 65,
+    aldersAmt: 1000000,
+    rules: "Gearing: 0% normalt. Start ved -30% globalt fald. Maks 20%. Afvikl når marked er tilbage ved tidligere top.",
+    catchupMonths: 12,
+    pin: ""
+  };
+
+  const KEY_DATA = "dt_pro_v11_data";
+  const KEY_SETTINGS = "dt_pro_v11_settings";
+
+  function lsOK(){
+    try{ const t="__t__"+Date.now(); localStorage.setItem(t,"1"); localStorage.removeItem(t); return true; }catch(e){ return false; }
+  }
+  const storageTag = $("storageTag");
+  const hasLS = lsOK();
+  storageTag.textContent = hasLS ? "Storage: OK (lokalt på enheden)" : "Storage: begrænset (brug backup)";
+
+  function loadSettings(){
+    let s = {};
+    try{ s = JSON.parse(localStorage.getItem(KEY_SETTINGS) || "{}"); }catch(e){ s = {}; }
+    const out = {...DEFAULTS, ...s};
+    for(const k of ["startAge","stopAge","basePmt","annualReturn","netNeed","withdrawFactor","aldersAge","aldersAmt"]){
+      const v = Number(out[k]);
+      if(!isFinite(v)) out[k] = DEFAULTS[k];
+    }
+    if(typeof out.rules !== "string") out.rules = DEFAULTS.rules;
+    if(typeof out.pin !== "string") out.pin = "";
+    return out;
+  }
+  function saveSettings(s){
+    try{ localStorage.setItem(KEY_SETTINGS, JSON.stringify(s)); }catch(e){}
+  }
+  function loadData(){
+    try{ return JSON.parse(localStorage.getItem(KEY_DATA) || "[]"); }catch(e){ return []; }
+  }
+  function saveData(data){
+    try{ localStorage.setItem(KEY_DATA, JSON.stringify(data)); return true; }catch(e){ return false; }
+  }
+
+  function parseNum(s){
+    return Number(String(s||"").replace(/\./g,"").replace(/\s/g,"").replace(/,/g,"."));
+  }
+  function fmt(n){ if(n==null||!isFinite(n)) return "–"; return new Intl.NumberFormat("da-DK").format(Math.round(n)); }
+  function fmt1(n){ if(n==null||!isFinite(n)) return "–"; return (Math.round(n*10)/10).toLocaleString("da-DK",{minimumFractionDigits:1,maximumFractionDigits:1}); }
+  function ymNow(){ return new Date().toISOString().slice(0,7); }
+  function monthDiff(a,b){
+    const [ay,am] = a.split("-").map(Number);
+    const [by,bm] = b.split("-").map(Number);
+    return (ay-by)*12 + (am-bm);
+  }
+  function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+
+  function monthRateFromAnnualPct(pct){
+    const a = pct/100;
+    const r = Math.pow(1+a, 1/12) - 1;
+    return (isFinite(r) && r>0) ? r : 0.0000001;
+  }
+  function fvDeposits(n, pmt, r){
+    return pmt * ((Math.pow(1+r, n) - 1) / r);
+  }
+  function pvWithdrawals(monthly, n, r){
+    if(n<=0) return 0;
+    if(!isFinite(r) || Math.abs(r) < 1e-10) return monthly * n;
+    return monthly * (1 - Math.pow(1+r, -n)) / r;
+  }
+  function sortData(data){ return data.slice().sort((x,y)=> x.m < y.m ? -1 : (x.m > y.m ? 1 : 0)); }
+
+  const chart = $("chart");
+  const ctx = chart.getContext("2d");
+  function drawChart(labels, planArr, actualArr){
+    const dpr = window.devicePixelRatio || 1;
+    const rect = chart.getBoundingClientRect();
+    chart.width = Math.floor(rect.width * dpr);
+    chart.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const W = rect.width, H = rect.height;
+    ctx.clearRect(0,0,W,H);
+
+    const padL=46,padR=12,padT=16,padB=24;
+    const all = planArr.concat(actualArr).filter(x=>isFinite(x));
+    const maxY = all.length ? Math.max(...all)*1.06 : 1;
+    const minY = 0;
+
+    ctx.strokeStyle="rgba(255,255,255,.08)";
+    ctx.lineWidth=1;
+    const gridN=5;
+    for(let i=0;i<=gridN;i++){
+      const y = padT + (H-padT-padB)*(i/gridN);
+      ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+    }
+
+    ctx.fillStyle="rgba(169,183,211,.9)";
+    ctx.font="12px -apple-system, system-ui, sans-serif";
+    for(let i=0;i<=gridN;i++){
+      const val = maxY - (maxY-minY)*(i/gridN);
+      const y = padT + (H-padT-padB)*(i/gridN);
+      ctx.fillText(new Intl.NumberFormat("da-DK",{notation:"compact",maximumFractionDigits:1}).format(val), 6, y+4);
+    }
+
+    function xAt(i){
+      if(labels.length<=1) return padL;
+      return padL + (W-padL-padR) * (i/(labels.length-1));
+    }
+    function yAt(v){
+      return padT + (H-padT-padB) * (1 - (v-minY)/(maxY-minY || 1));
+    }
+    function line(arr, stroke){
+      if(arr.length<2) return;
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for(let i=0;i<arr.length;i++){
+        const x=xAt(i), y=yAt(arr[i]);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    line(planArr, "rgba(106,166,255,1)");
+    line(actualArr, "rgba(25,195,125,1)");
+
+    const lx=padL, ly=12;
+    ctx.fillStyle="rgba(106,166,255,1)"; ctx.fillRect(lx,ly,14,4);
+    ctx.fillStyle="rgba(232,238,252,.95)"; ctx.fillText("Plan", lx+20, ly+6);
+    ctx.fillStyle="rgba(25,195,125,1)"; ctx.fillRect(lx+70,ly,14,4);
+    ctx.fillStyle="rgba(232,238,252,.95)"; ctx.fillText("Faktisk", lx+90, ly+6);
+
+    if(labels.length){
+      ctx.fillStyle="rgba(169,183,211,.9)";
+      ctx.fillText(labels[0], padL, H-8);
+      ctx.fillText(labels[labels.length-1], W-padR-52, H-8);
+    }
+  }
+
+  // UI
+  const monthsAheadEl = $("monthsAhead");
+  const monthsPill = $("monthsPill");
+  const monthsSub = $("monthsSub");
+
+  const bridgeStatus = $("bridgeStatus");
+  const bridgeDetail = $("bridgeDetail");
+  const bridgeCover = $("bridgeCover");
+  const bridgeNeed = $("bridgeNeed");
+  const bridgeBar = $("bridgeBar");
+
+  const suggestedPay = $("suggestedPay");
+  const motivation = $("motivation");
+  const motivationSub = $("motivationSub");
+
+  const depValue = $("depValue");
+  const monthPick = $("monthPick");
+
+  const saveBtn = $("saveBtn");
+  const editBtn = $("editBtn");
+  const exportBtn = $("exportBtn");
+  const importBtn = $("importBtn");
+  const resetBtn = $("resetBtn");
+  const filePick = $("filePick");
+
+  const rows = $("rows");
+  const chartMeta = $("chartMeta");
+  const baselineTag = $("baselineTag");
+
+  // Admin
+  const pin = $("pin");
+  const setPinBtn = $("setPinBtn");
+  const unlockBtn = $("unlockBtn");
+  const lockBtn = $("lockBtn");
+  const adminPanel = $("adminPanel");
+  const adminSummary = $("adminSummary");
+
+  const startAge = $("startAge");
+  const stopAge = $("stopAge");
+  const basePmt = $("basePmt");
+  const annualReturn = $("annualReturn");
+  const netNeed = $("netNeed");
+  const withdrawFactor = $("withdrawFactor");
+  const aldersAge = $("aldersAge");
+  const aldersAmt = $("aldersAmt");
+  const rules = $("rules");
+  const saveParamsBtn = $("saveParamsBtn");
+
+  function setPill(kind, text){
+    monthsPill.className = "pill " + kind;
+    monthsPill.textContent = text;
+  }
+
+  function refreshAdminFields(s){
+    startAge.value = String(s.startAge);
+    stopAge.value = String(s.stopAge);
+    basePmt.value = String(Math.round(s.basePmt));
+    annualReturn.value = String(s.annualReturn);
+    netNeed.value = String(Math.round(s.netNeed));
+    withdrawFactor.value = String(s.withdrawFactor);
+    aldersAge.value = String(s.aldersAge);
+    aldersAmt.value = String(Math.round(s.aldersAmt));
+    rules.value = s.rules || "";
+
+    const gross = s.netNeed * s.withdrawFactor;
+    adminSummary.innerHTML =
+      `• Netto mål: <strong>${fmt(s.netNeed)}</strong> kr/md<br>` +
+      `• Skattefaktor: <strong>x${fmt1(s.withdrawFactor)}</strong> → salg ca. <strong>${fmt(gross)}</strong> kr/md<br>` +
+      `• Stop: <strong>${fmt1(s.stopAge)}</strong> → Alders: <strong>${fmt1(s.aldersAge)}</strong> (bro ${Math.max(0, Math.round((s.aldersAge - s.stopAge)*12))} mdr)<br>` +
+      `• Afkast: <strong>${fmt1(s.annualReturn)}%</strong> p.a. | Base indbetaling: <strong>${fmt(s.basePmt)}</strong> kr/md<br>` +
+      `• Regler: ${s.rules ? s.rules : "–"}`;
+  }
+
+  function computeAndRender(){
+    const s = loadSettings();
+    const r = monthRateFromAnnualPct(s.annualReturn);
+    const data0 = sortData(loadData());
+
+    baselineTag.textContent = `Baseline: ${fmt1(s.annualReturn)}% | ${fmt(s.netNeed)} udbetalt | x${fmt1(s.withdrawFactor)} skat`;
+
+    if(!data0.length){
+      monthsAheadEl.textContent = "–";
+      setPill("warn", "Start med første måned");
+      monthsSub.textContent = "Indtast depotværdi og tryk Gem måned.";
+      suggestedPay.textContent = fmt(s.basePmt) + " kr";
+      motivation.textContent = "Start";
+      motivationSub.textContent = "Første indtastning skaber momentum.";
+      bridgeStatus.textContent = "–";
+      bridgeDetail.textContent = "Udfyld første måned for brostatus.";
+      bridgeCover.textContent = "–";
+      bridgeNeed.textContent = "–";
+      bridgeBar.style.width = "0%";
+      chartMeta.textContent = "–";
+      rows.innerHTML = "";
+      drawChart([],[],[]);
+      return;
+    }
+
+    const startYM = data0[0].m;
+    const items = data0.map(row=>{
+      const n = monthDiff(row.m, startYM) + 1;
+      const plan = fvDeposits(n, s.basePmt, r);
+      const dev = row.v - plan;
+      const mAhead = dev / s.netNeed;
+      return {...row, n, plan, dev, mAhead};
+    });
+    const last = items[items.length-1];
+
+    monthsAheadEl.textContent = (last.mAhead>=0?"+":"") + fmt1(last.mAhead);
+    if(last.mAhead >= 1) setPill("good", "💚 Foran planen");
+    else if(last.mAhead >= -1) setPill("warn", "🟡 Tæt på");
+    else setPill("warn", "🟡 Bagud (justér roligt)");
+    monthsSub.textContent = `Senest: ${last.m}. Afvigelse: ${fmt(last.dev)} kr vs plan.`;
+
+    let suggest = s.basePmt - (last.dev / s.catchupMonths);
+    suggest = Math.max(0, suggest);
+    suggestedPay.textContent = fmt(suggest) + " kr";
+
+    // streak
+    let streak = 1;
+    for(let i=items.length-1;i>0;i--){
+      if(monthDiff(items[i].m, items[i-1].m)===1) streak++;
+      else break;
+    }
+    motivation.textContent = `${streak} måned${streak===1?"":"er"} i træk`;
+    motivationSub.textContent = last.mAhead >= 0 ? "Hold kurs. Det kedelige vinder." : "Små justeringer nu slår store beslutninger senere.";
+
+    const bridgeMonthsNeed = Math.max(0, Math.round((s.aldersAge - s.stopAge)*12));
+    const grossNeed = s.netNeed * s.withdrawFactor;
+    const pvNeed = pvWithdrawals(grossNeed, bridgeMonthsNeed, r);
+
+    const monthsToStop = Math.max(0, Math.round((s.stopAge - s.startAge)*12));
+    const planAtStop = fvDeposits(monthsToStop, s.basePmt, r);
+
+    const coverMonths = (grossNeed>0) ? (planAtStop / grossNeed) : 0;
+    const coverPct = bridgeMonthsNeed>0 ? clamp(coverMonths / bridgeMonthsNeed, 0, 2) : 1;
+
+    bridgeCover.textContent = fmt1(coverMonths);
+    bridgeNeed.textContent = fmt1(bridgeMonthsNeed);
+    bridgeBar.style.width = (clamp(coverPct,0,1)*100).toFixed(1) + "%";
+
+    const gap = planAtStop - pvNeed;
+    if(bridgeMonthsNeed===0){
+      bridgeStatus.textContent = "✅ Ingen bro nødvendig";
+      bridgeDetail.textContent = `Aldersopsparing ved ${fmt1(s.aldersAge)}: ${fmt(s.aldersAmt)} kr.`;
+    }else if(gap >= 0){
+      bridgeStatus.textContent = "💚 Bro dækket";
+      bridgeDetail.innerHTML = `Stop ~${fmt1(s.stopAge)} → Alders ${fmt1(s.aldersAge)} (${bridgeMonthsNeed} mdr). Salg/måned ~${fmt(grossNeed)} (for ${fmt(s.netNeed)} udbetalt). Buffer ~${fmt(gap)} kr (PV).`;
+    }else{
+      bridgeStatus.textContent = "🟡 Bro mangler";
+      bridgeDetail.innerHTML = `Stop ~${fmt1(s.stopAge)} → Alders ${fmt1(s.aldersAge)} (${bridgeMonthsNeed} mdr). Salg/måned ~${fmt(grossNeed)}. Mangler ~${fmt(-gap)} kr (PV).`;
+    }
+
+    chartMeta.textContent = `${fmt1(s.annualReturn)}% p.a. | Base ${fmt(s.basePmt)} kr/md | Stop ${fmt1(s.stopAge)} | Alders ${fmt1(s.aldersAge)} | x${fmt1(s.withdrawFactor)} skat`;
+    drawChart(items.map(x=>x.m), items.map(x=>x.plan), items.map(x=>x.v));
+
+    const tail = items.slice(-18).reverse();
+    rows.innerHTML = tail.map(rw=>{
+      const sign = rw.mAhead>=0 ? "+" : "";
+      return `<tr>
+        <td>${rw.m}</td>
+        <td>${fmt(rw.v)}</td>
+        <td>${fmt(rw.plan)}</td>
+        <td>${fmt(rw.dev)}</td>
+        <td>${sign}${fmt1(rw.mAhead)}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  function upsertMonth(m, v){
+    const data = loadData();
+    const idx = data.findIndex(x=>x.m===m);
+    const row = {m, v};
+    if(idx>=0) data[idx]=row; else data.push(row);
+    return saveData(data);
+  }
+
+  saveBtn.addEventListener("click", ()=>{
+    const m = monthPick.value || ymNow();
+    const v = parseNum(depValue.value);
+    if(!m || !isFinite(v) || v<=0){
+      alert("Indtast depotværdi (tal). Måned er valgfri.");
+      return;
+    }
+    const ok = upsertMonth(m, v);
+    depValue.value=""; monthPick.value="";
+    computeAndRender();
+    if(!ok) alert("Lagring blokeret. Brug Eksportér backup.");
+  });
+
+  editBtn.addEventListener("click", ()=>{
+    const data = sortData(loadData());
+    if(!data.length){ alert("Ingen data endnu."); return; }
+    const last = data[data.length-1];
+    monthPick.value = last.m;
+    depValue.value = String(last.v);
+    depValue.focus();
+  });
+
+  exportBtn.addEventListener("click", ()=>{
+    const payload = {version:11, settings:loadSettings(), data:loadData()};
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "depottracker-pro-v11-backup.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  importBtn.addEventListener("click", ()=> filePick.click());
+  filePick.addEventListener("change", async ()=>{
+    const file = filePick.files[0];
+    if(!file) return;
+    const text = await file.text();
+    try{
+      const obj = JSON.parse(text);
+      if(!obj || !Array.isArray(obj.data)) throw new Error("bad");
+      if(obj.settings) saveSettings({...loadSettings(), ...obj.settings});
+      const cur = loadData();
+      const map = new Map(cur.map(x=>[x.m, x.v]));
+      for(const r of obj.data){
+        if(r && typeof r.m==="string" && isFinite(r.v)) map.set(r.m, r.v);
+      }
+      saveData(Array.from(map.entries()).map(([m,v])=>({m,v})));
+      filePick.value="";
+      computeAndRender();
+    }catch(e){
+      alert("Forkert backup-format.");
+    }
+  });
+
+  resetBtn.addEventListener("click", ()=>{
+    if(confirm("Nulstil alt?")){
+      localStorage.removeItem(KEY_DATA);
+      localStorage.removeItem(KEY_SETTINGS);
+      computeAndRender();
+    }
+  });
+
+  function unlock(){
+    adminPanel.style.display = "block";
+    const s = loadSettings();
+    refreshAdminFields(s);
+  }
+  function lock(){ adminPanel.style.display = "none"; }
+
+  setPinBtn.addEventListener("click", ()=>{
+    const s = loadSettings();
+    const p = String(pin.value||"").trim();
+    s.pin = p;
+    saveSettings(s);
+    alert(p ? "PIN sat." : "PIN fjernet.");
+    pin.value = "";
+  });
+
+  unlockBtn.addEventListener("click", ()=>{
+    const s = loadSettings();
+    if(!s.pin){ unlock(); return; }
+    const p = String(pin.value||"").trim();
+    if(p === s.pin){ pin.value=""; unlock(); }
+    else alert("Forkert PIN.");
+  });
+
+  lockBtn.addEventListener("click", ()=> lock());
+
+  saveParamsBtn.addEventListener("click", ()=>{
+    const s = loadSettings();
+
+    const vStart = parseNum(startAge.value);
+    const vStop = parseNum(stopAge.value);
+    const vBase = parseNum(basePmt.value);
+    const vRet = parseNum(annualReturn.value);
+    const vNet = parseNum(netNeed.value);
+    const vWF = parseNum(withdrawFactor.value);
+    const vAage = parseNum(aldersAge.value);
+    const vAamt = parseNum(aldersAmt.value);
+
+    if(isFinite(vStart) && vStart>0) s.startAge = vStart;
+    if(isFinite(vStop) && vStop>0) s.stopAge = vStop;
+    if(isFinite(vBase) && vBase>=0) s.basePmt = vBase;
+    if(isFinite(vRet)) s.annualReturn = vRet;
+    if(isFinite(vNet) && vNet>0) s.netNeed = vNet;
+    if(isFinite(vWF) && vWF>0) s.withdrawFactor = vWF;
+    if(isFinite(vAage) && vAage>0) s.aldersAge = vAage;
+    if(isFinite(vAamt) && vAamt>=0) s.aldersAmt = vAamt;
+
+    s.rules = String(rules.value||"").trim();
+
+    saveSettings(s);
+    refreshAdminFields(s);
+    computeAndRender();
+    alert("Parametre gemt.");
+  });
+
+  window.addEventListener("resize", ()=> computeAndRender());
+
+  // boot
+  computeAndRender();
+})();
+</script>
+</body>
+</html>
