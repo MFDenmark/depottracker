@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DepotTracker FIRE PRO v17 (Monte Carlo)</title>
+<style>
+  :root{
+    --bg:#0b1220; --card:#111a2b; --line:#2a3650; --text:#e8eefc; --muted:#a9b7d3;
+    --red:#ff4d4f; --yellow:#f7b500; --green:#19c37d; --accent:#6aa6ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(900px 450px at 10% 0%, rgba(106,166,255,.18), transparent 60%),
+      radial-gradient(800px 420px at 90% 5%, rgba(25,195,125,.14), transparent 60%), var(--bg);color:var(--text)}
+  .wrap{max-width:980px;margin:0 auto;padding:14px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+        border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:14px;margin-bottom:12px}
+  .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .small{color:var(--muted);font-size:13px;line-height:1.35}
+  .signal{
+    padding:14px;border-radius:16px;font-weight:1100;display:block;
+    border:1px solid rgba(255,255,255,.10)
+  }
+  .sigRed{background:rgba(255,77,79,.12);color:#ffd2d2;border-color:rgba(255,77,79,.25)}
+  .sigYel{background:rgba(247,181,0,.12);color:#ffe7a3;border-color:rgba(247,181,0,.25)}
+  .sigGre{background:rgba(25,195,125,.12);color:#b7ffd8;border-color:rgba(25,195,125,.25)}
+  .kpi{font-size:38px;font-weight:1100;line-height:1.05}
+  .kpi2{font-size:18px;font-weight:1000}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  button, input, select, textarea{
+    width:100%;padding:11px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+    background:rgba(0,0,0,.18);color:var(--text);font-weight:1000;outline:none
+  }
+  button{cursor:pointer;background:linear-gradient(180deg, var(--accent), rgba(106,166,255,.78));border:0;color:#071021}
+  button.secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.14)}
+  button.ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.14)}
+  button.danger{background:rgba(255,77,79,.12);color:#ffd2d2;border:1px solid rgba(255,77,79,.25)}
+  .chip{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);
+    background:rgba(0,0,0,.16);font-weight:1100;cursor:pointer; user-select:none;
+    min-width:72px;
+  }
+  .chip.on{border-color:rgba(106,166,255,.75);box-shadow:0 10px 24px rgba(106,166,255,.18)}
+  label{display:block;font-size:12px;color:var(--muted);font-weight:1000;margin-bottom:6px}
+  details{margin-top:10px}
+  summary{cursor:pointer;font-weight:1100}
+  .divider{height:1px;background:rgba(255,255,255,.10);margin:10px 0}
+  .pill{display:inline-block;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.12);font-weight:1000}
+  .mono{font-feature-settings:"tnum" 1, "lnum" 1}
+  .spin{display:inline-block;width:14px;height:14px;border-radius:999px;border:2px solid rgba(255,255,255,.25);border-top-color:rgba(106,166,255,1);animation:sp 1s linear infinite;vertical-align:-2px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="grid">
+    <div class="card">
+      <div id="fireSignal" class="signal sigYel">🟡 TÆT PÅ</div>
+      <div class="small" id="fireReason" style="margin-top:8px">—</div>
+
+      <div class="divider"></div>
+
+      <div class="small">Hurtigvalg: forventet afkast (opsparing)</div>
+      <div class="btnrow" style="margin-top:8px">
+        <div class="chip" data-mu="6">6%</div>
+        <div class="chip" data-mu="7">7%</div>
+        <div class="chip on" data-mu="8">8%</div>
+        <div class="chip" data-mu="9">9%</div>
+      </div>
+      <div class="small" style="margin-top:8px">Tryk → gemmer og genberegner (Monte Carlo). <span id="calcState"></span></div>
+
+      <div class="divider"></div>
+
+      <div class="small">🎯 Realistisk frihed (80% sandsynlighed)</div>
+      <div class="kpi" id="fireDate80">—</div>
+      <div class="kpi2" id="fireAge80">—</div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div style="flex:1 1 220px">
+          <div class="small">📊 Interval (20% / 50% / 80%)</div>
+          <div class="pill mono" id="interval">—</div>
+        </div>
+        <div style="flex:1 1 220px">
+          <div class="small">💰 Effekt af ±<span id="deltaLbl">2.000</span> kr/md</div>
+          <div class="pill mono" id="deltaEff">—</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div style="flex:1 1 220px">
+          <div class="small">📈 Måneder foran/bagud (mod “median-path” plan)</div>
+          <div class="kpi2 mono" id="monthsAhead">—</div>
+        </div>
+        <div style="flex:1 1 220px">
+          <div class="small">🧭 Tid til realistisk mål (80%)</div>
+          <div class="kpi2 mono" id="timeToGoal">—</div>
+        </div>
+      </div>
+
+      <div class="small" style="margin-top:10px" id="motivationTxt">—</div>
+    </div>
+
+    <div class="card">
+      <div class="small" style="font-weight:1100">Månedlig opdatering</div>
+      <div class="row" style="margin-top:10px">
+        <div style="flex:1 1 220px">
+          <label for="dep">Depotværdi (kr)</label>
+          <input id="dep" inputmode="numeric" placeholder="fx 325000">
+        </div>
+        <div style="flex:1 1 220px">
+          <label for="ym">Måned (YYYY-MM)</label>
+          <input id="ym" type="month">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div style="flex:1 1 220px"><button id="save">Gem måned</button></div>
+        <div style="flex:1 1 220px"><button class="secondary" id="edit">Ret seneste</button></div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div style="flex:1 1 220px"><button class="secondary" id="export">Eksportér backup</button></div>
+        <div style="flex:1 1 220px"><button class="secondary" id="import">Importér backup</button></div>
+      </div>
+
+      <div style="margin-top:10px">
+        <button class="danger" id="reset">Nulstil</button>
+      </div>
+
+      <div class="small" style="margin-top:10px">Data gemmes lokalt i browser. Brug backup 1×/måned.</div>
+
+      <details>
+        <summary>Admin (bagved) — forudfyldt baseline</summary>
+        <div class="small" style="margin-top:8px">
+          Forsiden er for din kone. Her ændrer du antagelser og scenarier.
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div style="flex:1 1 180px">
+            <label for="ageNow">Alder nu</label>
+            <input id="ageNow" inputmode="decimal" value="46">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="stopAge">Mål-alder</label>
+            <input id="stopAge" inputmode="decimal" value="62">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="startBalance">Startsaldo (kr)</label>
+            <input id="startBalance" inputmode="numeric" value="0">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="pmt">Indbetaling (kr/md)</label>
+            <input id="pmt" inputmode="numeric" value="10000">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="delta">Test ændring (kr/md)</label>
+            <input id="delta" inputmode="numeric" value="2000">
+          </div>
+
+          <div style="flex:1 1 180px">
+            <label for="needNet">Udbetalt mål (kr/md) i bridge</label>
+            <input id="needNet" inputmode="numeric" value="35000">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="taxFactor">Skattefaktor (salg = netto × faktor)</label>
+            <input id="taxFactor" inputmode="decimal" value="1,30">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="retWith">Afkast under udbetaling (% p.a.)</label>
+            <input id="retWith" inputmode="decimal" value="3">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="aldAge">Aldersopsparing (alder)</label>
+            <input id="aldAge" inputmode="decimal" value="65">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="aldAmt">Aldersopsparing beløb (kr)</label>
+            <input id="aldAmt" inputmode="numeric" value="1000000">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="bufferMonths">Sikkerhedsbuffer (mdr)</label>
+            <input id="bufferMonths" inputmode="numeric" value="12">
+          </div>
+
+          <div style="flex:1 1 180px">
+            <label for="sigma">Volatilitet (% p.a.)</label>
+            <input id="sigma" inputmode="decimal" value="15">
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="paths">Simuleringer (paths)</label>
+            <select id="paths">
+              <option value="800">800</option>
+              <option value="1500" selected>1500 (standard)</option>
+              <option value="2500">2500 (tungere)</option>
+            </select>
+          </div>
+          <div style="flex:1 1 180px">
+            <label for="seed">Seed (stabilitet)</label>
+            <input id="seed" inputmode="numeric" value="12345">
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div style="flex:1 1 220px"><button class="secondary" id="saveParams">Gem parametre</button></div>
+        </div>
+
+        <div class="small" style="margin-top:10px" id="adminSummary">—</div>
+        <div class="small" style="margin-top:8px">
+          Note: Monte Carlo bruger en simpel lognormal model med mu/sigma. Det er ikke en garanti; det er en risikomodel.
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<input id="filePick" type="file" accept="application/json" style="display:none"/>
+
+<script>
+(function(){
+  const K = "dt_fire_pro_v17";
+  const KLEGACY = ["dt_fire_pro_v14","dt_fire_pro_v15_localeFix","dt_fire_pro_v16_QUICK_6-9"];
+  const $ = (id)=>document.getElementById(id);
+
+  function nowYM(){ return new Date().toISOString().slice(0,7); }
+
+  // locale-tolerant number parser
+  // Accepts:
+  // - "1,30" / "1.30"
+  // - "1.000.000" / "1,000,000"
+  // - "1.000.000,50" / "1,000,000.50"
+  function parseNumLocale(s, d){
+    if(s===null || s===undefined) return d;
+    let t = String(s).trim().replace(/\s/g,"");
+    if(!t) return d;
+    const hasComma = t.includes(",");
+    const hasDot = t.includes(".");
+    if(hasComma && hasDot){
+      // treat last separator as decimal, others as thousands
+      const lastComma = t.lastIndexOf(",");
+      const lastDot = t.lastIndexOf(".");
+      const decPos = Math.max(lastComma, lastDot);
+      const decSep = t[decPos];
+      const intPart = t.slice(0, decPos).replace(/[.,]/g,"");
+      const decPart = t.slice(decPos+1).replace(/[.,]/g,"");
+      t = intPart + "." + decPart;
+    }else if(hasComma){
+      // Danish style: 1.234.567,89 OR simple 1,30
+      const parts = t.split(",");
+      if(parts.length===2){
+        const intPart = parts[0].replace(/\./g,"");
+        t = intPart + "." + parts[1];
+      }else{
+        t = t.replace(/\./g,"");
+      }
+    }else{
+      // dots only: could be thousands or decimal; assume dot decimal if only one dot and <=2 decimals
+      const dots = (t.match(/\./g)||[]).length;
+      if(dots>=2){
+        t = t.replace(/\./g,"");
+      }
+    }
+    const v = Number(t);
+    return (isFinite(v) ? v : d);
+  }
+
+  function fmt(n){ if(!isFinite(n)) return "–"; return new Intl.NumberFormat("da-DK").format(Math.round(n)); }
+  function fmt1(n){ if(!isFinite(n)) return "–"; return (Math.round(n*10)/10).toLocaleString("da-DK",{minimumFractionDigits:1,maximumFractionDigits:1}); }
+  function ymAdd(ym, m){
+    const [y,mo] = ym.split("-").map(Number);
+    const t = (y*12 + (mo-1)) + Math.round(m);
+    const ny = Math.floor(t/12);
+    const nm = (t%12)+1;
+    return `${ny}-${String(nm).padStart(2,"0")}`;
+  }
+  function ymPretty(ym){
+    const months = ["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"];
+    const [y,m] = ym.split("-").map(Number);
+    return `${months[m-1]} ${y}`;
+  }
+  function rMon(pct){
+    const a = pct/100;
+    const r = Math.pow(1+a, 1/12) - 1;
+    return (isFinite(r) ? r : 0);
+  }
+  function fvDeposits(n, pmt, r){
+    if(n<=0) return 0;
+    if(Math.abs(r) < 1e-10) return pmt*n;
+    return pmt * ((Math.pow(1+r, n) - 1) / r);
+  }
+  function pvWithdrawals(monthly, n, r){
+    if(n<=0) return 0;
+    if(Math.abs(r) < 1e-10) return monthly*n;
+    return monthly * (1 - Math.pow(1+r, -n)) / r;
+  }
+  function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+
+  // PRNG: mulberry32
+  function mulberry32(seed){
+    let a = seed >>> 0;
+    return function(){
+      a += 0x6D2B79F5;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+  }
+  // Standard normal via Box-Muller
+  function randn(rng){
+    let u=0,v=0;
+    while(u===0) u = rng();
+    while(v===0) v = rng();
+    return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  }
+
+  function load(){
+    try{ return JSON.parse(localStorage.getItem(K)) || {data:[], s:{}}; }
+    catch(e){ return {data:[], s:{}}; }
+  }
+  function save(obj){
+    localStorage.setItem(K, JSON.stringify(obj));
+  }
+
+  function migrateIfNeeded(){
+    const cur = localStorage.getItem(K);
+    if(cur) return;
+    for(const key of KLEGACY){
+      const legacy = localStorage.getItem(key);
+      if(!legacy) continue;
+      try{
+        const obj = JSON.parse(legacy);
+        if(obj && Array.isArray(obj.data)){
+          // best-effort migrate
+          const s = obj.s || obj.settings || {};
+          save({data: obj.data, s});
+          return;
+        }
+      }catch(e){}
+    }
+  }
+
+  function getSettings(){
+    const o = load();
+    const s0 = o.s || {};
+    // Baseline defaults filled from your answers: 46-62, 0 start, 10k, 8% default
+    return {
+      ageNow: parseNumLocale(s0.ageNow, 46),
+      stopAge: parseNumLocale(s0.stopAge, 62),
+      startBalance: parseNumLocale(s0.startBalance, 0),
+      pmt: parseNumLocale(s0.pmt, 10000),
+      delta: parseNumLocale(s0.delta, 2000),
+      needNet: parseNumLocale(s0.needNet, 35000),
+      taxFactor: parseNumLocale(s0.taxFactor, 1.30),
+      retSave: parseNumLocale(s0.retSave, 8),   // controlled by quick chips too
+      retWith: parseNumLocale(s0.retWith, 3),
+      aldAge: parseNumLocale(s0.aldAge, 65),
+      aldAmt: parseNumLocale(s0.aldAmt, 1000000),
+      bufferMonths: Math.max(0, Math.round(parseNumLocale(s0.bufferMonths, 12))),
+      sigma: parseNumLocale(s0.sigma, 15),
+      paths: Math.round(parseNumLocale(s0.paths, 1500)),
+      seed: Math.round(parseNumLocale(s0.seed, 12345)),
+    };
+  }
+
+  function setAdminFields(s){
+    $("ageNow").value = String(s.ageNow);
+    $("stopAge").value = String(s.stopAge);
+    $("startBalance").value = String(Math.round(s.startBalance));
+    $("pmt").value = String(Math.round(s.pmt));
+    $("delta").value = String(Math.round(s.delta));
+    $("needNet").value = String(Math.round(s.needNet));
+    $("taxFactor").value = String(s.taxFactor).replace(".",",");
+    $("retWith").value = String(s.retWith);
+    $("aldAge").value = String(s.aldAge);
+    $("aldAmt").value = String(Math.round(s.aldAmt));
+    $("bufferMonths").value = String(Math.round(s.bufferMonths));
+    $("sigma").value = String(s.sigma);
+    $("paths").value = String(clamp(s.paths, 200, 8000));
+    $("seed").value = String(s.seed);
+  }
+
+  function setChips(mu){
+    document.querySelectorAll(".chip[data-mu]").forEach(ch=>{
+      const v = Number(ch.getAttribute("data-mu"));
+      ch.classList.toggle("on", v===mu);
+    });
+  }
+
+  // Determine required capital at retirement age (depends on bridge length + buffer)
+  function requiredCapitalAtAge(ageAtRet, s){
+    const rW = rMon(s.retWith);
+    const bridgeMonths = Math.max(0, Math.round((s.aldAge - ageAtRet)*12));
+    const neededMonths = bridgeMonths + s.bufferMonths;
+    const grossMonthly = s.needNet * s.taxFactor;
+    const pvNeed = pvWithdrawals(grossMonthly, neededMonths, rW);
+    return {pvNeed, bridgeMonths, neededMonths, grossMonthly};
+  }
+
+  // Monte Carlo: simulate accumulation from current point until threshold met, record month.
+  // Returns array of months-to-FIRE for each path (clipped to maxMonths).
+  function mcMonthsToFire(currentValue, s, muPct, sigmaPct){
+    const monthsHorizon = Math.max(0, Math.round((s.stopAge - s.ageNow)*12));
+    const maxMonths = Math.max(monthsHorizon, 12*50);
+    const rng = mulberry32(s.seed ^ (muPct*1000) ^ (sigmaPct*100));
+    const mu = muPct/100;
+    const sigma = Math.max(0, sigmaPct/100);
+    const dt = 1/12;
+    // lognormal monthly return: exp((mu - 0.5*sigma^2)*dt + sigma*sqrt(dt)*Z) - 1
+    const drift = (mu - 0.5*sigma*sigma)*dt;
+    const vol = sigma*Math.sqrt(dt);
+
+    const paths = clamp(s.paths, 200, 8000);
+    const out = new Array(paths);
+
+    for(let p=0;p<paths;p++){
+      let v = currentValue;
+      let t=0;
+      for(t=0;t<=maxMonths;t++){
+        const ageAtRet = s.ageNow + t/12;
+        const req = requiredCapitalAtAge(ageAtRet, s).pvNeed;
+        if(v >= req){
+          out[p]=t;
+          break;
+        }
+        // advance one month of saving
+        const z = randn(rng);
+        const mret = Math.exp(drift + vol*z) - 1;
+        v = v * (1 + mret) + s.pmt;
+      }
+      if(out[p]===undefined) out[p]=maxMonths;
+    }
+    return out;
+  }
+
+  function percentile(arr, q){
+    if(!arr.length) return NaN;
+    const a = arr.slice().sort((x,y)=>x-y);
+    const pos = (a.length-1)*q;
+    const lo = Math.floor(pos), hi = Math.ceil(pos);
+    if(lo===hi) return a[lo];
+    return a[lo] + (a[hi]-a[lo])*(pos-lo);
+  }
+
+  function estimateDeltaEffect(currentValue, s, muPct, sigmaPct){
+    // reuse same seed but change pmt; compute 80% months for plus/minus
+    const delta = Math.round(s.delta);
+    const sPlus = {...s, pmt: s.pmt + delta};
+    const sMinus = {...s, pmt: Math.max(0, s.pmt - delta)};
+    const baseSeed = s.seed;
+    const plusArr = mcMonthsToFire(currentValue, {...sPlus, seed: baseSeed+101}, muPct, sigmaPct);
+    const minusArr = mcMonthsToFire(currentValue, {...sMinus, seed: baseSeed+202}, muPct, sigmaPct);
+    const p80_plus = percentile(plusArr, 0.80);
+    const p80_minus = percentile(minusArr, 0.80);
+    return {p80_plus, p80_minus};
+  }
+
+  let calcTimer = null;
+
+  function render(){
+    migrateIfNeeded();
+    const o = load();
+    const s = getSettings();
+    setAdminFields(s);
+    setChips(Math.round(s.retSave));
+
+    const data = (o.data||[]).slice().sort((a,b)=>a.m.localeCompare(b.m));
+
+    // Determine currentValue: if there is data use latest, else use startBalance
+    const currentValue = data.length ? parseNumLocale(data[data.length-1].v, s.startBalance) : s.startBalance;
+    const currentYM = data.length ? data[data.length-1].m : nowYM();
+
+    // months ahead/bagud vs median-path plan (deterministic with mu=retSave)
+    const rMed = rMon(s.retSave);
+    const n = data.length ? data.length : 0;
+    const plan = (n>0) ? fvDeposits(n, s.pmt, rMed) : 0;
+    const dev = currentValue - plan;
+    const gross = s.needNet * s.taxFactor;
+    const monthsAhead = (gross>0 && n>0) ? (dev / gross) : 0;
+    $("monthsAhead").textContent = (n>0) ? `${monthsAhead>=0?"+":""}${fmt1(monthsAhead)} mdr` : "—";
+
+    $("motivationTxt").textContent = (n>0)
+      ? (monthsAhead>=0 ? "Du er foran den mekaniske plan. Fortsæt uden at ændre strategi." : "Du er bag plan. Stabilitet og små justeringer slår timing.")
+      : "Start med første måned. Derefter giver appen realistisk FIRE-dato (80%) og interval.";
+
+    // admin summary
+    $("adminSummary").innerHTML =
+      `• Alder: <b>${fmt1(s.ageNow)}</b> → <b>${fmt1(s.stopAge)}</b> | Indbetaling: <b>${fmt(s.pmt)}</b> kr/md | Startsaldo: <b>${fmt(s.startBalance)}</b><br>` +
+      `• Afkast (opsparing): <b>${fmt1(s.retSave)}%</b> p.a. | Volatilitet: <b>${fmt1(s.sigma)}%</b> p.a. | Paths: <b>${fmt(s.paths)}</b><br>` +
+      `• Bridge: Netto <b>${fmt(s.needNet)}</b> kr/md | faktor <b>x${fmt1(s.taxFactor)}</b> → brutto <b>${fmt(gross)}</b> kr/md | udbetalingsafkast <b>${fmt1(s.retWith)}%</b><br>` +
+      `• Aldersopsparing: <b>${fmt(s.aldAmt)}</b> kr ved <b>${fmt1(s.aldAge)}</b> | buffer: <b>${fmt(s.bufferMonths)}</b> mdr`;
+
+    // calculate Monte Carlo asynchronously-ish (setTimeout) to keep UI responsive
+    $("calcState").innerHTML = `<span class="spin"></span> beregner…`;
+    if(calcTimer) clearTimeout(calcTimer);
+    calcTimer = setTimeout(()=>{
+      const mu = Math.round(s.retSave);
+      const arr = mcMonthsToFire(currentValue, s, mu, s.sigma);
+      const p20 = percentile(arr, 0.20);
+      const p50 = percentile(arr, 0.50);
+      const p80 = percentile(arr, 0.80);
+
+      const fireYM80 = ymAdd(currentYM, p80);
+      const fireYM20 = ymAdd(currentYM, p20);
+      const fireYM50 = ymAdd(currentYM, p50);
+
+      $("fireDate80").textContent = isFinite(p80) ? ymPretty(fireYM80) : "—";
+      $("fireAge80").textContent = isFinite(p80) ? `Alder ca. ${fmt1(s.ageNow + p80/12)} år` : "—";
+      $("interval").textContent = (isFinite(p20)&&isFinite(p50)&&isFinite(p80))
+        ? `${ymPretty(fireYM20)} / ${ymPretty(fireYM50)} / ${ymPretty(fireYM80)}`
+        : "—";
+
+      // delta effect
+      $("deltaLbl").textContent = fmt(s.delta);
+      const de = estimateDeltaEffect(currentValue, s, mu, s.sigma);
+      if(isFinite(de.p80_plus) && isFinite(de.p80_minus)){
+        const diff = Math.round(de.p80_minus - de.p80_plus);
+        $("deltaEff").textContent = `${Math.max(0, Math.round(diff/2))} mdr (typisk på 80%)`;
+      }else{
+        $("deltaEff").textContent = "—";
+      }
+
+      // time to goal
+      if(isFinite(p80)){
+        const y = Math.floor(p80/12);
+        const m = Math.round(p80%12);
+        $("timeToGoal").textContent = `${y} år ${m} mdr`;
+      }else{
+        $("timeToGoal").textContent = "—";
+      }
+
+      // FIRE signal relative to now with buffer rule:
+      // green if p80 == 0 (already meets requirement)
+      // yellow if p80 <= bufferMonths (within buffer window)
+      // red otherwise
+      const sig = $("fireSignal");
+      const reason = $("fireReason");
+      if(!isFinite(p80)){
+        sig.className = "signal sigRed";
+        sig.textContent = "🔴 IKKE ENDNU";
+        reason.textContent = "Beregning fejlede (check parametre).";
+      }else if(p80 <= 0){
+        sig.className = "signal sigGre";
+        sig.textContent = "🟢 KLAR";
+        reason.textContent = `80% scenarie opfylder bro + ${s.bufferMonths} mdr buffer nu (model).`;
+      }else if(p80 <= s.bufferMonths){
+        sig.className = "signal sigYel";
+        sig.textContent = "🟡 TÆT PÅ";
+        reason.textContent = `80% scenarie er indenfor ${s.bufferMonths} mdr.`;
+      }else{
+        sig.className = "signal sigRed";
+        sig.textContent = "🔴 IKKE ENDNU";
+        reason.textContent = `Realistisk (80%) peger på ${ymPretty(fireYM80)}.`;
+      }
+
+      $("calcState").textContent = "klar";
+    }, 40);
+  }
+
+  function upsert(m, v){
+    const o = load();
+    o.data = o.data || [];
+    const i = o.data.findIndex(x=>x.m===m);
+    if(i>=0) o.data[i] = {m, v};
+    else o.data.push({m, v});
+    save(o);
+  }
+
+  function setMu(mu){
+    const o = load();
+    o.s = o.s || {};
+    o.s.retSave = mu;
+    save(o);
+    render();
+  }
+
+  // events
+  document.querySelectorAll(".chip[data-mu]").forEach(ch=>{
+    ch.addEventListener("click", ()=>{
+      const mu = Number(ch.getAttribute("data-mu"));
+      setMu(mu);
+    });
+  });
+
+  $("save").addEventListener("click", ()=>{
+    const v = parseNumLocale($("dep").value, NaN);
+    const m = $("ym").value || nowYM();
+    if(!isFinite(v) || v<=0){ alert("Indtast depotværdi (tal)."); return; }
+    upsert(m, v);
+    $("dep").value=""; $("ym").value="";
+    render();
+  });
+
+  $("edit").addEventListener("click", ()=>{
+    const o = load();
+    const data = (o.data||[]).slice().sort((a,b)=>a.m.localeCompare(b.m));
+    if(!data.length){ alert("Ingen data endnu."); return; }
+    const last = data[data.length-1];
+    $("ym").value = last.m;
+    $("dep").value = String(last.v);
+    $("dep").focus();
+  });
+
+  $("export").addEventListener("click", ()=>{
+    const o = load();
+    const blob = new Blob([JSON.stringify({version:17, ...o}, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "depottracker-fire-pro-v17-backup.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  $("import").addEventListener("click", ()=> $("filePick").click());
+  $("filePick").addEventListener("change", async ()=>{
+    const f = $("filePick").files[0];
+    if(!f) return;
+    const txt = await f.text();
+    try{
+      const obj = JSON.parse(txt);
+      if(!obj || !Array.isArray(obj.data)) throw new Error("bad");
+      save({data: obj.data, s: obj.s || {}});
+      $("filePick").value="";
+      render();
+    }catch(e){
+      alert("Backup-format ikke genkendt.");
+    }
+  });
+
+  $("reset").addEventListener("click", ()=>{
+    if(confirm("Nulstil alt?")){
+      localStorage.removeItem(K);
+      render();
+    }
+  });
+
+  $("saveParams").addEventListener("click", ()=>{
+    const o = load();
+    o.s = {
+      ageNow: parseNumLocale($("ageNow").value, 46),
+      stopAge: parseNumLocale($("stopAge").value, 62),
+      startBalance: parseNumLocale($("startBalance").value, 0),
+      pmt: parseNumLocale($("pmt").value, 10000),
+      delta: parseNumLocale($("delta").value, 2000),
+      needNet: parseNumLocale($("needNet").value, 35000),
+      taxFactor: parseNumLocale($("taxFactor").value, 1.30),
+      retSave: parseNumLocale(load().s?.retSave ?? 8, 8), // keep quick-chip setting
+      retWith: parseNumLocale($("retWith").value, 3),
+      aldAge: parseNumLocale($("aldAge").value, 65),
+      aldAmt: parseNumLocale($("aldAmt").value, 1000000),
+      bufferMonths: Math.max(0, Math.round(parseNumLocale($("bufferMonths").value, 12))),
+      sigma: parseNumLocale($("sigma").value, 15),
+      paths: Math.round(parseNumLocale($("paths").value, 1500)),
+      seed: Math.round(parseNumLocale($("seed").value, 12345)),
+    };
+    save(o);
+    alert("Parametre gemt.");
+    render();
+  });
+
+  migrateIfNeeded();
+  render();
+})();
+</script>
+</body>
+</html>
