@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Freedom Engine PRO v21</title>
+<style>
+:root{
+ --bg:#0a111f;--card:#111a2b;--line:#2a3650;--text:#eaf0ff;--muted:#9fb0d0;
+ --green:#19c37d;--yellow:#f7b500;--red:#ff5a66;--accent:#7aa8ff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);
+background:
+ radial-gradient(800px 400px at 50% -10%, rgba(122,168,255,.18), transparent 60%),
+ var(--bg);}
+.wrap{max-width:1080px;margin:0 auto;padding:14px}
+.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+@media(max-width:950px){.grid{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+ border:1px solid var(--line);border-radius:16px;padding:14px}
+.hero{border:1px solid rgba(122,168,255,.35);border-radius:14px;padding:14px;
+ background:radial-gradient(360px 180px at 50% 0%, rgba(122,168,255,.18), transparent 70%)}
+.small{color:var(--muted);font-size:13px}
+.big{font-size:44px;font-weight:900;line-height:1.05}
+.mid{font-size:20px;font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.kbox{flex:1 1 180px;background:#0f1728;border:1px solid var(--line);border-radius:12px;padding:10px}
+.signal{display:inline-block;padding:7px 10px;border-radius:999px;font-weight:900}
+.g{background:rgba(25,195,125,.16);color:#b8ffdd;border:1px solid rgba(25,195,125,.35)}
+.y{background:rgba(247,181,0,.16);color:#ffe8ad;border:1px solid rgba(247,181,0,.35)}
+.r{background:rgba(255,90,102,.16);color:#ffd2d7;border:1px solid rgba(255,90,102,.35)}
+.chips{display:flex;gap:8px;margin-top:8px}
+.chip{padding:8px 12px;border:1px solid var(--line);border-radius:999px;cursor:pointer}
+.chip.on{border-color:var(--accent);box-shadow:0 0 0 2px rgba(122,168,255,.25)}
+input,button{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:#0f1728;color:var(--text)}
+button{background:var(--accent);border:0;color:#071021;font-weight:900}
+hr{border:none;height:1px;background:var(--line);margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="grid">
+    <div class="card">
+      <div class="hero">
+        <div class="small">✨ DRØMMEFANGEREN</div>
+        <div class="big" id="shiftYears">—</div>
+        <div class="mid" id="futureYou">—</div>
+      </div>
+
+      <div style="margin-top:10px">
+        <span id="sig" class="signal y">🟡 Momentum: STABIL</span>
+        <span class="small" id="sigTxt" style="margin-left:8px">—</span>
+      </div>
+
+      <div style="margin-top:10px" class="small">🎯 Frihed (realistisk)</div>
+      <div class="mid" id="fireDate">—</div>
+      <div class="small" id="fireAge">—</div>
+
+      <div class="chips">
+        <div class="chip" data-mu="6">6%</div>
+        <div class="chip" data-mu="7">7%</div>
+        <div class="chip on" data-mu="8">8%</div>
+        <div class="chip" data-mu="9">9%</div>
+      </div>
+
+      <hr/>
+      <div class="row">
+        <div class="kbox"><div class="small">🚀 FIRE speed</div><div id="speed">—</div></div>
+        <div class="kbox"><div class="small">⏳ Distance</div><div id="distance">—</div></div>
+        <div class="kbox"><div class="small">⭐ KPI: Months improved</div><div id="kpi">—</div></div>
+      </div>
+
+      <div class="row" style="margin-top:8px">
+        <div class="kbox"><div class="small">📍 Status vs mål</div><div id="status">—</div></div>
+        <div class="kbox"><div class="small">👤 Future You</div><div id="identity">—</div></div>
+      </div>
+
+      <div class="small" id="leadHint" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <div class="small"><b>Månedlig opdatering</b></div>
+      <div class="row">
+        <div style="flex:1 1 220px"><div class="small">Depotværdi</div><input id="dep"/></div>
+        <div style="flex:1 1 220px"><div class="small">Måned (YYYY-MM)</div><input id="ym" type="month"/></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div style="flex:1 1 220px"><button id="save">Gem måned</button></div>
+        <div style="flex:1 1 220px"><button id="edit">Ret seneste</button></div>
+      </div>
+
+      <details style="margin-top:10px">
+        <summary><b>Admin (bagved)</b></summary>
+        <div class="row">
+          <div style="flex:1 1 160px"><div class="small">Alder nu</div><input id="ageNow" value="46"/></div>
+          <div style="flex:1 1 160px"><div class="small">Mål-alder</div><input id="stopAge" value="62"/></div>
+          <div style="flex:1 1 160px"><div class="small">Startsaldo</div><input id="startBalance" value="0"/></div>
+          <div style="flex:1 1 160px"><div class="small">Indbetaling/md</div><input id="pmt" value="10000"/></div>
+          <div style="flex:1 1 160px"><div class="small">Netto mål/md</div><input id="need" value="35000"/></div>
+          <div style="flex:1 1 160px"><div class="small">Skattefaktor</div><input id="tax" value="1,13"/></div>
+          <div style="flex:1 1 160px"><div class="small">Afkast udbet. %</div><input id="retW" value="3"/></div>
+          <div style="flex:1 1 160px"><div class="small">Aldersopsparing alder</div><input id="aldAge" value="65"/></div>
+          <div style="flex:1 1 160px"><div class="small">Buffer mdr</div><input id="buffer" value="12"/></div>
+        </div>
+        <button id="saveParams" style="margin-top:8px">Gem parametre</button>
+      </details>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY="freedom_engine_v21";
+const $=id=>document.getElementById(id);
+
+function parseN(s,d){
+ if(s==null)return d; let t=String(s).trim().replace(/\s/g,'');
+ if(t.includes(',')&&t.includes('.')){let i=Math.max(t.lastIndexOf(','),t.lastIndexOf('.')); t=t.slice(0,i).replace(/[.,]/g,'')+'.'+t.slice(i+1).replace(/[.,]/g,'');}
+ else if(t.includes(',')){let p=t.split(','); if(p.length===2) t=p[0].replace(/\./g,'')+'.'+p[1]; else t=t.replace(/\./g,'');}
+ else if((t.match(/\./g)||[]).length>1){t=t.replace(/\./g,'');}
+ let v=Number(t); return isFinite(v)?v:d;
+}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{data:[],s:{},hist:[],baseline:null}}catch{return {data:[],s:{},hist:[],baseline:null}}}
+function save(o){localStorage.setItem(KEY, JSON.stringify(o));}
+function rMon(p){return Math.pow(1+p/100,1/12)-1;}
+function pv(w,n,r){if(n<=0) return 0; if(Math.abs(r)<1e-9) return w*n; return w*(1-Math.pow(1+r,-n))/r;}
+function ymAdd(ym,m){let [y,mo]=ym.split('-').map(Number); let t=y*12+mo-1+Math.round(m); return `${Math.floor(t/12)}-${String(t%12+1).padStart(2,'0')}`;}
+function ymPretty(ym){const M=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec']; let [y,m]=ym.split('-').map(Number); return M[m-1]+" "+y;}
+
+function monthsToFreedom(v,s,mu){
+ const r=rMon(mu), rw=rMon(s.retW);
+ for(let t=0;t<720;t++){
+   const age=s.ageNow+t/12;
+   const bridge=Math.max(0, Math.round((s.aldAge-age)*12));
+   const need=pv(s.need*s.tax, bridge+s.buffer, rw);
+   if(v>=need) return t;
+   v=v*(1+r)+s.pmt;
+ }
+ return 9999;
+}
+
+function render(){
+ let o=load();
+ let s=Object.assign({ageNow:46,stopAge:62,startBalance:0,pmt:10000,need:35000,tax:1.13,retW:3,aldAge:65,buffer:12,mu:8}, o.s||{});
+ ["ageNow","stopAge","startBalance","pmt","need","tax","retW","aldAge","buffer"].forEach(id=>$(id).value=String(s[id]).replace('.',','));
+ document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on', Number(c.dataset.mu)===s.mu));
+
+ const data=(o.data||[]).slice().sort((a,b)=>a.m.localeCompare(b.m));
+ const v = data.length ? data[data.length-1].v : s.startBalance;
+ const ym = data.length ? data[data.length-1].m : new Date().toISOString().slice(0,7);
+
+ const m = monthsToFreedom(v,s,s.mu);
+ if(o.baseline===null) o.baseline=m;
+
+ const fireYM=ymAdd(ym,m);
+ $("fireDate").textContent=ymPretty(fireYM);
+ $("fireAge").textContent="Alder ca. "+(s.ageNow+m/12).toFixed(1).replace('.',',')+" år";
+
+ const shiftMonths=o.baseline-m;
+ const shiftYears=shiftMonths/12;
+ $("shiftYears").textContent=(shiftYears>=0?"+":"")+shiftYears.toFixed(1).replace('.',',')+" år";
+ $("futureYou").textContent="👤 Fremtidens dig: fri omkring "+ymPretty(fireYM);
+
+ // history
+ o.hist=o.hist||[];
+ const last=o.hist[o.hist.length-1];
+ if(!last || last.m!==m){ o.hist.push({t:Date.now(),m}); if(o.hist.length>24)o.hist.shift(); }
+ let diff=0;
+ if(o.hist.length>=2){
+   const prev=o.hist[Math.max(0,o.hist.length-4)];
+   diff=prev.m-m;
+ }
+ $("speed").textContent=(diff>=0?"+":"")+diff.toFixed(1).replace('.',',')+" mdr / kvartal";
+ $("distance").textContent=Math.floor(m/12)+" år "+Math.round(m%12)+" mdr";
+ $("kpi").textContent=(shiftMonths>=0?"+":"")+shiftMonths.toFixed(1).replace('.',',')+" mdr";
+ $("identity").textContent = shiftYears>=0 ? "Du bevæger dig mod frihed." : "Frihedsdato glider væk.";
+
+ // signal
+ const sig=$("sig"), txt=$("sigTxt");
+ if(m<=0){sig.className="signal g"; sig.textContent="🟢 Momentum: STÆRK"; txt.textContent="Målet er nået i modellen.";}
+ else if(diff>0.2){sig.className="signal g"; sig.textContent="🟢 Momentum: STÆRK"; txt.textContent="Frihedsdatoen rykker frem.";}
+ else if(diff>-0.2){sig.className="signal y"; sig.textContent="🟡 Momentum: STABIL"; txt.textContent="Du holder kursen.";}
+ else {sig.className="signal r"; sig.textContent="🔴 Momentum: SVAG"; txt.textContent="Frihedsdatoen glider væk.";}
+
+ const targetMonths=Math.round((s.stopAge-s.ageNow)*12);
+ $("status").textContent = (m-targetMonths<=0? "Foran/inden mål" : "Efter mål") + " ("+ymPretty(ymAdd(ym,targetMonths))+")";
+ $("leadHint").textContent = (diff<0 || m>targetMonths) ? "Valgfri mulighed: se hvordan professionelle typisk øger momentum." : "";
+
+ save(o);
+}
+
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{let o=load(); o.s=Object.assign({},o.s,{mu:Number(c.dataset.mu)}); save(o); render();});
+$("save").onclick=()=>{let o=load(); let v=parseN($("dep").value, NaN); if(!isFinite(v)){alert("Indtast tal"); return;} let m=$("ym").value || new Date().toISOString().slice(0,7); o.data=o.data||[]; let i=o.data.findIndex(x=>x.m===m); if(i>=0)o.data[i]={m,v}; else o.data.push({m,v}); save(o); $("dep").value=""; $("ym").value=""; render();};
+$("edit").onclick=()=>{let o=load(); let d=(o.data||[]).slice().sort((a,b)=>a.m.localeCompare(b.m)); if(!d.length) return; let l=d[d.length-1]; $("dep").value=l.v; $("ym").value=l.m;};
+$("saveParams").onclick=()=>{let o=load(); o.s={ageNow:parseN($("ageNow").value,46),stopAge:parseN($("stopAge").value,62),startBalance:parseN($("startBalance").value,0),pmt:parseN($("pmt").value,10000),need:parseN($("need").value,35000),tax:parseN($("tax").value,1.13),retW:parseN($("retW").value,3),aldAge:parseN($("aldAge").value,65),buffer:Math.round(parseN($("buffer").value,12)),mu:(o.s&&o.s.mu)||8}; save(o); alert("Parametre gemt"); render();};
+
+render();
+</script>
+</body></html>
