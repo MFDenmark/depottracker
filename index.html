@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Depot Tracker SMART v5</title>
+<style>
+  :root{
+    --bg:#0b1220; --text:#e8eefc; --muted:#a9b7d3;
+    --good:#19c37d; --bad:#ff4d4f; --warn:#f7b500; --accent:#6aa6ff;
+    --shadow: 0 10px 28px rgba(0,0,0,.35); --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    background: radial-gradient(1200px 600px at 10% 0%, rgba(106,166,255,.18), transparent 55%),
+                radial-gradient(900px 500px at 90% 10%, rgba(25,195,125,.14), transparent 55%),
+                var(--bg);
+    color:var(--text);
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:18px 16px 44px}
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.085);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+  }
+  .banner{
+    margin-bottom:14px;border-radius:14px;padding:12px 14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.18);
+    color:var(--muted);font-size:13px;line-height:1.35;
+  }
+  .banner strong{color:var(--text)}
+  .grid{display:grid;grid-template-columns:1.25fr .95fr;gap:14px}
+  .hero h1{margin:0;font-size:13px;color:var(--muted);font-weight:1000;letter-spacing:.2px}
+  .kpi{margin-top:10px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+  .kpi .big{font-size:46px;font-weight:1000;line-height:1}
+  .kpi .unit{font-size:14px;color:var(--muted);font-weight:900}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 10px;border-radius:999px;font-weight:1000;font-size:13px;
+    border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);
+  }
+  .pill.good{color:var(--good)} .pill.warn{color:var(--warn)} .pill.bad{color:var(--bad)}
+  .sub{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.35}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .mini{flex:1 1 180px;min-width:160px}
+  .mini h3{margin:0;font-size:12px;color:var(--muted);letter-spacing:.2px;font-weight:1000}
+  .mini .val{margin-top:8px;font-size:22px;font-weight:1000}
+  .mini .hint{margin-top:6px;font-size:12px;color:var(--muted)}
+  .statusBig{
+    margin-top:10px;
+    display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    padding:12px;border-radius:16px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.16);
+  }
+  .statusBig .left{display:flex;flex-direction:column;gap:4px}
+  .statusBig .t{font-size:12px;color:var(--muted);font-weight:1000;letter-spacing:.2px}
+  .statusBig .v{font-size:18px;font-weight:1000}
+  .statusBig.good{border-color:rgba(25,195,125,.35)}
+  .statusBig.warn{border-color:rgba(247,181,0,.35)}
+  .statusBig.bad{border-color:rgba(255,77,79,.35)}
+
+  .progress{height:12px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.22);margin-top:6px}
+  .progress>div{height:100%;width:0%;background:linear-gradient(90deg, rgba(25,195,125,1), rgba(106,166,255,1))}
+
+  .form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  label{font-size:12px;color:var(--muted);font-weight:1000}
+  input, select, textarea{
+    padding:12px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.18);color:var(--text);font-weight:1000;outline:none;
+  }
+  textarea{min-height:88px;font-weight:800;line-height:1.35}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  button{
+    border:0;border-radius:12px;padding:12px 12px;font-weight:1000;cursor:pointer;
+    background:linear-gradient(180deg, rgba(106,166,255,1), rgba(106,166,255,.78));
+    color:#071021;
+    box-shadow:0 12px 26px rgba(106,166,255,.25);
+  }
+  button.secondary{
+    background:rgba(255,255,255,.06);color:var(--text);
+    border:1px solid rgba(255,255,255,.12);box-shadow:none;
+  }
+  button.danger{
+    background:rgba(255,77,79,.12);color:#ffd2d2;
+    border:1px solid rgba(255,77,79,.25);box-shadow:none;
+  }
+  button.ghost{
+    background:transparent;color:var(--text);
+    border:1px solid rgba(255,255,255,.12);box-shadow:none;
+  }
+  .full{grid-column:1/-1}
+  .small{font-size:12px;color:var(--muted)}
+  .scenario{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .scenario button{padding:9px 10px;border-radius:999px}
+  .scenario .active{
+    border-color:rgba(106,166,255,.55)!important;
+    box-shadow:0 0 0 3px rgba(106,166,255,.12) inset;
+  }
+
+  .chartCard{margin-top:14px}
+  canvas{width:100%;height:320px;display:block}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+  th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}
+  th{color:var(--muted);font-size:12px;letter-spacing:.2px}
+  .tag{
+    display:inline-block;padding:4px 8px;border-radius:999px;font-weight:1000;font-size:12px;
+    border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.16);
+  }
+  .tag.good{color:var(--good)} .tag.warn{color:var(--warn)} .tag.bad{color:var(--bad)}
+  details{border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(0,0,0,.14);padding:10px 12px}
+  summary{cursor:pointer;font-weight:1000;color:var(--text)}
+  .footer{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;color:var(--muted);font-size:12px}
+  .hidden{display:none}
+  .lockRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .lockRow input{flex:1 1 160px}
+  .callout{
+    margin-top:10px;border-radius:14px;padding:12px 14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.16);
+  }
+  @media (max-width:860px){.grid{grid-template-columns:1fr}canvas{height:280px}.form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner" id="storageBanner"><strong>Storage:</strong> tester…</div>
+
+  <div class="grid">
+    <div class="card hero">
+      <h1>STATUS (foran/bagud på planen)</h1>
+      <div class="kpi">
+        <div class="big" id="kpiMonths">–</div>
+        <div class="unit">måneder</div>
+        <div class="pill" id="kpiPill">–</div>
+      </div>
+      <div class="sub" id="kpiSub">Indtast depotværdi for denne måned og tryk Gem.</div>
+
+      <div class="statusBig" id="statusBig">
+        <div class="left">
+          <div class="t">Estimat: hvornår du rammer målet (afhænger af antagelser)</div>
+          <div class="v" id="etaMain">–</div>
+        </div>
+        <div class="small" id="etaSub">–</div>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <div class="card mini" style="padding:12px">
+          <h3>NÆSTE INDBETALING (forslag)</h3>
+          <div class="val" id="nextPay">–</div>
+          <div class="hint">Base +/− justering fordelt over 12 mdr</div>
+        </div>
+        <div class="card mini" style="padding:12px">
+          <h3>STREAK</h3>
+          <div class="val" id="streak">–</div>
+          <div class="hint" id="streakHint">–</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small" style="font-weight:1000" id="progressTitle">Fremskridt mod mål</div>
+        <div class="progress"><div id="progBar"></div></div>
+      </div>
+
+      <div class="scenario" id="scenarioRow">
+        <button class="secondary" data-r="4">4%</button>
+        <button class="secondary active" data-r="6">6%</button>
+        <button class="secondary" data-r="7">7%</button>
+      </div>
+
+      <details style="margin-top:12px" id="helpDetails">
+        <summary>Vejledning (klik) — super enkel</summary>
+        <div class="callout">
+          <div style="font-weight:1000;margin-bottom:6px">Hver måned (1 minut)</div>
+          <ol style="margin:0;padding-left:18px;color:var(--muted);line-height:1.45">
+            <li>Åbn appen.</li>
+            <li>Indtast <strong>Depotværdi (kr)</strong> for denne måned (total værdi).</li>
+            <li>Tryk <strong>Gem måned</strong>.</li>
+            <li>Se: <strong>måneder foran/bagud</strong> + <strong>forslået indbetaling</strong>.</li>
+          </ol>
+        </div>
+        <div class="callout">
+          <div style="font-weight:1000;margin-bottom:6px">Når du vil ændre antagelser</div>
+          <div class="small">
+            Åbn <strong>Avanceret</strong> til højre og lås op (PIN er valgfri).
+            Her kan du ændre alder, mål-alder/dato, forventet afkast, forbrugsbehov efter pension og pensionsindkomst.
+          </div>
+        </div>
+        <div class="callout">
+          <div style="font-weight:1000;margin-bottom:6px">Backup</div>
+          <div class="small">
+            Brug <strong>Eksportér backup</strong> en gang om måneden. Den laver én fil du kan gemme i Filer/iCloud.
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:1000">Månedlig opdatering</div>
+
+      <div class="form">
+        <div class="field">
+          <label for="value">Depotværdi (kr)</label>
+          <input id="value" inputmode="numeric" placeholder="fx 325000"/>
+        </div>
+        <div class="field">
+          <label for="monthOverride">Måned (valgfri)</label>
+          <input id="monthOverride" type="month"/>
+        </div>
+
+        <div class="field">
+          <label for="basePmt">Base indbetaling (kr/md)</label>
+          <input id="basePmt" inputmode="numeric" placeholder="10000"/>
+        </div>
+        <div class="field">
+          <label for="refSpend">Månedsforbrug til “måneder” (kr)</label>
+          <input id="refSpend" inputmode="numeric" placeholder="40000"/>
+        </div>
+
+        <div class="field full actions">
+          <button id="saveBtn">Gem måned</button>
+          <button class="secondary" id="editBtn">Ret seneste</button>
+          <button class="secondary" id="exportBtn">Eksportér backup</button>
+          <button class="secondary" id="importBtn">Importér backup</button>
+          <button class="danger" id="resetBtn">Nulstil</button>
+        </div>
+      </div>
+
+      <details style="margin-top:12px" id="advDetails">
+        <summary>Avanceret (bagved) — ændr alder, mål, pension, rente m.m.</summary>
+
+        <div class="lockRow">
+          <input id="pinInput" placeholder="PIN (valgfri) — fx 1234" inputmode="numeric"/>
+          <button class="secondary" id="setPinBtn">Sæt/ændr PIN</button>
+          <button class="ghost" id="unlockBtn">Lås op</button>
+        </div>
+        <div class="small" id="lockHint">Hvis du ikke bruger PIN, kan du stadig ændre alt (tryk Lås op).</div>
+
+        <div id="advPanel" class="hidden">
+          <div class="callout">
+            <div style="font-weight:1000;margin-bottom:6px">Mål</div>
+            <div class="form" style="margin-top:0">
+              <div class="field">
+                <label for="startAge">Din alder nu</label>
+                <input id="startAge" inputmode="decimal" placeholder="46"/>
+              </div>
+              <div class="field">
+                <label for="targetMode">Måltype</label>
+                <select id="targetMode">
+                  <option value="age">Mål-alder</option>
+                  <option value="date">Mål-dato</option>
+                  <option value="amount">Slutbeløb</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="targetAge">Mål-alder (hvis valgt)</label>
+                <input id="targetAge" inputmode="decimal" placeholder="62"/>
+              </div>
+              <div class="field">
+                <label for="targetDate">Mål-dato (hvis valgt)</label>
+                <input id="targetDate" type="month"/>
+              </div>
+              <div class="field full">
+                <label for="targetAmount">Slutbeløb (kr) (hvis valgt)</label>
+                <input id="targetAmount" inputmode="numeric" placeholder="fx 5000000"/>
+                <div class="small" id="targetHint">–</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <div style="font-weight:1000;margin-bottom:6px">Afkast & “gearings-rente”</div>
+            <div class="form" style="margin-top:0">
+              <div class="field">
+                <label for="annualReturnPct">Forventet afkast p.a. (%)</label>
+                <input id="annualReturnPct" inputmode="decimal" placeholder="6"/>
+              </div>
+              <div class="field">
+                <label for="borrowRatePct">Rente på belåning p.a. (%) (info)</label>
+                <input id="borrowRatePct" inputmode="decimal" placeholder="4"/>
+              </div>
+              <div class="field full">
+                <label for="notes">Regler (vises til jer — fx gearing)</label>
+                <textarea id="notes" placeholder="Eksempel: Gearing 0% normalt. Start ved -30% globalt fald. Maks 20%. Afvikl når marked er tilbage ved tidligere top."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <div style="font-weight:1000;margin-bottom:6px">Behov efter pension (simpel, forståelig)</div>
+            <div class="small" style="margin-bottom:8px">
+              Groft estimat (ikke Skat.dk). Formål: vise gap mellem ønsket udbetalt og forventet pensionsindkomst.
+            </div>
+            <div class="form" style="margin-top:0">
+              <div class="field">
+                <label for="wantNet">Ønsket udbetalt pr. måned (kr)</label>
+                <input id="wantNet" inputmode="numeric" placeholder="40000"/>
+              </div>
+              <div class="field">
+                <label for="taxGuessPct">Skat-estimat (%)</label>
+                <input id="taxGuessPct" inputmode="decimal" placeholder="35"/>
+              </div>
+              <div class="field">
+                <label for="pensionStartAge">Pension starter (alder)</label>
+                <input id="pensionStartAge" inputmode="decimal" placeholder="64"/>
+              </div>
+              <div class="field">
+                <label for="pensionGross">Pension pr. måned (før skat)</label>
+                <input id="pensionGross" inputmode="numeric" placeholder="40000"/>
+              </div>
+              <div class="field full">
+                <label>Resultat (auto)</label>
+                <div class="small" id="retCalc">–</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="secondary" id="applyAdvBtn">Gem avancerede data</button>
+            <button class="ghost" id="lockBtn">Lås igen</button>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="card chartCard">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:1000">Plan vs. faktisk</div>
+        <div class="small">Plan (blå) og faktisk (grøn).</div>
+      </div>
+      <div class="small" id="meta"></div>
+    </div>
+    <canvas id="chart"></canvas>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div style="font-weight:1000">Seneste 18 måneder</div>
+      <div class="small">Tip: rebalancér max 1 gang/år.</div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Periode</th><th>Faktisk</th><th>Plan</th><th>Afvigelse</th><th>Måneder</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <div>iPhone: Safari → Del → “Føj til hjemmeskærm” for app-ikon.</div>
+    <div>Data gemmes lokalt. Brug backup regelmæssigt.</div>
+  </div>
+</div>
+
+<input id="filePick" type="file" accept="application/json" class="hidden"/>
+
+<script>
+(async function(){
+  const $ = (id)=>document.getElementById(id);
+
+  const DEFAULTS = {
+    basePmt: 10000,
+    refSpend: 40000,
+    startAge: 46,
+    targetMode: "age",
+    targetAge: 62,
+    targetDate: "",
+    targetAmount: null,
+
+    annualReturnPct: 6.0,
+    borrowRatePct: 4.0,
+    notes: "Gearing 0% normalt. Start ved -30% globalt fald. Maks 20%. Afvikl når marked er tilbage ved tidligere top.",
+
+    wantNet: 40000,
+    taxGuessPct: 35.0,
+    pensionStartAge: 64,
+    pensionGross: 40000,
+
+    catchupMonths: 12,
+    pin: ""
+  };
+
+  const KEY_DATA = "depotTracker_v5_data";
+  const KEY_SETTINGS = "depotTracker_v5_settings";
+
+  const banner = $("storageBanner");
+
+  function lsAvailable(){
+    try{ const t="__t__"+Date.now(); localStorage.setItem(t,"1"); localStorage.removeItem(t); return true; }catch(e){ return false; }
+  }
+  function idbAvailable(){ return !!window.indexedDB; }
+
+  async function idbOpen(){
+    return new Promise((resolve,reject)=>{
+      const req = indexedDB.open("DepotTrackerV5_DB", 1);
+      req.onupgradeneeded = ()=>{
+        const db = req.result;
+        if(!db.objectStoreNames.contains("kv")) db.createObjectStore("kv");
+      };
+      req.onsuccess = ()=> resolve(req.result);
+      req.onerror = ()=> reject(req.error);
+    });
+  }
+  async function idbGet(db, k){
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction("kv","readonly");
+      const store = tx.objectStore("kv");
+      const req = store.get(k);
+      req.onsuccess = ()=> resolve(req.result);
+      req.onerror = ()=> reject(req.error);
+    });
+  }
+  async function idbSet(db, k, v){
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction("kv","readwrite");
+      const store = tx.objectStore("kv");
+      const req = store.put(v, k);
+      req.onsuccess = ()=> resolve(true);
+      req.onerror = ()=> reject(req.error);
+    });
+  }
+
+  let mode = "memory";
+  let db = null;
+  let memData = [];
+
+  async function initStorage(){
+    if(lsAvailable()){
+      mode = "localStorage";
+      banner.innerHTML = "<strong>Storage:</strong> localStorage (OK). Data gemmes på enheden.";
+      return;
+    }
+    if(idbAvailable()){
+      try{
+        db = await idbOpen();
+        mode = "indexedDB";
+        banner.innerHTML = "<strong>Storage:</strong> IndexedDB (OK). Data gemmes på enheden.";
+        return;
+      }catch(e){}
+    }
+    mode = "memory";
+    banner.innerHTML = "<strong>Storage:</strong> begrænset af iOS. Brug backup (eksport/import).";
+  }
+
+  async function loadData(){
+    if(mode==="localStorage"){
+      try{ return JSON.parse(localStorage.getItem(KEY_DATA) || "[]"); }catch(e){ return []; }
+    }
+    if(mode==="indexedDB"){
+      try{ const v = await idbGet(db, KEY_DATA); return Array.isArray(v) ? v : []; }catch(e){ return []; }
+    }
+    return memData.slice();
+  }
+  async function saveData(data){
+    if(mode==="localStorage"){ localStorage.setItem(KEY_DATA, JSON.stringify(data)); return true; }
+    if(mode==="indexedDB"){ await idbSet(db, KEY_DATA, data); return true; }
+    memData = data.slice(); return false;
+  }
+
+  function loadSettings(){
+    try{
+      const s = JSON.parse(localStorage.getItem(KEY_SETTINGS) || "{}");
+      const out = {...DEFAULTS, ...s};
+      for(const k of ["basePmt","refSpend","startAge","targetAge","annualReturnPct","borrowRatePct","wantNet","taxGuessPct","pensionStartAge","pensionGross"]){
+        if(out[k]===null || out[k]===undefined || !isFinite(out[k])) out[k] = DEFAULTS[k];
+      }
+      if(!["age","date","amount"].includes(out.targetMode)) out.targetMode = "age";
+      if(typeof out.notes !== "string") out.notes = DEFAULTS.notes;
+      if(typeof out.pin !== "string") out.pin = "";
+      return out;
+    }catch(e){
+      return {...DEFAULTS};
+    }
+  }
+  function saveSettings(s){ localStorage.setItem(KEY_SETTINGS, JSON.stringify(s)); }
+
+  const valueEl = $("value");
+  const monthOverrideEl = $("monthOverride");
+  const basePmtEl = $("basePmt");
+  const refSpendEl = $("refSpend");
+
+  const saveBtn = $("saveBtn");
+  const editBtn = $("editBtn");
+  const exportBtn = $("exportBtn");
+  const importBtn = $("importBtn");
+  const resetBtn = $("resetBtn");
+  const filePick = $("filePick");
+
+  const kpiMonths = $("kpiMonths");
+  const kpiPill = $("kpiPill");
+  const kpiSub = $("kpiSub");
+  const nextPay = $("nextPay");
+  const streakEl = $("streak");
+  const streakHint = $("streakHint");
+  const meta = $("meta");
+  const rows = $("rows");
+  const progBar = $("progBar");
+  const progressTitle = $("progressTitle");
+  const etaMain = $("etaMain");
+  const etaSub = $("etaSub");
+  const statusBig = $("statusBig");
+  const scenarioRow = $("scenarioRow");
+
+  const advPanel = $("advPanel");
+  const pinInput = $("pinInput");
+  const setPinBtn = $("setPinBtn");
+  const unlockBtn = $("unlockBtn");
+  const lockBtn = $("lockBtn");
+  const lockHint = $("lockHint");
+
+  const startAgeEl = $("startAge");
+  const targetModeEl = $("targetMode");
+  const targetAgeEl = $("targetAge");
+  const targetDateEl = $("targetDate");
+  const targetAmountEl = $("targetAmount");
+  const targetHint = $("targetHint");
+
+  const annualReturnPctEl = $("annualReturnPct");
+  const borrowRatePctEl = $("borrowRatePct");
+  const notesEl = $("notes");
+
+  const wantNetEl = $("wantNet");
+  const taxGuessPctEl = $("taxGuessPct");
+  const pensionStartAgeEl = $("pensionStartAge");
+  const pensionGrossEl = $("pensionGross");
+  const retCalc = $("retCalc");
+
+  const applyAdvBtn = $("applyAdvBtn");
+
+  const chart = $("chart");
+  const ctx = chart.getContext("2d");
+
+  function parseNumStr(s){
+    return Number(String(s||"").replace(/\./g,"").replace(/\s/g,"").replace(/,/g,"."));
+  }
+  function fmt(n){ if(n==null||!isFinite(n)) return "–"; return new Intl.NumberFormat("da-DK").format(Math.round(n)); }
+  function fmt1(n){ if(n==null||!isFinite(n)) return "–"; return (Math.round(n*10)/10).toLocaleString("da-DK",{minimumFractionDigits:1,maximumFractionDigits:1}); }
+  function ymNow(){ return new Date().toISOString().slice(0,7); }
+  function monthDiff(a,b){
+    const [ay,am] = a.split("-").map(Number);
+    const [by,bm] = b.split("-").map(Number);
+    return (ay-by)*12 + (am-bm);
+  }
+  function addMonths(ym, n){
+    const [y,m] = ym.split("-").map(Number);
+    const total = (y*12 + (m-1)) + n;
+    const ny = Math.floor(total/12);
+    const nm = (total%12)+1;
+    return `${ny}-${String(nm).padStart(2,"0")}`;
+  }
+  function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+  function sorted(data){ return data.slice().sort((x,y)=> x.m < y.m ? -1 : (x.m > y.m ? 1 : 0)); }
+  function lastMonth(data){ if(!data.length) return null; return sorted(data)[data.length-1].m; }
+
+  function monthRateFromAnnualPct(pct){
+    const a = pct/100;
+    if(a <= -0.999999) return null;
+    return Math.pow(1+a, 1/12) - 1;
+  }
+  function planned(n, pmt, r){
+    return pmt * ((Math.pow(1+r, n) - 1) / r);
+  }
+  function monthsToTarget(PV, PMT, target, r){
+    if(!isFinite(PV) || !isFinite(PMT) || !isFinite(target) || target<=0) return null;
+    if(PV >= target) return 0;
+    const A = PV + PMT/r;
+    const B = PMT/r;
+    const ratio = (target + B) / A;
+    if(ratio <= 1) return 0;
+    return Math.log(ratio) / Math.log(1+r);
+  }
+
+  function compute(data, basePmt, r){
+    const s = sorted(data);
+    if(s.length===0) return {items:[], last:null, streak:0, start:null};
+    const start = s[0].m;
+    const items = s.map(row=>{
+      const n = monthDiff(row.m, start) + 1;
+      const p = planned(n, basePmt, r);
+      const dev = row.v - p;
+      return {...row, n, p, dev};
+    });
+    const last = items[items.length-1];
+
+    let streak = 1;
+    for(let i=items.length-1;i>0;i--){
+      if(monthDiff(items[i].m, items[i-1].m)===1) streak++;
+      else break;
+    }
+    return {items, last, streak, start};
+  }
+
+  function drawChart(labels, planArr, actualArr){
+    const dpr = window.devicePixelRatio || 1;
+    const rect = chart.getBoundingClientRect();
+    chart.width = Math.floor(rect.width * dpr);
+    chart.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const W = rect.width, H = rect.height;
+    ctx.clearRect(0,0,W,H);
+
+    const padL=46,padR=14,padT=18,padB=26;
+    const all = planArr.concat(actualArr).filter(x=>isFinite(x));
+    const maxY = all.length ? Math.max(...all)*1.06 : 1;
+    const minY = 0;
+
+    ctx.strokeStyle="rgba(255,255,255,.08)";
+    ctx.lineWidth=1;
+    const gridN=5;
+    for(let i=0;i<=gridN;i++){
+      const y = padT + (H-padT-padB)*(i/gridN);
+      ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+    }
+
+    ctx.fillStyle="rgba(169,183,211,.9)";
+    ctx.font="12px -apple-system, system-ui, sans-serif";
+    for(let i=0;i<=gridN;i++){
+      const val = maxY - (maxY-minY)*(i/gridN);
+      const y = padT + (H-padT-padB)*(i/gridN);
+      ctx.fillText(new Intl.NumberFormat("da-DK",{notation:"compact",maximumFractionDigits:1}).format(val), 6, y+4);
+    }
+
+    function xAt(i){
+      if(labels.length<=1) return padL;
+      return padL + (W-padL-padR) * (i/(labels.length-1));
+    }
+    function yAt(v){
+      return padT + (H-padT-padB) * (1 - (v-minY)/(maxY-minY || 1));
+    }
+    function line(arr, stroke){
+      if(arr.length<2) return;
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for(let i=0;i<arr.length;i++){
+        const x=xAt(i), y=yAt(arr[i]);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    line(planArr, "rgba(106,166,255,1)");
+    line(actualArr, "rgba(25,195,125,1)");
+
+    const lx=padL, ly=14;
+    ctx.fillStyle="rgba(106,166,255,1)"; ctx.fillRect(lx,ly,14,4);
+    ctx.fillStyle="rgba(232,238,252,.95)"; ctx.fillText("Plan", lx+20, ly+6);
+    ctx.fillStyle="rgba(25,195,125,1)"; ctx.fillRect(lx+70,ly,14,4);
+    ctx.fillStyle="rgba(232,238,252,.95)"; ctx.fillText("Faktisk", lx+90, ly+6);
+
+    if(labels.length){
+      ctx.fillStyle="rgba(169,183,211,.9)";
+      ctx.fillText(labels[0], padL, H-8);
+      ctx.fillText(labels[labels.length-1], W-padR-52, H-8);
+    }
+  }
+
+  async function upsertMonth(m, v){
+    const data = await loadData();
+    const idx = data.findIndex(x=>x.m===m);
+    const row = {m, v};
+    if(idx>=0) data[idx]=row; else data.push(row);
+    const persisted = await saveData(data);
+    return persisted;
+  }
+
+  function setPill(monthsAhead){
+    if(monthsAhead>=0){
+      kpiPill.textContent="💚 Foran planen";
+      kpiPill.className="pill good";
+    }else{
+      kpiPill.textContent="🟡 Bagud (justér roligt)";
+      kpiPill.className="pill warn";
+    }
+  }
+
+  function setScenarioActive(val){
+    [...scenarioRow.querySelectorAll("button")].forEach(b=>{
+      b.classList.remove("active");
+      if(String(b.dataset.r)===String(val)) b.classList.add("active");
+    });
+  }
+
+  function retirementCalcText(s){
+    const tax = clamp(s.taxGuessPct/100, 0, 0.60);
+    const pensionNet = s.pensionGross * (1 - tax);
+    const wantNet = s.wantNet;
+    const gapNet = wantNet - pensionNet;
+    const wantGrossApprox = wantNet / (1 - tax);
+
+    const gapLine = gapNet <= 0
+      ? `• Estimat: pension alene dækker ca. ${fmt(pensionNet)} kr udbetalt. Gap: ${fmt(gapNet)} kr (ingen gap).`
+      : `• Estimat: pension giver ca. ${fmt(pensionNet)} kr udbetalt. Gap: ca. ${fmt(gapNet)} kr udbetalt pr. måned.`;
+
+    return [
+      `• Ønsket udbetalt: ${fmt(wantNet)} kr/md (≈ ${fmt(wantGrossApprox)} kr/md før skat, groft).`,
+      `• Skat-estimat: ${fmt1(s.taxGuessPct)}%.`,
+      `• Pension før skat: ${fmt(s.pensionGross)} kr/md → ca. ${fmt(pensionNet)} kr/md udbetalt (estimat).`,
+      gapLine,
+      `• Pension starter ved ca. alder ${fmt1(s.pensionStartAge)}.`,
+      `• Regler (jeres): ${s.notes ? s.notes : "–"}`
+    ].join("<br>");
+  }
+
+  function targetMonthsFromSettings(s){
+    if(s.targetMode==="age"){
+      return Math.max(0, Math.round((s.targetAge - s.startAge) * 12));
+    }
+    if(s.targetMode==="date" && s.targetDate){
+      const now = ymNow();
+      const m = monthDiff(s.targetDate, now);
+      return Math.max(0, m);
+    }
+    return null;
+  }
+
+  async function render(){
+    const s = loadSettings();
+
+    basePmtEl.value = String(Math.round(s.basePmt));
+    refSpendEl.value = String(Math.round(s.refSpend));
+
+    startAgeEl.value = String(s.startAge);
+    targetModeEl.value = s.targetMode;
+    targetAgeEl.value = String(s.targetAge);
+    targetDateEl.value = s.targetDate || "";
+    targetAmountEl.value = s.targetAmount ? String(Math.round(s.targetAmount)) : "";
+    annualReturnPctEl.value = String(s.annualReturnPct);
+    borrowRatePctEl.value = String(s.borrowRatePct);
+    notesEl.value = s.notes || "";
+    wantNetEl.value = String(Math.round(s.wantNet));
+    taxGuessPctEl.value = String(s.taxGuessPct);
+    pensionStartAgeEl.value = String(s.pensionStartAge);
+    pensionGrossEl.value = String(Math.round(s.pensionGross));
+
+    setScenarioActive(String(Math.round(s.annualReturnPct)));
+    retCalc.innerHTML = retirementCalcText(s);
+
+    const r0 = monthRateFromAnnualPct(s.annualReturnPct);
+    const r = (r0==null || !isFinite(r0) || r0===0) ? 0.0000001 : r0;
+
+    const data = await loadData();
+    const {items, last, streak} = compute(data, s.basePmt, r);
+
+    const mTarget = targetMonthsFromSettings(s);
+    const autoAmount = (mTarget && mTarget>0) ? planned(mTarget, s.basePmt, r) : planned(16*12, s.basePmt, r);
+    let targetAmount = null;
+
+    if(s.targetMode==="amount"){
+      targetAmount = (s.targetAmount && isFinite(s.targetAmount) && s.targetAmount>0) ? s.targetAmount : autoAmount;
+      targetHint.textContent = `Hvis tom: auto = ${fmt(autoAmount)} kr baseret på mål-alder/dato og baseindbetaling.`;
+      progressTitle.textContent = "Fremskridt mod slutbeløb";
+    }else{
+      targetAmount = autoAmount;
+      if(s.targetMode==="age"){
+        targetHint.textContent = `Auto-slutbeløb ved alder ${fmt1(s.targetAge)}: ${fmt(autoAmount)} kr (afhænger af afkast og base).`;
+        progressTitle.textContent = `Fremskridt mod alder ${fmt1(s.targetAge)} (benchmark)`;
+      }else{
+        targetHint.textContent = `Auto-slutbeløb ved dato ${s.targetDate || "–"}: ${fmt(autoAmount)} kr (afhænger af afkast og base).`;
+        progressTitle.textContent = `Fremskridt mod dato ${s.targetDate || "–"} (benchmark)`;
+      }
+    }
+
+    meta.textContent = `${fmt1(s.annualReturnPct)}% p.a. | Base ${fmt(s.basePmt)} kr/md | Mål: ${s.targetMode==="age" ? ("alder "+fmt1(s.targetAge)) : (s.targetMode==="date" ? ("dato "+(s.targetDate||"–")) : ("slutbeløb "+fmt(targetAmount)+" kr"))}`;
+
+    if(!last){
+      kpiMonths.textContent="–";
+      kpiSub.textContent="Indtast depotværdi og tryk Gem måned.";
+      kpiPill.textContent="Start med første måned";
+      kpiPill.className="pill warn";
+      nextPay.textContent=fmt(s.basePmt)+" kr";
+      streakEl.textContent="–";
+      streakHint.textContent="Start med første måned.";
+      rows.innerHTML="";
+      progBar.style.width="0%";
+      etaMain.textContent="–";
+      etaSub.textContent="Udfyld første måned for estimat.";
+      statusBig.className="statusBig warn";
+      drawChart([],[],[]);
+      return;
+    }
+
+    const dev = last.dev;
+    const monthsAhead = dev / s.refSpend;
+    kpiMonths.textContent=(monthsAhead>=0?"+":"")+fmt1(monthsAhead);
+    setPill(monthsAhead);
+    kpiSub.textContent = `Senest: ${last.m}. Afvigelse: ${fmt(dev)} kr vs plan.`;
+
+    let suggested = s.basePmt - (dev / s.catchupMonths);
+    suggested = Math.max(0, suggested);
+    nextPay.textContent = fmt(suggested) + " kr";
+
+    streakEl.textContent = `${streak}`;
+    streakHint.textContent = "måneder i træk uden huller";
+
+    const progress = clamp(last.p / targetAmount, 0, 1);
+    progBar.style.width = (progress*100).toFixed(1) + "%";
+
+    const nToReach = monthsToTarget(last.v, s.basePmt, targetAmount, r);
+    if(isFinite(nToReach)){
+      const etaAge = s.startAge + (nToReach/12);
+      const etaYM = addMonths(ymNow(), Math.round(nToReach));
+      etaMain.textContent = `≈ alder ${fmt1(etaAge)}`;
+      const targetText =
+        s.targetMode==="age" ? `Mål-alder: ${fmt1(s.targetAge)}.` :
+        s.targetMode==="date" ? `Mål-dato: ${s.targetDate || "–"}.` :
+        `Slutbeløb: ${fmt(targetAmount)} kr.`;
+      etaSub.innerHTML = `${targetText} Estimat dato: <strong>${etaYM}</strong> (givet ${fmt1(s.annualReturnPct)}% p.a.).`;
+
+      let good = false;
+      if((s.targetMode==="age" || s.targetMode==="date") && mTarget!=null) good = (nToReach <= mTarget);
+      else if(s.targetMode==="amount") good = (nToReach <= 24);
+      statusBig.className = good ? "statusBig good" : "statusBig warn";
+    }else{
+      etaMain.textContent="–";
+      etaSub.textContent="Kunne ikke beregne (tjek afkast/base).";
+      statusBig.className="statusBig warn";
+    }
+
+    const tail = items.slice(-18).reverse();
+    rows.innerHTML = tail.map(rw=>{
+      const m = rw.dev / s.refSpend;
+      const tag = m>=0 ? "good" : "warn";
+      const sign = m>=0 ? "+" : "";
+      return `<tr>
+        <td><span class="tag ${tag}">${rw.m}</span></td>
+        <td>${fmt(rw.v)}</td>
+        <td>${fmt(rw.p)}</td>
+        <td>${fmt(rw.dev)}</td>
+        <td>${sign}${fmt1(m)}</td>
+      </tr>`;
+    }).join("");
+
+    drawChart(items.map(x=>x.m), items.map(x=>x.p), items.map(x=>x.v));
+  }
+
+  scenarioRow.addEventListener("click", async (e)=>{
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    const r = parseNumStr(btn.dataset.r);
+    if(!isFinite(r)) return;
+    const s = loadSettings();
+    s.annualReturnPct = r;
+    saveSettings(s);
+    await render();
+  });
+
+  basePmtEl.addEventListener("change", async ()=>{
+    const s = loadSettings();
+    const v = parseNumStr(basePmtEl.value);
+    s.basePmt = Math.max(0, isFinite(v) ? v : DEFAULTS.basePmt);
+    saveSettings(s);
+    await render();
+  });
+  refSpendEl.addEventListener("change", async ()=>{
+    const s = loadSettings();
+    const v = parseNumStr(refSpendEl.value);
+    s.refSpend = Math.max(1, isFinite(v) ? v : DEFAULTS.refSpend);
+    saveSettings(s);
+    await render();
+  });
+
+  saveBtn.addEventListener("click", async ()=>{
+    const ym = monthOverrideEl.value || ymNow();
+    const v = parseNumStr(valueEl.value);
+    if(!ym || !isFinite(v) || v<=0){
+      alert("Indtast depotværdi (tal). Måned er valgfri.");
+      return;
+    }
+    const persisted = await (async ()=>{
+      const data = await loadData();
+      const idx = data.findIndex(x=>x.m===ym);
+      const row = {m: ym, v};
+      if(idx>=0) data[idx]=row; else data.push(row);
+      return await saveData(data);
+    })();
+
+    valueEl.value="";
+    monthOverrideEl.value="";
+    await render();
+    if(!persisted){
+      alert("iOS blokerer lokal lagring i denne kontekst. Brug 'Eksportér backup'.");
+    }
+  });
+
+  editBtn.addEventListener("click", async ()=>{
+    const data = await loadData();
+    const lm = lastMonth(data);
+    if(!lm){ alert("Ingen data endnu."); return; }
+    monthOverrideEl.value = lm;
+    const row = data.find(x=>x.m===lm);
+    valueEl.value = row ? String(row.v) : "";
+    valueEl.focus();
+  });
+
+  exportBtn.addEventListener("click", async ()=>{
+    const data = await loadData();
+    const s = loadSettings();
+    const blob = new Blob([JSON.stringify({version:5, settings:s, data}, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "depot-tracker-v5-backup.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  importBtn.addEventListener("click", ()=> filePick.click());
+  filePick.addEventListener("change", async ()=>{
+    const file = filePick.files[0];
+    if(!file) return;
+    const text = await file.text();
+    try{
+      const obj = JSON.parse(text);
+      if(!obj || !Array.isArray(obj.data)) throw new Error("bad");
+      if(obj.settings){
+        const s0 = loadSettings();
+        const s = {...s0, ...obj.settings};
+        saveSettings(s);
+      }
+      const current = await loadData();
+      const map = new Map(current.map(x=>[x.m, x.v]));
+      for(const r of obj.data){
+        if(r && typeof r.m==="string" && isFinite(r.v)) map.set(r.m, r.v);
+      }
+      const merged = Array.from(map.entries()).map(([m,v])=>({m,v}));
+      await saveData(merged);
+      filePick.value="";
+      await render();
+    }catch(e){
+      alert("Kunne ikke importere filen (forkert format).");
+    }
+  });
+
+  resetBtn.addEventListener("click", async ()=>{
+    if(confirm("Nulstil alt?")){
+      localStorage.removeItem(KEY_DATA);
+      localStorage.removeItem(KEY_SETTINGS);
+      if(mode==="indexedDB" && db) await idbSet(db, KEY_DATA, []);
+      memData = [];
+      await render();
+    }
+  });
+
+  function unlock(){ advPanel.classList.remove("hidden"); lockHint.textContent = "Avanceret er låst op. Husk at trykke 'Gem avancerede data'."; }
+  function lock(){ advPanel.classList.add("hidden"); lockHint.textContent = "Avanceret er skjult. (PIN beskytter kun mod fejlklik, ikke mod en teknisk bruger.)"; }
+
+  setPinBtn.addEventListener("click", ()=>{
+    const s = loadSettings();
+    const pin = String(pinInput.value||"").trim();
+    s.pin = pin;
+    saveSettings(s);
+    alert(pin ? "PIN sat." : "PIN fjernet.");
+    pinInput.value = "";
+  });
+
+  unlockBtn.addEventListener("click", ()=>{
+    const s = loadSettings();
+    if(!s.pin){ unlock(); return; }
+    const pin = String(pinInput.value||"").trim();
+    if(pin === s.pin){ pinInput.value=""; unlock(); }
+    else alert("Forkert PIN.");
+  });
+
+  lockBtn.addEventListener("click", ()=> lock());
+
+  applyAdvBtn.addEventListener("click", async ()=>{
+    const s = loadSettings();
+
+    const startAge = parseNumStr(startAgeEl.value);
+    const targetAge = parseNumStr(targetAgeEl.value);
+    const annualReturn = parseNumStr(annualReturnPctEl.value);
+    const borrowRate = parseNumStr(borrowRatePctEl.value);
+
+    const wantNet = parseNumStr(wantNetEl.value);
+    const taxGuess = parseNumStr(taxGuessPctEl.value);
+    const pensionStartAge = parseNumStr(pensionStartAgeEl.value);
+    const pensionGross = parseNumStr(pensionGrossEl.value);
+
+    const targetMode = targetModeEl.value;
+    const targetAmount = parseNumStr(targetAmountEl.value);
+
+    if(isFinite(startAge) && startAge>0) s.startAge = startAge;
+    if(isFinite(targetAge) && targetAge>0) s.targetAge = targetAge;
+
+    s.targetMode = ["age","date","amount"].includes(targetMode) ? targetMode : "age";
+    s.targetDate = targetDateEl.value || "";
+    s.targetAmount = (s.targetMode==="amount" && isFinite(targetAmount) && targetAmount>0) ? targetAmount : null;
+
+    if(isFinite(annualReturn)) s.annualReturnPct = annualReturn;
+    if(isFinite(borrowRate)) s.borrowRatePct = borrowRate;
+    s.notes = String(notesEl.value||"").trim();
+
+    if(isFinite(wantNet) && wantNet>0) s.wantNet = wantNet;
+    if(isFinite(taxGuess)) s.taxGuessPct = clamp(taxGuess, 0, 60);
+    if(isFinite(pensionStartAge) && pensionStartAge>0) s.pensionStartAge = pensionStartAge;
+    if(isFinite(pensionGross) && pensionGross>=0) s.pensionGross = pensionGross;
+
+    saveSettings(s);
+    await render();
+    alert("Gemt.");
+  });
+
+  window.addEventListener("resize", ()=> render());
+
+  await initStorage();
+  lock();
+  await render();
+})();
+</script>
+</body>
+</html>
