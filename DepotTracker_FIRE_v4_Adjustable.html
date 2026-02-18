@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Depot Tracker PRO v4</title>
+<style>
+  :root{
+    --bg:#0b1220; --text:#e8eefc; --muted:#a9b7d3;
+    --good:#19c37d; --bad:#ff4d4f; --warn:#f7b500; --accent:#6aa6ff;
+    --shadow: 0 10px 28px rgba(0,0,0,.35); --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    background: radial-gradient(1200px 600px at 10% 0%, rgba(106,166,255,.18), transparent 55%),
+                radial-gradient(900px 500px at 90% 10%, rgba(25,195,125,.14), transparent 55%),
+                var(--bg);
+    color:var(--text);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:18px 16px 40px}
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.085);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+  }
+  .banner{
+    margin-bottom:14px;border-radius:14px;padding:12px 14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.18);
+    color:var(--muted);font-size:13px;line-height:1.35;
+  }
+  .banner strong{color:var(--text)}
+  .top{display:flex;gap:14px;flex-wrap:wrap;align-items:stretch}
+  .hero{flex:1 1 420px;min-width:320px;position:relative;overflow:hidden}
+  .hero h1{margin:0;font-size:14px;color:var(--muted);font-weight:900;letter-spacing:.2px}
+  .kpi{margin-top:10px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+  .kpi .big{font-size:46px;font-weight:1000;line-height:1}
+  .kpi .unit{font-size:14px;color:var(--muted);font-weight:900}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 10px;border-radius:999px;font-weight:1000;font-size:13px;
+    border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);
+  }
+  .pill.good{color:var(--good)} .pill.warn{color:var(--warn)} .pill.bad{color:var(--bad)}
+  .sub{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.35}
+  .progress{height:12px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.22);margin-top:6px}
+  .progress>div{height:100%;width:0%;background:linear-gradient(90deg, rgba(25,195,125,1), rgba(106,166,255,1))}
+  .right{flex:0 1 420px;min-width:320px;display:flex;flex-direction:column;gap:14px}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .mini{flex:1 1 180px;min-width:160px}
+  .mini h3{margin:0;font-size:12px;color:var(--muted);letter-spacing:.2px;font-weight:900}
+  .mini .val{margin-top:8px;font-size:22px;font-weight:1000}
+  .mini .hint{margin-top:6px;font-size:12px;color:var(--muted)}
+  .statusBig{
+    margin-top:8px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    padding:12px;border-radius:16px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.16);
+  }
+  .statusBig .left{display:flex;flex-direction:column;gap:4px}
+  .statusBig .t{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px}
+  .statusBig .v{font-size:18px;font-weight:1000}
+  .statusBig.good{border-color:rgba(25,195,125,.35)}
+  .statusBig.warn{border-color:rgba(247,181,0,.35)}
+  .statusBig.bad{border-color:rgba(255,77,79,.35)}
+
+  .form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  label{font-size:12px;color:var(--muted);font-weight:1000}
+  input, select{
+    padding:12px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.18);color:var(--text);font-weight:1000;outline:none;
+  }
+  button{
+    border:0;border-radius:12px;padding:12px 12px;font-weight:1000;cursor:pointer;
+    background:linear-gradient(180deg, rgba(106,166,255,1), rgba(106,166,255,.78));
+    color:#071021;
+    box-shadow:0 12px 26px rgba(106,166,255,.25);
+  }
+  button.secondary{
+    background:rgba(255,255,255,.06);color:var(--text);
+    border:1px solid rgba(255,255,255,.12);box-shadow:none;
+  }
+  button.danger{
+    background:rgba(255,77,79,.12);color:#ffd2d2;
+    border:1px solid rgba(255,77,79,.25);box-shadow:none;
+  }
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .full{grid-column:1/-1}
+  .small{font-size:12px;color:var(--muted)}
+  .chartCard{margin-top:14px}
+  canvas{width:100%;height:320px;display:block}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+  th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}
+  th{color:var(--muted);font-size:12px;letter-spacing:.2px}
+  .tag{
+    display:inline-block;padding:4px 8px;border-radius:999px;font-weight:1000;font-size:12px;
+    border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.16);
+  }
+  .tag.good{color:var(--good)} .tag.warn{color:var(--warn)}
+  details{border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(0,0,0,.14);padding:10px 12px}
+  summary{cursor:pointer;font-weight:1000;color:var(--text)}
+  .footer{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;color:var(--muted);font-size:12px}
+  .hidden{display:none}
+  @media (max-width:720px){.kpi .big{font-size:40px}canvas{height:280px}.form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner" id="storageBanner"><strong>Storage:</strong> tester…</div>
+
+  <div class="top">
+    <div class="card hero">
+      <h1>FORAN/BAGUD (akkumuleret)</h1>
+      <div class="kpi">
+        <div class="big" id="kpiMonths">–</div>
+        <div class="unit">måneder</div>
+        <div class="pill" id="kpiPill">–</div>
+      </div>
+      <div class="sub" id="kpiSub">Indtast depotværdi for denne måned og tryk Gem.</div>
+
+      <div class="statusBig" id="statusBig">
+        <div class="left">
+          <div class="t">Estimat ift. målet (afhængigt af antagelser)</div>
+          <div class="v" id="retireEta">–</div>
+        </div>
+        <div class="small" id="retireEtaSub">–</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small" style="font-weight:900" id="progressTitle">Fremskridt mod mål</div>
+        <div class="progress"><div id="progBar"></div></div>
+      </div>
+
+      <details style="margin-top:12px" id="goalDetails">
+        <summary>Mål & afkast (klik)</summary>
+        <div class="form" style="margin-top:10px">
+          <div class="field">
+            <label for="annualReturnPct">Forventet afkast p.a. (%)</label>
+            <input id="annualReturnPct" inputmode="decimal" placeholder="6"/>
+          </div>
+          <div class="field">
+            <label for="refSpend">Månedsforbrug til 'måneder foran' (kr)</label>
+            <input id="refSpend" inputmode="numeric" placeholder="40000"/>
+          </div>
+
+          <div class="field">
+            <label for="targetMode">Måltype</label>
+            <select id="targetMode">
+              <option value="age">Mål-alder</option>
+              <option value="amount">Slutbeløb</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="targetAge">Mål-alder (hvis valgt)</label>
+            <input id="targetAge" inputmode="decimal" placeholder="62"/>
+          </div>
+
+          <div class="field full">
+            <label for="targetAmount">Slutbeløb (kr) (hvis valgt) — kan ændres</label>
+            <input id="targetAmount" inputmode="numeric" placeholder="(auto)"/>
+            <div class="small" id="targetHint">–</div>
+          </div>
+
+          <div class="field full actions">
+            <button class="secondary" id="applyGoalBtn">Gem mål/afkast</button>
+          </div>
+        </div>
+        <div class="small" style="margin-top:10px">
+          Bemærk: ændring af afkastprocent ændrer beregningen af “plan”, “estimat” og “slutbeløb”. Det er en antagelse, ikke en garanti.
+        </div>
+      </details>
+    </div>
+
+    <div class="right">
+      <div class="row">
+        <div class="card mini">
+          <h3>NÆSTE INDBETALING (blød korrektion)</h3>
+          <div class="val" id="nextPay">–</div>
+          <div class="hint">Base +/− justering fordelt over 12 mdr</div>
+        </div>
+        <div class="card mini">
+          <h3>STREAK</h3>
+          <div class="val" id="streak">–</div>
+          <div class="hint" id="streakHint">–</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="form">
+          <div class="field">
+            <label for="value">Depotværdi (kr)</label>
+            <input id="value" inputmode="numeric" placeholder="fx 325000"/>
+          </div>
+          <div class="field">
+            <label for="monthOverride">Måned (valgfri)</label>
+            <input id="monthOverride" type="month"/>
+          </div>
+
+          <div class="field">
+            <label for="basePmt">Base indbetaling (kr/md)</label>
+            <input id="basePmt" inputmode="numeric" placeholder="10000"/>
+          </div>
+          <div class="field">
+            <label for="startAge">Din alder nu</label>
+            <input id="startAge" inputmode="decimal" placeholder="46"/>
+          </div>
+
+          <div class="field full actions">
+            <button id="saveBtn">Gem måned (1 klik)</button>
+            <button class="secondary" id="editBtn">Ret seneste</button>
+            <button class="secondary" id="exportBtn">Eksportér backup</button>
+            <button class="secondary" id="importBtn">Importér backup</button>
+            <button class="danger" id="resetBtn">Nulstil</button>
+          </div>
+        </div>
+        <div class="small" style="margin-top:10px">
+          Måned auto = nuværende måned (medmindre du vælger en anden).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card chartCard">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:1000">Plan vs. faktisk</div>
+        <div class="small">To linjer. Ingen støj.</div>
+      </div>
+      <div class="small" id="meta"></div>
+    </div>
+    <canvas id="chart"></canvas>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div style="font-weight:1000">Seneste 18 måneder</div>
+      <div class="small">Backup anbefales 1 gang om måneden.</div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Periode</th><th>Faktisk</th><th>Plan</th><th>Afvigelse</th><th>Måneder</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <div>Tip: iPhone → Del → “Føj til hjemmeskærm” for app-ikon.</div>
+    <div>Data gemmes lokalt på enheden. Backup = én fil.</div>
+  </div>
+</div>
+
+<input id="filePick" type="file" accept="application/json" class="hidden"/>
+
+<script>
+(async function(){
+  const DEFAULTS = {
+    basePmt: 10000,
+    startAge: 46,
+    targetAge: 62,
+    annualReturnPct: 6.0,
+    refSpend: 40000,
+    catchupMonths: 12,
+    targetMode: "age",
+    targetAmount: null
+  };
+
+  const $ = (id)=>document.getElementById(id);
+
+  const valueEl = $("value");
+  const monthOverrideEl = $("monthOverride");
+  const basePmtEl = $("basePmt");
+  const startAgeEl = $("startAge");
+
+  const annualReturnPctEl = $("annualReturnPct");
+  const targetModeEl = $("targetMode");
+  const targetAgeEl = $("targetAge");
+  const targetAmountEl = $("targetAmount");
+  const refSpendEl = $("refSpend");
+  const applyGoalBtn = $("applyGoalBtn");
+  const targetHint = $("targetHint");
+  const progressTitle = $("progressTitle");
+
+  const saveBtn = $("saveBtn");
+  const editBtn = $("editBtn");
+  const exportBtn = $("exportBtn");
+  const importBtn = $("importBtn");
+  const resetBtn = $("resetBtn");
+  const filePick = $("filePick");
+
+  const kpiMonths = $("kpiMonths");
+  const kpiPill = $("kpiPill");
+  const kpiSub = $("kpiSub");
+  const nextPay = $("nextPay");
+  const streakEl = $("streak");
+  const streakHint = $("streakHint");
+  const meta = $("meta");
+  const rows = $("rows");
+  const progBar = $("progBar");
+  const banner = $("storageBanner");
+  const retireEta = $("retireEta");
+  const retireEtaSub = $("retireEtaSub");
+  const statusBig = $("statusBig");
+
+  const chart = $("chart");
+  const ctx = chart.getContext("2d");
+
+  const SETTINGS_KEY = "depotTracker_v4_settings";
+  function parseNumStr(s){
+    return Number(String(s||"").replace(/\./g,"").replace(/\s/g,"").replace(/,/g,"."));
+  }
+  function loadSettings(){
+    try{
+      const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+      return {
+        basePmt: isFinite(s.basePmt) && s.basePmt>=0 ? s.basePmt : DEFAULTS.basePmt,
+        startAge: isFinite(s.startAge) && s.startAge>0 ? s.startAge : DEFAULTS.startAge,
+        targetAge: isFinite(s.targetAge) && s.targetAge>0 ? s.targetAge : DEFAULTS.targetAge,
+        annualReturnPct: isFinite(s.annualReturnPct) && s.annualReturnPct>-100 ? s.annualReturnPct : DEFAULTS.annualReturnPct,
+        refSpend: isFinite(s.refSpend) && s.refSpend>0 ? s.refSpend : DEFAULTS.refSpend,
+        catchupMonths: DEFAULTS.catchupMonths,
+        targetMode: (s.targetMode==="amount" ? "amount" : "age"),
+        targetAmount: isFinite(s.targetAmount) && s.targetAmount>0 ? s.targetAmount : null
+      };
+    }catch(e){
+      return {...DEFAULTS};
+    }
+  }
+  function saveSettings(obj){
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(obj));
+  }
+
+  const KEY = "depotTracker_v4_data";
+  let mem = [];
+  function lsAvailable(){
+    try{ const t="__t__"+Date.now(); localStorage.setItem(t,"1"); localStorage.removeItem(t); return true; }catch(e){ return false; }
+  }
+  function idbAvailable(){ return !!window.indexedDB; }
+  async function idbOpen(){
+    return new Promise((resolve,reject)=>{
+      const req = indexedDB.open("DepotTrackerV4_DB", 1);
+      req.onupgradeneeded = ()=>{
+        const db = req.result;
+        if(!db.objectStoreNames.contains("kv")) db.createObjectStore("kv");
+      };
+      req.onsuccess = ()=> resolve(req.result);
+      req.onerror = ()=> reject(req.error);
+    });
+  }
+  async function idbGet(db, k){
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction("kv","readonly");
+      const store = tx.objectStore("kv");
+      const req = store.get(k);
+      req.onsuccess = ()=> resolve(req.result);
+      req.onerror = ()=> reject(req.error);
+    });
+  }
+  async function idbSet(db, k, v){
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction("kv","readwrite");
+      const store = tx.objectStore("kv");
+      const req = store.put(v, k);
+      req.onsuccess = ()=> resolve(true);
+      req.onerror = ()=> reject(req.error);
+    });
+  }
+
+  let mode = "memory";
+  let db = null;
+  async function initStorage(){
+    if(lsAvailable()){
+      mode = "localStorage";
+      banner.innerHTML = "<strong>Storage:</strong> localStorage (OK). Data gemmes på enheden.";
+      return;
+    }
+    if(idbAvailable()){
+      try{
+        db = await idbOpen();
+        mode = "indexedDB";
+        banner.innerHTML = "<strong>Storage:</strong> IndexedDB (OK). Data gemmes på enheden.";
+        return;
+      }catch(e){}
+    }
+    mode = "memory";
+    banner.innerHTML = "<strong>Storage:</strong> begrænset af iOS. Brug backup.";
+  }
+
+  async function load(){
+    if(mode==="localStorage"){
+      try{ return JSON.parse(localStorage.getItem(KEY) || "[]"); }catch(e){ return []; }
+    }
+    if(mode==="indexedDB"){
+      try{ const v = await idbGet(db, KEY); return Array.isArray(v) ? v : []; }catch(e){ return []; }
+    }
+    return mem.slice();
+  }
+  async function save(data){
+    if(mode==="localStorage"){ localStorage.setItem(KEY, JSON.stringify(data)); return true; }
+    if(mode==="indexedDB"){ await idbSet(db, KEY, data); return true; }
+    mem = data.slice(); return false;
+  }
+
+  function fmt(n){ if(n==null||!isFinite(n)) return "–"; return new Intl.NumberFormat("da-DK").format(Math.round(n)); }
+  function fmt1(n){ if(n==null||!isFinite(n)) return "–"; return (Math.round(n*10)/10).toLocaleString("da-DK",{minimumFractionDigits:1,maximumFractionDigits:1}); }
+  function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+  function ymNow(){ return new Date().toISOString().slice(0,7); }
+  function monthDiff(a,b){
+    const [ay,am] = a.split("-").map(Number);
+    const [by,bm] = b.split("-").map(Number);
+    return (ay-by)*12 + (am-bm);
+  }
+  function addMonths(ym, n){
+    const [y,m] = ym.split("-").map(Number);
+    const total = (y*12 + (m-1)) + n;
+    const ny = Math.floor(total/12);
+    const nm = (total%12)+1;
+    return `${ny}-${String(nm).padStart(2,"0")}`;
+  }
+  function sorted(data){
+    return data.slice().sort((x,y)=> x.m < y.m ? -1 : (x.m > y.m ? 1 : 0));
+  }
+
+  function monthRateFromAnnualPct(pct){
+    const a = pct/100;
+    if(a <= -0.999999) return null;
+    return Math.pow(1+a, 1/12) - 1;
+  }
+  function planned(n, pmt, r){
+    return pmt * ((Math.pow(1+r, n) - 1) / r);
+  }
+  function monthsToTarget(PV, PMT, target, r){
+    if(!isFinite(PV) || !isFinite(PMT) || !isFinite(target) || target<=0) return null;
+    if(PV >= target) return 0;
+    const A = PV + PMT/r;
+    const B = PMT/r;
+    const ratio = (target + B) / A;
+    if(ratio <= 1) return 0;
+    return Math.log(ratio) / Math.log(1+r);
+  }
+
+  function compute(data, basePmt, r){
+    const s = sorted(data);
+    if(s.length===0) return {items:[], last:null, streak:0};
+    const start = s[0].m;
+    const items = s.map(row=>{
+      const n = monthDiff(row.m, start) + 1;
+      const p = planned(n, basePmt, r);
+      const dev = row.v - p;
+      return {...row, n, p, dev};
+    });
+    const last = items[items.length-1];
+
+    let streak = 1;
+    for(let i=items.length-1;i>0;i--){
+      if(monthDiff(items[i].m, items[i-1].m)===1) streak++;
+      else break;
+    }
+    return {items, last, streak};
+  }
+
+  function drawChart(labels, planArr, actualArr){
+    const dpr = window.devicePixelRatio || 1;
+    const rect = chart.getBoundingClientRect();
+    chart.width = Math.floor(rect.width * dpr);
+    chart.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const W = rect.width, H = rect.height;
+    ctx.clearRect(0,0,W,H);
+
+    const padL=46,padR=14,padT=18,padB=26;
+    const all = planArr.concat(actualArr).filter(x=>isFinite(x));
+    const maxY = all.length ? Math.max(...all)*1.06 : 1;
+    const minY = 0;
+
+    ctx.strokeStyle="rgba(255,255,255,.08)";
+    ctx.lineWidth=1;
+    const gridN=5;
+    for(let i=0;i<=gridN;i++){
+      const y = padT + (H-padT-padB)*(i/gridN);
+      ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+    }
+
+    ctx.fillStyle="rgba(169,183,211,.9)";
+    ctx.font="12px -apple-system, system-ui, sans-serif";
+    for(let i=0;i<=gridN;i++){
+      const val = maxY - (maxY-minY)*(i/gridN);
+      const y = padT + (H-padT-padB)*(i/gridN);
+      ctx.fillText(new Intl.NumberFormat("da-DK",{notation:"compact",maximumFractionDigits:1}).format(val), 6, y+4);
+    }
+
+    function xAt(i){
+      if(labels.length<=1) return padL;
+      return padL + (W-padL-padR) * (i/(labels.length-1));
+    }
+    function yAt(v){
+      return padT + (H-padT-padB) * (1 - (v-minY)/(maxY-minY || 1));
+    }
+    function line(arr, stroke){
+      if(arr.length<2) return;
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for(let i=0;i<arr.length;i++){
+        const x=xAt(i), y=yAt(arr[i]);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    line(planArr, "rgba(106,166,255,1)");
+    line(actualArr, "rgba(25,195,125,1)");
+
+    const lx=padL, ly=14;
+    ctx.fillStyle="rgba(106,166,255,1)"; ctx.fillRect(lx,ly,14,4);
+    ctx.fillStyle="rgba(232,238,252,.95)"; ctx.fillText("Plan", lx+20, ly+6);
+    ctx.fillStyle="rgba(25,195,125,1)"; ctx.fillRect(lx+70,ly,14,4);
+    ctx.fillStyle="rgba(232,238,252,.95)"; ctx.fillText("Faktisk", lx+90, ly+6);
+
+    if(labels.length){
+      ctx.fillStyle="rgba(169,183,211,.9)";
+      ctx.fillText(labels[0], padL, H-8);
+      ctx.fillText(labels[labels.length-1], W-padR-52, H-8);
+    }
+  }
+
+  function lastMonth(data){
+    if(!data.length) return null;
+    return sorted(data)[data.length-1].m;
+  }
+
+  async function upsertMonth(m, v){
+    const data = await load();
+    const idx = data.findIndex(x=>x.m===m);
+    const row = {m, v};
+    if(idx>=0) data[idx]=row; else data.push(row);
+    const persisted = await save(data);
+    return persisted;
+  }
+
+  function setPill(monthsAhead){
+    if(monthsAhead>=0){
+      kpiPill.textContent="💚 Foran planen";
+      kpiPill.className="pill good";
+    }else{
+      kpiPill.textContent="🟡 Juster lidt";
+      kpiPill.className="pill warn";
+    }
+  }
+
+  async function render(){
+    const s = loadSettings();
+
+    basePmtEl.value = String(s.basePmt);
+    startAgeEl.value = String(s.startAge);
+
+    annualReturnPctEl.value = String(s.annualReturnPct);
+    targetModeEl.value = s.targetMode;
+    targetAgeEl.value = String(s.targetAge);
+    refSpendEl.value = String(s.refSpend);
+    targetAmountEl.value = s.targetAmount ? String(Math.round(s.targetAmount)) : "";
+
+    const r0 = monthRateFromAnnualPct(s.annualReturnPct);
+    const r = (r0==null || !isFinite(r0) || r0===0) ? 0.0000001 : r0;
+
+    const data = await load();
+    const {items, last, streak} = compute(data, s.basePmt, r);
+
+    const monthsToTargetAge = Math.max(0, Math.round((s.targetAge - s.startAge) * 12));
+    const autoTargetAmount = (monthsToTargetAge>0) ? planned(monthsToTargetAge, s.basePmt, r) : planned(16*12, s.basePmt, r);
+
+    let targetAmount = null;
+    if(s.targetMode==="amount"){
+      targetAmount = (s.targetAmount && isFinite(s.targetAmount)) ? s.targetAmount : autoTargetAmount;
+      targetHint.textContent = `Auto (hvis blank): ${fmt(autoTargetAmount)} kr ved ${fmt1(s.annualReturnPct)}% p.a. og base ${fmt(s.basePmt)} kr/md.`;
+      progressTitle.textContent = "Fremskridt mod slutbeløb";
+    }else{
+      targetAmount = autoTargetAmount;
+      targetHint.textContent = `Slutbeløb ved alder ${fmt1(s.targetAge)} (auto): ${fmt(autoTargetAmount)} kr (afhænger af afkast og base).`;
+      progressTitle.textContent = `Fremskridt mod alder ${fmt1(s.targetAge)} (benchmark)`;
+    }
+
+    meta.textContent = `${fmt1(s.annualReturnPct)}% p.a. | Base ${fmt(s.basePmt)} kr/md | Mål: ${s.targetMode==="age" ? ("alder "+fmt1(s.targetAge)) : ("slutbeløb "+fmt(targetAmount)+" kr")}`;
+
+    if(!last){
+      kpiMonths.textContent="–";
+      kpiSub.textContent="Indtast depotværdi og tryk Gem.";
+      kpiPill.textContent="Indtast første måned";
+      kpiPill.className="pill warn";
+      nextPay.textContent=fmt(s.basePmt)+" kr";
+      streakEl.textContent="–";
+      streakHint.textContent="Start med første måned.";
+      rows.innerHTML="";
+      progBar.style.width="0%";
+      retireEta.textContent="–";
+      retireEtaSub.textContent="Udfyld alder + første måned for estimat.";
+      statusBig.className="statusBig warn";
+      drawChart([],[],[]);
+      return;
+    }
+
+    const dev = last.dev;
+    const monthsAhead = dev / s.refSpend;
+    kpiMonths.textContent=(monthsAhead>=0?"+":"")+fmt1(monthsAhead);
+    setPill(monthsAhead);
+    kpiSub.textContent = `Senest: ${last.m}. Afvigelse: ${fmt(dev)} kr vs plan.`;
+
+    let suggested = s.basePmt - (dev / s.catchupMonths);
+    suggested = Math.max(0, suggested);
+    nextPay.textContent = fmt(suggested) + " kr";
+
+    streakEl.textContent = `${streak}`;
+    streakHint.textContent = "måneder i træk uden huller";
+
+    const progress = clamp(last.p / targetAmount, 0, 1);
+    progBar.style.width = (progress*100).toFixed(1) + "%";
+
+    const nToReach = monthsToTarget(last.v, s.basePmt, targetAmount, r);
+    if(isFinite(nToReach)){
+      const etaAge = s.startAge + (nToReach/12);
+      const etaYM = addMonths(ymNow(), Math.round(nToReach));
+      retireEta.textContent = `≈ alder ${fmt1(etaAge)}`;
+      retireEtaSub.textContent = `≈ ${etaYM} (givet ${fmt1(s.annualReturnPct)}% p.a. og base ${fmt(s.basePmt)} kr/md)`;
+
+      if(s.targetMode==="age"){
+        statusBig.className = (nToReach <= monthsToTargetAge) ? "statusBig good" : "statusBig warn";
+      }else{
+        statusBig.className = (nToReach <= 24) ? "statusBig good" : "statusBig warn";
+      }
+    }else{
+      retireEta.textContent = "–";
+      retireEtaSub.textContent = "Kunne ikke beregne (tjek afkast/base).";
+      statusBig.className="statusBig warn";
+    }
+
+    const tail = items.slice(-18).reverse();
+    rows.innerHTML = tail.map(rw=>{
+      const m = rw.dev / s.refSpend;
+      const tag = m>=0 ? "good" : "warn";
+      const sign = m>=0 ? "+" : "";
+      return `<tr>
+        <td><span class="tag ${tag}">${rw.m}</span></td>
+        <td>${fmt(rw.v)}</td>
+        <td>${fmt(rw.p)}</td>
+        <td>${fmt(rw.dev)}</td>
+        <td>${sign}${fmt1(m)}</td>
+      </tr>`;
+    }).join("");
+
+    drawChart(items.map(x=>x.m), items.map(x=>x.p), items.map(x=>x.v));
+  }
+
+  applyGoalBtn.addEventListener("click", async ()=>{
+    const s = loadSettings();
+    const ar = parseNumStr(annualReturnPctEl.value);
+    const ta = parseNumStr(targetAgeEl.value);
+    const rs = parseNumStr(refSpendEl.value);
+    const tm = targetModeEl.value === "amount" ? "amount" : "age";
+    const amt = parseNumStr(targetAmountEl.value);
+
+    if(isFinite(ar)) s.annualReturnPct = ar;
+    if(isFinite(ta)) s.targetAge = ta;
+    if(isFinite(rs) && rs>0) s.refSpend = rs;
+    s.targetMode = tm;
+    s.targetAmount = (tm==="amount" && isFinite(amt) && amt>0) ? amt : null;
+
+    saveSettings(s);
+    await render();
+    $("goalDetails").open = false;
+  });
+
+  basePmtEl.addEventListener("change", async ()=>{
+    const s = loadSettings();
+    const v = parseNumStr(basePmtEl.value);
+    s.basePmt = Math.max(0, (isFinite(v) ? v : DEFAULTS.basePmt));
+    saveSettings(s);
+    await render();
+  });
+  startAgeEl.addEventListener("change", async ()=>{
+    const s = loadSettings();
+    const v = parseNumStr(startAgeEl.value);
+    s.startAge = Math.max(1, (isFinite(v) ? v : DEFAULTS.startAge));
+    saveSettings(s);
+    await render();
+  });
+
+  saveBtn.addEventListener("click", async ()=>{
+    const ym = monthOverrideEl.value || ymNow();
+    const v = parseNumStr(valueEl.value);
+    if(!ym || !isFinite(v) || v<=0){
+      alert("Indtast depotværdi (tal). Måned er valgfri.");
+      return;
+    }
+    const persisted = await upsertMonth(ym, v);
+    valueEl.value="";
+    monthOverrideEl.value="";
+    await render();
+    if(!persisted){
+      alert("iOS blokerer lokal lagring for denne kontekst. Brug 'Eksportér backup'.");
+    }
+  });
+
+  editBtn.addEventListener("click", async ()=>{
+    const data = await load();
+    const lm = lastMonth(data);
+    if(!lm){ alert("Ingen data endnu."); return; }
+    monthOverrideEl.value = lm;
+    const row = data.find(x=>x.m===lm);
+    valueEl.value = row ? String(row.v) : "";
+    valueEl.focus();
+  });
+
+  exportBtn.addEventListener("click", async ()=>{
+    const data = await load();
+    const s = loadSettings();
+    const blob = new Blob([JSON.stringify({version:4, settings:s, data}, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "depot-tracker-v4-backup.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  importBtn.addEventListener("click", ()=> filePick.click());
+  filePick.addEventListener("change", async ()=>{
+    const file = filePick.files[0];
+    if(!file) return;
+    const text = await file.text();
+    try{
+      const obj = JSON.parse(text);
+      if(!obj || !Array.isArray(obj.data)) throw new Error("bad");
+      if(obj.settings){
+        const s0 = loadSettings();
+        const s = {...s0, ...obj.settings};
+        saveSettings(s);
+      }
+      const current = await load();
+      const map = new Map(current.map(x=>[x.m, x.v]));
+      for(const r of obj.data){
+        if(r && typeof r.m==="string" && isFinite(r.v)) map.set(r.m, r.v);
+      }
+      const merged = Array.from(map.entries()).map(([m,v])=>({m,v}));
+      await save(merged);
+      filePick.value="";
+      await render();
+    }catch(e){
+      alert("Kunne ikke importere filen (forkert format).");
+    }
+  });
+
+  resetBtn.addEventListener("click", async ()=>{
+    if(confirm("Nulstil alt?")){
+      if(lsAvailable()) localStorage.removeItem(KEY);
+      localStorage.removeItem(SETTINGS_KEY);
+      if(mode==="indexedDB" && db) await idbSet(db, KEY, []);
+      mem = [];
+      await render();
+    }
+  });
+
+  window.addEventListener("resize", ()=> render());
+
+  await initStorage();
+  await render();
+})();
+</script>
+</body>
+</html>
