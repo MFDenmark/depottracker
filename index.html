@@ -1,126 +1,729 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="da">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PensionenOptimer Demo</title>
-<style>
-body{
-font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto;
-margin:0;
-background:linear-gradient(180deg,#f4f8ff,#eaf1ff);
-display:flex;
-justify-content:center;
-}
-.app{
-max-width:420px;
-padding:20px;
-}
-.card{
-background:white;
-padding:20px;
-border-radius:20px;
-box-shadow:0 15px 40px rgba(0,0,0,0.08);
-margin-bottom:20px;
-}
-h1{font-size:22px;margin:0 0 10px}
-.big{font-size:42px;font-weight:800}
-button{
-padding:12px 16px;
-border-radius:12px;
-border:none;
-background:#2c6cff;
-color:white;
-font-weight:600;
-margin-top:10px;
-width:100%;
-}
-input{
-width:100%;
-padding:12px;
-border-radius:12px;
-border:1px solid #e0e6f5;
-margin-top:8px;
-}
-.small{font-size:13px;color:#6b7a99}
-.hidden{display:none}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PensionenOptimer — Investor Demo</title>
+  <style>
+    :root{
+      --bg1:#f6fbff; --bg2:#eef5ff;
+      --card:#ffffff; --text:#0b1220; --muted:#5a6b85; --line:#e7eef8;
+      --blue:#2c6cff; --blue2:#1f4ed8; --alt:#00a6ff;
+      --shadow: 0 18px 45px rgba(10,30,80,0.10);
+      --radius: 18px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:var(--font); color:var(--text); min-height:100vh;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, #d7ebff 0%, rgba(215,235,255,0) 60%),
+        radial-gradient(1000px 700px at 80% 20%, #d9fff6 0%, rgba(217,255,246,0) 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+    }
+    .app{max-width:460px; margin:0 auto; padding:16px 14px 18px;}
+    .topbar{display:flex; align-items:center; justify-content:space-between; padding:10px 6px 14px;}
+    .brand{display:flex; gap:10px; align-items:center;}
+    .dot{
+      width:12px;height:12px;border-radius:999px;
+      background: linear-gradient(135deg, var(--blue), var(--alt));
+      box-shadow: 0 8px 18px rgba(44,108,255,0.25);
+    }
+    .name{font-weight:800; letter-spacing:0.2px}
+    .tag{font-size:12px;color:var(--muted);margin-top:1px}
+    .screen{display:flex; flex-direction:column; gap:14px;}
+    .card{
+      background: rgba(255,255,255,0.90);
+      border: 1px solid rgba(231,238,248,0.9);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      backdrop-filter: blur(8px);
+    }
+    .hidden{display:none}
+    .kicker{
+      font-size:12px; color: var(--muted);
+      text-transform:uppercase; letter-spacing:0.12em; margin-bottom:8px;
+    }
+    h1,h2{margin:0 0 10px}
+    h1{font-size:22px;line-height:1.2}
+    h2{font-size:20px;line-height:1.2}
+    p{margin:0 0 12px;line-height:1.5}
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    .footnote{font-size:12px;color:var(--muted);margin-top:10px}
+    .strong{font-weight:800}
+    .row{display:flex;gap:10px;align-items:center}
+    .between{justify-content:space-between}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .field{display:flex;flex-direction:column;gap:6px;margin: 10px 0}
+    label{font-size:13px;color:#30415f}
+    input, select{
+      border: 1px solid var(--line);
+      background:#fff;
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-size:16px;
+      outline:none;
+    }
+    input:focus, select:focus{
+      border-color: rgba(44,108,255,0.55);
+      box-shadow: 0 0 0 4px rgba(44,108,255,0.10)
+    }
+    button{
+      border:1px solid transparent;
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-size:14px;
+      cursor:pointer;
+    }
+    button.primary{
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      color:#fff;
+      box-shadow: 0 14px 28px rgba(44,108,255,0.22);
+      flex:1;
+    }
+    button.ghost{
+      background: rgba(255,255,255,0.65);
+      border-color: var(--line);
+      color:#20314c;
+    }
+    button.pill{
+      font-size:12px;
+      padding: 10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(0,166,255,0.25);
+      background: rgba(0,166,255,0.10);
+      color:#055a84;
+      white-space:nowrap;
+    }
+    .hero{padding: 10px 0 8px}
+    .heroAge{font-size:44px;font-weight:900;letter-spacing:-0.02em}
+    .heroSub{color:var(--muted);font-size:13px;margin-top:6px}
+    .miniChart{
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 12px;
+      background: rgba(255,255,255,0.7);
+      margin-top:12px;
+    }
+    .bar{display:grid;grid-template-columns:70px 1fr 62px;gap:10px;align-items:center;margin:10px 0}
+    .track{height:10px;border-radius:999px;background:#edf3ff;overflow:hidden;border:1px solid rgba(44,108,255,0.10)}
+    .fill{height:100%;width:50%;background: linear-gradient(90deg, rgba(44,108,255,0.35), rgba(44,108,255,0.95))}
+    .fill.alt{background: linear-gradient(90deg, rgba(0,166,255,0.35), rgba(0,166,255,0.95))}
+    .label{font-size:12px;color:var(--muted)}
+    .val{font-size:12px;color:#2a3b57;text-align:right}
+    .preview{
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 12px;
+      background: rgba(255,255,255,0.7);
+      margin-top:12px;
+    }
+    .previewTitle{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px}
+    .previewRow{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px dashed rgba(90,107,133,0.25)}
+    .previewRow:first-of-type{border-top:none}
+    .microList{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+    .microItem{
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 12px;
+      background: rgba(255,255,255,0.75);
+      display:flex; justify-content:space-between; gap:12px;
+    }
+    .microTitle{font-weight:800}
+    .microMeta{font-size:12px;color:var(--muted);margin-top:4px}
+    pre.payload{
+      background:#0b1220; color:#d7e6ff;
+      border-radius:16px; padding:12px;
+      overflow:auto; max-height:320px;
+      font-size:12px; line-height:1.45;
+    }
+    .bottombar{display:flex; justify-content:space-between; padding:14px 6px 0}
+    .adminList{display:flex; flex-direction:column; gap:10px; margin-top:10px}
+    .leadCard{
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 12px;
+      background: rgba(255,255,255,0.75);
+    }
+    .leadHead{display:flex;justify-content:space-between;gap:10px}
+    .leadName{font-weight:900}
+    .leadTime{font-size:12px;color:var(--muted)}
+    details summary{cursor:pointer}
+  </style>
 </head>
 <body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="dot"></div>
+        <div>
+          <div class="name">PensionenOptimer</div>
+          <div class="tag">Investor Demo · web · mobil-first</div>
+        </div>
+      </div>
+      <button class="ghost" id="btnAdminTop">Admin</button>
+    </header>
 
-<div class="app">
+    <main class="screen">
+      <!-- Start -->
+      <section class="card" data-screen="start">
+        <div class="kicker">Start</div>
+        <h1>Se din mulige pensionsalder i tid</h1>
+        <p class="muted">Ingen login. Ingen følsomme data. Resultat vises med det samme.</p>
+        <div class="field">
+          <label for="age">Din alder</label>
+          <input id="age" type="number" inputmode="numeric" min="18" max="70" placeholder="fx 38" />
+        </div>
+        <div class="row">
+          <button class="primary" id="btnShow">Vis resultat</button>
+          <button class="ghost" id="btnDemo">Demo-tal</button>
+        </div>
+        <p class="footnote"><strong>Bemærk:</strong> Simulering baseret på forudsætninger, der kan ændre sig. Ikke rådgivning.</p>
+      </section>
 
-<div class="card" id="start">
-<h1>Se din mulige pensionsalder</h1>
-<input type="number" id="age" placeholder="Din alder">
-<button onclick="showResult()">Vis resultat</button>
-</div>
+      <!-- Hero -->
+      <section class="card hidden" data-screen="hero">
+        <div class="kicker">Resultat</div>
+        <h2>Din mulige pensionsalder</h2>
+        <div class="hero">
+          <div class="heroAge" id="heroPossible">—</div>
+          <div class="heroSub">
+            Normal pensionsalder: <span id="heroNormal">—</span> · Du vinder: <span id="heroDelta">—</span>
+          </div>
+        </div>
 
-<div class="card hidden" id="hero">
-<h1>Din mulige pension</h1>
-<div class="big" id="resultAge">—</div>
-<div class="small">Normal pensionsalder: 67 år</div>
-<div class="small" id="delta">—</div>
-<button onclick="adjust()">Justér opsparing</button>
-</div>
+        <div class="miniChart" aria-label="Normal vs mulig pensionsalder">
+          <div class="bar">
+            <div class="label">Normal</div>
+            <div class="track"><div class="fill" id="barNormal"></div></div>
+            <div class="val" id="valNormal">—</div>
+          </div>
+          <div class="bar">
+            <div class="label">Mulig</div>
+            <div class="track"><div class="fill alt" id="barPossible"></div></div>
+            <div class="val" id="valPossible">—</div>
+          </div>
+        </div>
 
-<div class="card hidden" id="adjust">
-<h1>Ekstra opsparing pr. måned</h1>
-<input type="range" min="0" max="5000" step="100" id="saving" oninput="updateSaving(this.value)">
-<div class="small" id="savingLabel">0 kr./md</div>
-<button onclick="showHero()">Tilbage</button>
-</div>
+        <div class="row">
+          <button class="primary" id="btnAdjust">Justér opsparing</button>
+          <button class="ghost" id="btnAssumptions">Tilpas forudsætninger</button>
+        </div>
 
-</div>
+        <p class="muted small">Beregningen er en simulering – resultater kan variere.</p>
+      </section>
 
-<script>
-let age = 0;
-let saving = 0;
+      <!-- Adjust -->
+      <section class="card hidden" data-screen="adjust">
+        <div class="kicker">Justering</div>
+        <h2>Ekstra opsparing pr. måned</h2>
+        <p class="muted">Primær handling. Live effekt i tid.</p>
 
-function calculate(){
-let normal = 67;
-let yearsToNormal = normal - age;
-let effect = Math.log1p(saving/1000) * 1.5;
-let possible = normal - effect;
-if(possible < normal-15) possible = normal-15;
-return possible;
-}
+        <div class="row between">
+          <div class="strong">+ <span id="extraLbl">0</span> kr./md</div>
+          <button class="ghost" id="btnBackHero1">Tilbage</button>
+        </div>
 
-function showResult(){
-age = parseInt(document.getElementById("age").value);
-if(!age) return alert("Indtast alder");
-document.getElementById("start").classList.add("hidden");
-document.getElementById("hero").classList.remove("hidden");
-updateHero();
-}
+        <input id="extraRange" type="range" min="0" max="5000" step="100" value="0" />
+        <div class="row between muted small"><span>0</span><span>5.000</span></div>
 
-function updateHero(){
-let p = calculate();
-document.getElementById("resultAge").innerText =
-Math.floor(p) + " år";
-let gain = (67 - p).toFixed(1);
-document.getElementById("delta").innerText =
-"Du kan gå ca. " + gain + " år tidligere";
-}
+        <div class="field">
+          <label for="extraManual">Eller indtast beløb</label>
+          <input id="extraManual" type="number" inputmode="numeric" min="0" placeholder="fx 1200" />
+        </div>
 
-function adjust(){
-document.getElementById("hero").classList.add("hidden");
-document.getElementById("adjust").classList.remove("hidden");
-}
+        <div class="preview">
+          <div class="previewTitle">Opdateret resultat</div>
+          <div class="previewRow"><div>Mulig pensionsalder</div><div class="strong" id="adjPossible">—</div></div>
+          <div class="previewRow"><div>Tidsgevinst</div><div class="strong" id="adjDelta">—</div></div>
+        </div>
 
-function showHero(){
-document.getElementById("adjust").classList.add("hidden");
-document.getElementById("hero").classList.remove("hidden");
-updateHero();
-}
+        <div class="row">
+          <button class="primary" id="btnMicro">Se Micro Gains</button>
+          <button class="ghost" id="btnBackHero2">Tilbage til resultat</button>
+        </div>
+      </section>
 
-function updateSaving(val){
-saving = parseInt(val);
-document.getElementById("savingLabel").innerText =
-saving + " kr./md";
-updateHero();
-}
-</script>
+      <!-- Assumptions -->
+      <section class="card hidden" data-screen="assumptions">
+        <div class="kicker">Tilpas forudsætninger</div>
+        <h2>Beregningsgrundlag</h2>
+        <p class="muted">Sekundært. Brug kun hvis relevant.</p>
 
+        <div class="field">
+          <label for="payout">Referenceudbetaling (kr./md)</label>
+          <select id="payout">
+            <option value="18000">18.000</option>
+            <option value="20000" selected>20.000 (standard)</option>
+            <option value="22000">22.000</option>
+            <option value="25000">25.000</option>
+            <option value="custom">Egen værdi…</option>
+          </select>
+        </div>
+        <div class="field hidden" id="payoutCustomWrap">
+          <label for="payoutCustom">Egen referenceudbetaling</label>
+          <input id="payoutCustom" type="number" inputmode="numeric" min="5000" placeholder="fx 21000" />
+        </div>
+
+        <div class="field">
+          <label for="returnRate">Afkast (langt sigt)</label>
+          <select id="returnRate">
+            <option value="0.06">6%</option>
+            <option value="0.07" selected>7% (default)</option>
+            <option value="0.08">8%</option>
+            <option value="0.09">9%</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <button class="primary" id="btnApply">Anvend</button>
+          <button class="ghost" id="btnBackHero3">Tilbage</button>
+        </div>
+
+        <p class="footnote">Simulering. Ingen garanti. Ikke rådgivning.</p>
+      </section>
+
+      <!-- Micro Gains -->
+      <section class="card hidden" data-screen="micro">
+        <div class="kicker">Micro Gains</div>
+        <h2>Små ændringer – stor effekt</h2>
+        <p class="muted">Konkrete scenarier. Ikke anbefalinger.</p>
+        <div class="microList" id="microList"></div>
+        <div class="row">
+          <button class="primary" id="btnMomentum">Se fremgang</button>
+          <button class="ghost" id="btnBackAdjust">Tilbage</button>
+        </div>
+      </section>
+
+      <!-- Momentum -->
+      <section class="card hidden" data-screen="momentum">
+        <div class="kicker">Momentum</div>
+        <h2>Din fremgang siden sidst</h2>
+        <p class="muted">Vises altid positivt eller neutralt.</p>
+        <div class="preview">
+          <div class="previewRow"><div>Sidste check-in</div><div class="strong" id="mLast">—</div></div>
+          <div class="previewRow"><div>Nu</div><div class="strong" id="mNow">—</div></div>
+          <div class="previewRow"><div>Udvikling</div><div class="strong" id="mDelta">—</div></div>
+        </div>
+        <div class="row">
+          <button class="primary" id="btnLead">Tal med en rådgiver</button>
+          <button class="ghost" id="btnBackHero4">Tilbage</button>
+        </div>
+      </section>
+
+      <!-- Lead -->
+      <section class="card hidden" data-screen="lead">
+        <div class="kicker">Frivillig kontakt</div>
+        <h2>Vil du blive kontaktet?</h2>
+        <p class="muted">Du ser præcis hvad der sendes, før du godkender.</p>
+
+        <div class="field">
+          <label for="intent">Hvad ønsker du?</label>
+          <select id="intent">
+            <option value="tidligere_pension">Tidligere pension</option>
+            <option value="overblik">Overblik</option>
+            <option value="optimere_opsparing">Optimere opsparing</option>
+          </select>
+        </div>
+
+        <div class="grid2">
+          <div class="field"><label for="firstName">Fornavn</label><input id="firstName" type="text" placeholder="Fornavn"></div>
+          <div class="field"><label for="lastName">Efternavn</label><input id="lastName" type="text" placeholder="Efternavn"></div>
+        </div>
+
+        <div class="grid2">
+          <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="navn@domain.dk"></div>
+          <div class="field"><label for="phone">Telefon</label><input id="phone" type="tel" placeholder="+45 ..."></div>
+        </div>
+
+        <div class="field">
+          <label for="pref">Kontaktpræference</label>
+          <select id="pref">
+            <option value="ring">Ring</option>
+            <option value="email">Email</option>
+            <option value="booking">Booking</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <button class="primary" id="btnPreview">Se hvad der sendes</button>
+          <button class="ghost" id="btnBackMomentum">Tilbage</button>
+        </div>
+      </section>
+
+      <!-- Preview -->
+      <section class="card hidden" data-screen="preview">
+        <div class="kicker">Preview</div>
+        <h2>Det her sendes</h2>
+        <p class="muted">Demo gemmer lokalt (ingen afsendelse til tredjepart).</p>
+        <pre class="payload" id="payloadBox">{}</pre>
+        <div class="row">
+          <button class="primary" id="btnSubmit">Send (demo)</button>
+          <button class="ghost" id="btnBackLead">Tilbage</button>
+        </div>
+      </section>
+
+      <!-- Thanks -->
+      <section class="card hidden" data-screen="thanks">
+        <div class="kicker">Tak</div>
+        <h2>Din henvendelse er registreret</h2>
+        <p class="muted">I en rigtig version vil en rådgiver kontakte dig indenfor en aftalt tidsramme.</p>
+        <div class="row">
+          <button class="primary" id="btnRestart">Start forfra</button>
+          <button class="ghost" id="btnAdminGo">Se admin</button>
+        </div>
+      </section>
+
+      <!-- Admin -->
+      <section class="card hidden" data-screen="admin">
+        <div class="kicker">Admin</div>
+        <h2>Leads (demo)</h2>
+        <p class="muted">Gemmes i browserens localStorage.</p>
+        <div class="row">
+          <button class="ghost" id="btnClear">Slet alle leads</button>
+          <button class="ghost" id="btnBackStart">Til start</button>
+        </div>
+        <div class="adminList" id="adminList"></div>
+      </section>
+
+    </main>
+
+    <footer class="bottombar">
+      <div class="muted small">PensionenOptimer · Investor Demo</div>
+      <div class="muted small" id="buildStamp"></div>
+    </footer>
+  </div>
+
+  <script>
+    const $ = (s)=>document.querySelector(s);
+    const $$ = (s)=>Array.from(document.querySelectorAll(s));
+    const state = {
+      profile: { age: null },
+      assumptions: { normal_pension_age: 67, return_rate: 0.07, payout_target_monthly: 20000 },
+      scenario: { extra_saving_monthly: 0, micro_gain_id: null },
+      momentum: { last_seen_at: null, last_possible_age: null }
+    };
+
+    function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
+    function fmtInt(n){ return new Intl.NumberFormat('da-DK',{maximumFractionDigits:0}).format(n); }
+    function fmtAge(age){
+      const years = Math.floor(age);
+      const months = Math.round((age-years)*12);
+      return months===0 ? `${years} år` : `${years} år ${months} mdr`;
+    }
+    function fmtDelta(deltaYears){
+      const days = Math.round(deltaYears*365);
+      if(days < 45) return `${days} dage`;
+      const months = Math.round(deltaYears*12);
+      if(days <= 540) return `${months} mdr`;
+      const y = Math.floor(months/12), m = months%12;
+      return m===0 ? `${y} år` : `${y} år ${m} mdr`;
+    }
+    function screen(name){
+      $$('[data-screen]').forEach(el=>el.classList.toggle('hidden', el.getAttribute('data-screen')!==name));
+    }
+
+    function compute(){
+      const age = state.profile.age;
+      const normal = state.assumptions.normal_pension_age;
+      const r = state.assumptions.return_rate;
+      const payout = state.assumptions.payout_target_monthly;
+      const extra = state.scenario.extra_saving_monthly;
+
+      const yearsToNormal = Math.max(0, normal - age);
+
+      // konservativ, monotont, med aftagende effekt
+      const extraAnnual = extra*12;
+      const returnFactor = 0.85 + (r - 0.06)*2.5; // mild effekt
+      const payoutFactor = 20000 / Math.max(12000, payout); // højere udbetaling => mindre effekt
+      const raw = Math.log1p(extraAnnual/10000)*2.8;
+      const yearsBought = raw * returnFactor * payoutFactor * Math.sqrt(Math.max(0.5, yearsToNormal/20));
+
+      const minAge = Math.max(18, normal - 15); // demo-minimum
+      const possible = clamp(normal - yearsBought, minAge, normal);
+      return { possible, normal, delta: normal - possible };
+    }
+
+    function renderHero(){
+      const res = compute();
+      $('#heroPossible').textContent = fmtAge(res.possible);
+      $('#heroNormal').textContent = fmtAge(res.normal);
+      $('#heroDelta').textContent = fmtDelta(res.delta);
+
+      $('#valNormal').textContent = fmtAge(res.normal);
+      $('#valPossible').textContent = fmtAge(res.possible);
+
+      const minAge = Math.max(18, res.normal - 15);
+      const span = res.normal - minAge || 1;
+      const wPossible = ((res.possible - minAge)/span)*100;
+
+      $('#barNormal').style.width = `100%`;
+      $('#barPossible').style.width = `${clamp(wPossible,0,100)}%`;
+    }
+
+    function renderAdjust(){
+      $('#extraLbl').textContent = fmtInt(state.scenario.extra_saving_monthly);
+      const res = compute();
+      $('#adjPossible').textContent = fmtAge(res.possible);
+      $('#adjDelta').textContent = fmtDelta(res.delta);
+    }
+
+    function microCatalog(age){
+      const young = age < 32;
+      const items = [
+        { id:'stream', title:'Hvis 129 kr./md går til opsparing', meta:'Fx streaming/abonnement', deltaMonthly:129 },
+        { id:'coffee', title:'Hvis 300 kr./md går til opsparing', meta:'Små vaner', deltaMonthly:300 },
+        { id:'raise',  title:'Hvis 1.000 kr./md fra lønforhøjelse går til opsparing', meta:'Strukturel', deltaMonthly:1000 },
+        { id:'car',    title:'Hvis 1.200 kr./md frigøres til opsparing', meta:'Fx bilvalg ved næste skifte', deltaMonthly:1200 },
+        { id:'housing',title:'Hvis 2.000 kr./md frigøres til opsparing', meta:'Fx bolig/struktur', deltaMonthly:2000 },
+      ];
+      const order = young ? ['stream','coffee','raise','car','housing'] : ['raise','car','housing','stream','coffee'];
+      return order.map(id=>items.find(x=>x.id===id));
+    }
+
+    function renderMicro(){
+      const list = $('#microList'); list.innerHTML = '';
+      const age = state.profile.age ?? 35;
+      const base = state.scenario.extra_saving_monthly;
+      microCatalog(age).slice(0,5).forEach(item=>{
+        const original = state.scenario.extra_saving_monthly;
+        state.scenario.extra_saving_monthly = base + item.deltaMonthly;
+        const res = compute();
+        state.scenario.extra_saving_monthly = original;
+
+        const div = document.createElement('div');
+        div.className='microItem';
+        div.innerHTML = `
+          <div>
+            <div class="microTitle">${item.title}</div>
+            <div class="microMeta">${item.meta}</div>
+          </div>
+          <button class="pill" data-micro="${item.id}">+ ${fmtDelta(res.delta)}</button>
+        `;
+        list.appendChild(div);
+      });
+
+      list.querySelectorAll('[data-micro]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = btn.getAttribute('data-micro');
+          const item = microCatalog(state.profile.age).find(x=>x.id===id);
+          state.scenario.micro_gain_id = id;
+          state.scenario.extra_saving_monthly = base + item.deltaMonthly;
+
+          // sync adjust UI
+          $('#extraRange').value = clamp(state.scenario.extra_saving_monthly,0,5000);
+          $('#extraManual').value = state.scenario.extra_saving_monthly;
+
+          renderHero();
+          updateMomentum();
+          screen('momentum');
+        });
+      });
+    }
+
+    function updateMomentum(){
+      const res = compute();
+      const last = state.momentum.last_seen_at;
+      const now = new Date();
+      $('#mLast').textContent = last ? new Date(last).toLocaleString('da-DK') : '—';
+      $('#mNow').textContent = now.toLocaleString('da-DK');
+
+      const lastPossible = state.momentum.last_possible_age;
+      let text = '—';
+      if(lastPossible != null){
+        const diff = Math.max(0, lastPossible - res.possible);
+        text = diff > 0.01 ? `+ ${fmtDelta(diff)}` : 'Uændret';
+      }
+      $('#mDelta').textContent = text;
+
+      state.momentum.last_seen_at = now.toISOString();
+      state.momentum.last_possible_age = res.possible;
+      localStorage.setItem('po_momentum', JSON.stringify(state.momentum));
+    }
+
+    function leadsGet(){ try { return JSON.parse(localStorage.getItem('po_leads')||'[]'); } catch { return []; } }
+    function leadsSet(arr){ localStorage.setItem('po_leads', JSON.stringify(arr)); }
+
+    function leadPayload(){
+      const res = compute();
+      return {
+        contact: {
+          first_name: ($('#firstName').value||'').trim(),
+          last_name:  ($('#lastName').value||'').trim(),
+          email:      ($('#email').value||'').trim(),
+          phone:      ($('#phone').value||'').trim(),
+          contact_preference: $('#pref').value
+        },
+        intent: $('#intent').value,
+        profile: { age: state.profile.age },
+        assumptions: {
+          normal_pension_age: state.assumptions.normal_pension_age,
+          return_rate: state.assumptions.return_rate,
+          payout_target_monthly: state.assumptions.payout_target_monthly
+        },
+        scenario_state: {
+          extra_saving_monthly: state.scenario.extra_saving_monthly,
+          micro_gain_id: state.scenario.micro_gain_id
+        },
+        result: {
+          possible_pension_age: res.possible,
+          normal_pension_age: res.normal,
+          delta_time: fmtDelta(res.delta)
+        },
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    function renderAdmin(){
+      const root = $('#adminList');
+      const leads = leadsGet().slice().reverse();
+      if(!leads.length){
+        root.innerHTML = `<div class="leadCard"><div class="muted">Ingen leads endnu.</div></div>`;
+        return;
+      }
+      root.innerHTML = '';
+      leads.forEach(p=>{
+        const d = new Date(p.timestamp);
+        const el = document.createElement('div');
+        el.className='leadCard';
+        el.innerHTML = `
+          <div class="leadHead">
+            <div class="leadName">${(p.contact.first_name||'—')} ${(p.contact.last_name||'')}</div>
+            <div class="leadTime">${d.toLocaleString('da-DK')}</div>
+          </div>
+          <div class="small" style="margin-top:8px;color:#2a3b57">
+            <div><strong>Intent:</strong> ${p.intent}</div>
+            <div><strong>Alder:</strong> ${p.profile.age}</div>
+            <div><strong>Mulig:</strong> ${fmtAge(p.result.possible_pension_age)} · <strong>Normal:</strong> ${fmtAge(p.result.normal_pension_age)} · <strong>Gevinst:</strong> ${p.result.delta_time}</div>
+            <div><strong>Ekstra opsparing:</strong> ${fmtInt(p.scenario_state.extra_saving_monthly)} kr./md</div>
+            <div><strong>Udbetaling:</strong> ${fmtInt(p.assumptions.payout_target_monthly)} kr./md · <strong>Afkast:</strong> ${(p.assumptions.return_rate*100).toFixed(0)}%</div>
+          </div>
+          <details style="margin-top:10px">
+            <summary class="muted">Se payload</summary>
+            <pre class="payload" style="margin-top:10px">${JSON.stringify(p,null,2)}</pre>
+          </details>
+        `;
+        root.appendChild(el);
+      });
+    }
+
+    function init(){
+      // load momentum
+      try{
+        const m = JSON.parse(localStorage.getItem('po_momentum')||'null');
+        if(m) state.momentum = m;
+      }catch{}
+      $('#buildStamp').textContent = `Build: ${new Date().toLocaleDateString('da-DK')}`;
+
+      // start
+      $('#btnDemo').addEventListener('click', ()=>$('#age').value = 38);
+      $('#btnShow').addEventListener('click', ()=>{
+        const a = parseInt($('#age').value,10);
+        if(!Number.isFinite(a) || a<18 || a>70) return alert('Indtast en alder mellem 18 og 70.');
+        state.profile.age = a;
+        state.scenario.extra_saving_monthly = 0;
+        state.scenario.micro_gain_id = null;
+        $('#extraRange').value = 0;
+        $('#extraManual').value = '';
+        renderHero();
+        screen('hero');
+      });
+
+      // hero nav
+      $('#btnAdjust').addEventListener('click', ()=>{ renderAdjust(); screen('adjust'); });
+      $('#btnAssumptions').addEventListener('click', ()=>{
+        // sync assumptions UI
+        const payout = state.assumptions.payout_target_monthly;
+        const known = ['18000','20000','22000','25000'];
+        if(known.includes(String(payout))){
+          $('#payout').value = String(payout);
+          $('#payoutCustomWrap').classList.add('hidden');
+        } else {
+          $('#payout').value = 'custom';
+          $('#payoutCustomWrap').classList.remove('hidden');
+          $('#payoutCustom').value = payout;
+        }
+        $('#returnRate').value = String(state.assumptions.return_rate);
+        screen('assumptions');
+      });
+
+      // adjust controls
+      $('#btnBackHero1').addEventListener('click', ()=>{ renderHero(); screen('hero'); });
+      $('#btnBackHero2').addEventListener('click', ()=>{ renderHero(); screen('hero'); });
+
+      $('#extraRange').addEventListener('input', (e)=>{
+        state.scenario.extra_saving_monthly = parseInt(e.target.value,10)||0;
+        $('#extraManual').value = state.scenario.extra_saving_monthly;
+        renderHero(); renderAdjust();
+      });
+      $('#extraManual').addEventListener('input', (e)=>{
+        const v = Math.max(0, parseInt(e.target.value,10)||0);
+        state.scenario.extra_saving_monthly = v;
+        $('#extraRange').value = clamp(v,0,5000);
+        renderHero(); renderAdjust();
+      });
+      $('#btnMicro').addEventListener('click', ()=>{ renderMicro(); screen('micro'); });
+
+      // assumptions
+      $('#payout').addEventListener('change', ()=>{
+        $('#payoutCustomWrap').classList.toggle('hidden', $('#payout').value !== 'custom');
+      });
+      $('#btnApply').addEventListener('click', ()=>{
+        const v = $('#payout').value;
+        let payout = 20000;
+        if(v==='custom'){
+          payout = parseInt($('#payoutCustom').value,10);
+          if(!Number.isFinite(payout) || payout<5000) return alert('Indtast en realistisk referenceudbetaling (min. 5.000).');
+        } else payout = parseInt(v,10);
+        state.assumptions.payout_target_monthly = payout;
+        state.assumptions.return_rate = parseFloat($('#returnRate').value);
+        renderHero();
+        screen('hero');
+      });
+      $('#btnBackHero3').addEventListener('click', ()=>{ renderHero(); screen('hero'); });
+
+      // micro + momentum
+      $('#btnBackAdjust').addEventListener('click', ()=>{ renderAdjust(); screen('adjust'); });
+      $('#btnMomentum').addEventListener('click', ()=>{ updateMomentum(); screen('momentum'); });
+      $('#btnBackHero4').addEventListener('click', ()=>{ renderHero(); screen('hero'); });
+
+      // lead
+      $('#btnLead').addEventListener('click', ()=>screen('lead'));
+      $('#btnBackMomentum').addEventListener('click', ()=>screen('momentum'));
+
+      $('#btnPreview').addEventListener('click', ()=>{
+        const p = leadPayload();
+        $('#payloadBox').textContent = JSON.stringify(p,null,2);
+        screen('preview');
+      });
+      $('#btnBackLead').addEventListener('click', ()=>screen('lead'));
+
+      $('#btnSubmit').addEventListener('click', ()=>{
+        const p = leadPayload();
+        const arr = leadsGet();
+        arr.push(p);
+        leadsSet(arr);
+        screen('thanks');
+      });
+      $('#btnRestart').addEventListener('click', ()=>{
+        $('#age').value='';
+        screen('start');
+      });
+
+      // admin
+      const goAdmin = ()=>{ renderAdmin(); screen('admin'); };
+      $('#btnAdminTop').addEventListener('click', goAdmin);
+      $('#btnAdminGo').addEventListener('click', goAdmin);
+      $('#btnClear').addEventListener('click', ()=>{
+        if(confirm('Slet alle leads i demo?')){ leadsSet([]); renderAdmin(); }
+      });
+      $('#btnBackStart').addEventListener('click', ()=>screen('start'));
+
+      screen('start');
+    }
+    init();
+  </script>
 </body>
 </html>
