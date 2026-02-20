@@ -1,0 +1,1658 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>TidsHjulet V22 · Mål + Forudsætninger</title>
+<style>
+:root{
+  --bg1:#f6fbff;
+  --bg2:#eef5ff;
+  --card:#ffffff;
+  --text:#0b1220;
+  --muted:#5a6b85;
+  --line:#e7eef8;
+  --blue:#2c6cff;
+  --blue2:#1f4ed8;
+  --alt:#00a6ff;
+  --shadow: 0 18px 45px rgba(10,30,80,0.10);
+  --segB:#cfe2ff;
+  --segC:#dbe9ff;
+  --danger:#b42318;
+  --ok:#059669;
+  --warn:#b45309;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  background: linear-gradient(180deg, var(--bg1), var(--bg2));
+  color: var(--text);
+}
+.app{max-width:520px;margin:0 auto;padding:18px 14px 44px;}
+.top{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 6px 14px;
+  position:sticky; top:0; z-index:20;
+  background: linear-gradient(180deg, rgba(246,251,255,0.92), rgba(246,251,255,0.70));
+  backdrop-filter: blur(10px);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.dot{width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--alt),var(--blue));
+  box-shadow:0 0 0 3px rgba(44,108,255,0.08);}
+.name{font-weight:900;letter-spacing:-0.02em}
+.tag{font-size:12px;color:var(--muted)}
+.btn{
+  border:1px solid var(--line);
+  background: rgba(255,255,255,0.85);
+  color: var(--text);
+  border-radius: 14px;
+  padding:10px 12px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow: 0 10px 26px rgba(10,30,80,0.06);
+}
+.btn:active{transform:translateY(1px)}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: 0 25px 60px rgba(10,30,80,0.12);
+}
+.hero{padding:16px;}
+.kicker{font-size:12px;color:var(--muted);letter-spacing:0.02em;text-transform:uppercase}
+.h1{margin:6px 0 0;font-size:22px;font-weight:950;letter-spacing:-0.02em}
+.p{margin:8px 0 0;font-size:13px;color:var(--muted);line-height:1.4}
+
+.wheel-wrap{margin-top:12px;text-align:center;position:relative;padding:12px 6px 8px;}
+svg{width:100%;max-width:470px;height:auto;display:block;margin:0 auto;}
+
+.segment{
+  cursor:pointer;
+  transition: opacity .18s ease, filter .18s ease, transform .28s ease, stroke .18s ease;
+  filter: drop-shadow(0 10px 18px rgba(44,108,255,0.10));
+  stroke: rgba(11,18,32,0.10);
+  stroke-width: 2;
+  transform-origin: 210px 210px;
+}
+.segment:hover{opacity:0.95; filter: drop-shadow(0 16px 26px rgba(44,108,255,0.16));}
+.segment:active{transform:scale(0.996);}
+.segment.active{filter: drop-shadow(0 18px 30px rgba(44,108,255,0.24)); stroke: rgba(44,108,255,0.55); stroke-width: 3;}
+.segment.inactive{opacity:0.72;}
+#wheelRot{transform-origin: 210px 210px; transition: transform .34s ease;}
+
+.coreTap{cursor:pointer;}
+.coreAge{font-size:62px;font-weight:950;fill:var(--text);letter-spacing:-0.05em}
+.coreSmall{font-size:12px;fill:rgba(11,18,32,0.64)}
+.coreDelta{font-size:13px;font-weight:950;fill:rgba(31,78,216,0.98)}
+
+.centerInputWrap{position:absolute;left:50%; top:50%; transform:translate(-50%,-50%); width:230px; pointer-events:none; z-index:10;}
+.centerCard{width:100%; background: rgba(255,255,255,0.95); border:1px solid var(--line); border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(10,30,80,0.14); padding:12px 12px 10px; pointer-events:auto;}
+.centerTitle{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:0.02em;text-transform:uppercase}
+.centerField{width:100%; margin-top:8px; padding:12px 12px; border-radius:14px; border:1px solid var(--line);
+  background:#fff; color: var(--text); font-size:22px; font-weight:950; outline:none; text-align:center;}
+.centerHint{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.35}
+.centerBtns{display:flex;gap:8px;margin-top:10px}
+.centerBtns button{flex:1;border:0;border-radius:14px;padding:10px 10px;font-weight:950;cursor:pointer;}
+.centerBtns .go{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.centerBtns .demo{background:rgba(0,166,255,0.10);color:rgba(0,90,140,0.95); border:1px solid rgba(0,166,255,0.20)}
+.hidden{display:none;}
+
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{border:1px solid var(--line); background: rgba(255,255,255,0.70); padding:7px 10px; border-radius:999px;
+  font-size:12px; color: rgba(11,18,32,0.78); font-weight:900;}
+.badge.blue{border-color: rgba(44,108,255,0.18); background: rgba(44,108,255,0.08); color: rgba(31,78,216,0.95);}
+.badge.ok{border-color: rgba(5,150,105,0.18); background: rgba(5,150,105,0.08); color: rgba(5,150,105,0.95);}
+
+.progressRow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:10px}
+.progressRow .left{font-size:12px;color:var(--muted);line-height:1.35;flex:1;text-align:left}
+.progressRow .right{font-size:13px;font-weight:950;color:rgba(11,18,32,0.85);white-space:nowrap}
+
+.statusLine{
+  margin-top:10px;
+  font-size:12px;
+  color: rgba(11,18,32,0.82);
+  text-align:left;
+  font-weight:900;
+}
+.statusLine.hidden{display:none}
+
+/* ===== Focus / Zoom (segments) ===== */
+.focusShade{
+  position:absolute; inset:0;
+  background: radial-gradient(circle at 50% 42%, rgba(255,255,255,0.0), rgba(0,0,0,0.06));
+  opacity:0; pointer-events:none;
+  transition: opacity .25s ease;
+  border-radius: 22px;
+}
+.wheel-wrap.focus .focusShade{opacity:1;}
+
+.wheel-wrap.focus .segment{opacity:0.08; filter:none; stroke:rgba(11,18,32,0.06);}
+.wheel-wrap.focus .segment.isFocus{
+  opacity:1;
+  filter: drop-shadow(0 24px 38px rgba(44,108,255,0.26));
+  stroke: rgba(44,108,255,0.60);
+  stroke-width: 3.2;
+  transform: translate(0px,-12px) scale(1.11);
+}
+
+.focusUI{
+  position:absolute;
+  left:50%; top:50%;
+  transform: translate(-50%,-50%);
+  width:min(430px, calc(100% - 28px));
+  pointer-events:none;
+  z-index:9;
+}
+.focusCard{
+  pointer-events:auto;
+  background: rgba(255,255,255,0.96);
+  border:1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: 0 26px 70px rgba(10,30,80,0.16);
+  padding:14px 14px 12px;
+  backdrop-filter: blur(10px);
+}
+.focusTitle{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:0.02em;text-transform:uppercase}
+.focusH{margin:6px 0 0; font-size:18px; font-weight:950; letter-spacing:-0.02em}
+.focusHint{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.35}
+.hr{height:1px;background:var(--line);margin:12px 0;}
+
+label{display:block;font-size:12px;color:var(--muted);font-weight:900;margin:10px 0 6px}
+.number{width:100%;padding:12px 12px;border-radius:14px;border:1px solid var(--line);font-size:18px;font-weight:900;color:var(--text);outline:none;}
+.inline2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick{display:flex;gap:8px;margin-top:10px}
+.quick button{flex:1;border:1px solid var(--line);background: rgba(44,108,255,0.07);color: rgba(31,78,216,0.98);
+  border-radius:14px;padding:10px 10px;font-weight:950;cursor:pointer;}
+.small{font-size:12px;color:var(--muted);line-height:1.35;margin-top:8px}
+.range{-webkit-appearance:none;appearance:none;width:100%;height:12px;border-radius:999px;background: linear-gradient(90deg, rgba(44,108,255,0.35), rgba(44,108,255,0.10));outline:none;}
+.range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:999px;background: linear-gradient(135deg, var(--alt), var(--blue));
+  border:3px solid rgba(255,255,255,0.95);box-shadow:0 10px 22px rgba(44,108,255,0.24);}
+.range::-moz-range-thumb{width:26px;height:26px;border-radius:999px;background: linear-gradient(135deg, var(--alt), var(--blue));
+  border:3px solid rgba(255,255,255,0.95);box-shadow:0 10px 22px rgba(44,108,255,0.24);}
+.range::-moz-range-track{height:12px;border-radius:999px;background: linear-gradient(90deg, rgba(44,108,255,0.35), rgba(44,108,255,0.10));}
+
+.chipsGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+.chip{padding:12px;border-radius:16px;border:1px solid var(--line);background:#f8fbff;cursor:pointer;font-size:13px;font-weight:950;
+  display:flex;justify-content:space-between;gap:10px;}
+.chip small{font-weight:950;color:var(--muted);}
+.chip.on{background: rgba(44,108,255,0.10);border-color: rgba(44,108,255,0.45);color: rgba(31,78,216,0.98);}
+
+.pagerRow{display:flex;align-items:center;justify-content:space-between;margin-top:12px;color:var(--muted);font-size:12px;}
+.pagerRow button{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px;font-weight:950;cursor:pointer;}
+.pagerRow button:disabled{opacity:0.45;cursor:not-allowed;}
+
+.wizFooter{display:flex; gap:10px; margin-top:12px;}
+.wizFooter button{
+  flex:1; border-radius:14px; padding:11px 12px; font-weight:950; cursor:pointer;
+  border:1px solid var(--line);
+}
+.wizFooter .back{background:#fff; color:rgba(11,18,32,0.88);}
+.wizFooter .ok{
+  border:0;
+  background: linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;
+  box-shadow: 0 14px 32px rgba(31,78,216,0.18);
+}
+.wizFooter .back:disabled{opacity:0.45; cursor:not-allowed;}
+.wizSub{margin-top:8px; font-size:12px; color:var(--muted); line-height:1.35;}
+.wizSub.warn{color:rgba(180,35,24,0.92); font-weight:900;}
+
+/* Keep focus UI hidden unless focus */
+.wheel-wrap:not(.focus) .focusUI{display:none;}
+
+/* “Core scoreboard” polish */
+.corePulse{animation: corePulse .45s ease;}
+@keyframes corePulse{
+  0%{transform: scale(1);}
+  45%{transform: scale(1.025);}
+  100%{transform: scale(1);}
+}
+
+/* ===== Goal section ===== */
+.goalBox{
+  margin-top:10px;
+  border:1px solid var(--line);
+  background: rgba(255,255,255,0.85);
+  border-radius:18px;
+  padding:12px 12px 10px;
+  text-align:left;
+}
+.goalHeader{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  cursor:pointer;
+}
+.goalTitle{
+  font-weight:950;
+  letter-spacing:-0.02em;
+  font-size:13px;
+  color: rgba(11,18,32,0.90);
+}
+.goalSub{
+  margin-top:6px;
+  font-size:12px;
+  color: var(--muted);
+  line-height:1.35;
+}
+.goalTitle small{
+  font-weight:950;
+  color: rgba(31,78,216,0.98);
+}
+.chev{font-size:14px;color:rgba(11,18,32,0.55);font-weight:950}
+
+/* ===== Generic modal overlay ===== */
+.modalShade{
+  position:fixed; inset:0;
+  background: rgba(10,30,80,0.22);
+  backdrop-filter: blur(6px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px 14px;
+  z-index:60;
+}
+.modalShade.open{display:flex;}
+.modal{
+  width:min(460px, 100%);
+  background: rgba(255,255,255,0.98);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow: 0 30px 90px rgba(10,30,80,0.20);
+  padding:14px 14px 12px;
+}
+.modalTop{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.modalH{
+  font-size:14px;
+  font-weight:950;
+  letter-spacing:-0.02em;
+}
+.xbtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:12px;
+  padding:8px 10px;
+  font-weight:950;
+  cursor:pointer;
+}
+.modalP{
+  margin:8px 0 0;
+  font-size:12px;
+  color: var(--muted);
+  line-height:1.35;
+}
+.modalGrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
+.kv{
+  border:1px solid var(--line);
+  background:#f8fbff;
+  border-radius:16px;
+  padding:10px 10px 9px;
+}
+.kv .k{font-size:11px;color:rgba(11,18,32,0.58);font-weight:900;text-transform:uppercase;letter-spacing:0.02em}
+.kv .v{margin-top:4px;font-size:13px;font-weight:950;color:rgba(11,18,32,0.88)}
+.kv .v strong{color:rgba(31,78,216,0.98)}
+.noteLine{
+  margin-top:8px;
+  font-size:12px;
+  font-weight:950;
+  color: rgba(11,18,32,0.84);
+}
+.noteLine.ok{color:rgba(5,150,105,0.95)}
+.noteLine.warn{color:rgba(180,83,9,0.95)}
+.noteLine.bad{color:rgba(180,35,24,0.92)}
+
+.rowBtns{display:flex; gap:10px; margin-top:12px;}
+.rowBtns button{
+  flex:1;
+  border-radius:14px;
+  padding:11px 12px;
+  font-weight:950;
+  cursor:pointer;
+  border:1px solid var(--line);
+}
+.primary{
+  border:0;
+  background: linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;
+}
+.ghost{background:#fff;color:rgba(11,18,32,0.88)}
+.danger{background: rgba(180,35,24,0.08); border-color: rgba(180,35,24,0.22); color: rgba(180,35,24,0.95);}
+
+/* Scenario slider */
+.scRow{margin-top:10px}
+.scLabel{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
+.scLabel .left{font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:0.02em}
+.scLabel .right{font-size:12px;font-weight:950;color:rgba(31,78,216,0.98)}
+.scNames{display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color: var(--muted); font-weight:900}
+.scNames span.active{color:rgba(11,18,32,0.88)}
+/* smaller secondary button inside forms */
+.miniBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:12px;
+  padding:10px 10px;
+  font-weight:950;
+  cursor:pointer;
+  font-size:12px;
+  color:rgba(11,18,32,0.84);
+}
+.inlineAction{display:flex; gap:8px; align-items:center; margin-top:10px}
+.inlineAction .miniBtn{padding:10px 10px}
+.inlineAction .miniBtn.primaryMini{
+  border:0;
+  background: rgba(44,108,255,0.10);
+  color: rgba(31,78,216,0.98);
+}
+
+/* Fade system reference when goal active */
+.faded{opacity:0.72}
+</style>
+</head>
+<body>
+<div class="app" id="appRoot">
+  <div class="top">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <div class="name">TidsHjulet</div>
+        <div class="tag">V22 · mål + forudsætninger</div>
+      </div>
+    </div>
+    <button class="btn" id="btnAssum">Forudsætninger</button>
+  </div>
+
+  <div class="card hero" id="heroCard">
+    <div class="kicker">Din frihed</div>
+    <div class="h1">Se effekten af investering</div>
+    <div class="p">Fyld de 3 felter. Midten opdaterer live. Derefter kan du sætte et mål og se realismen.</div>
+
+    <div class="wheel-wrap locked" id="wheelWrap">
+      <div class="focusShade"></div>
+      <svg viewBox="0 0 420 420" aria-label="Tids-hjul">
+        <defs>
+          <linearGradient id="gMonthly" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4f8dff"/>
+            <stop offset="100%" stop-color="#2c6cff"/>
+          </linearGradient>
+          <radialGradient id="gCore" cx="40%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.98)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0.92)"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Rotating ring (segments ONLY) -->
+        <g id="wheelRot">
+          <path id="segMonthly" class="segment inactive" fill="url(#gMonthly)"
+                d="M 210.000 40.000 A 170 170 0 0 1 309.923 347.533 L 274.656 298.992 A 110 110 0 0 0 210.000 100.000 Z"/>
+          <path id="segSavings" class="segment inactive" fill="var(--segB)"
+                d="M 309.923 347.533 A 170 170 0 0 1 40.000 210.000 L 100.000 210.000 A 110 110 0 0 0 274.656 298.992 Z"/>
+          <path id="segChoices" class="segment inactive" fill="var(--segC)"
+                d="M 40.000 210.000 A 170 170 0 0 1 210.000 40.000 L 210.000 100.000 A 110 110 0 0 0 100.000 210.000 Z"/>
+
+          <text x="347.9" y="165.2" text-anchor="middle" font-size="12" fill="rgba(11,18,32,0.70)" font-weight="900">Månedlig</text>
+          <text x="144.2" y="339.2" text-anchor="middle" font-size="12" fill="rgba(11,18,32,0.70)" font-weight="900">Opsparing</text>
+          <text x="107.5" y="107.5" text-anchor="middle" font-size="12" fill="rgba(11,18,32,0.70)" font-weight="900">Små valg</text>
+        </g>
+
+        <!-- Static core (NEVER rotates) -->
+        <g id="coreStatic">
+          <!-- Goal ring (only when goal is active) -->
+          <circle id="goalBg" cx="210" cy="210" r="118" fill="none" stroke="rgba(44,108,255,0.10)" stroke-width="10" opacity="0"/>
+          <circle id="goalRing" cx="210" cy="210" r="118" fill="none" stroke="rgba(44,108,255,0.55)" stroke-width="10"
+                  stroke-linecap="round" transform="rotate(-90 210 210)" opacity="0"/>
+
+          <!-- Core -->
+          <circle id="coreTap" class="coreTap" cx="210" cy="210" r="106" fill="url(#gCore)"/>
+          <circle cx="210" cy="210" r="106" fill="none" stroke="rgba(11,18,32,0.06)" stroke-width="2"/>
+
+          <text id="coreBase" x="210" y="164" text-anchor="middle" class="coreSmall">System: –</text>
+          <text id="coreAge" x="210" y="245" text-anchor="middle" class="coreAge">–</text>
+          <text x="210" y="270" text-anchor="middle" class="coreSmall">år</text>
+          <text id="coreDelta" x="210" y="300" text-anchor="middle" class="coreDelta">Indtast alder</text>
+          <text id="coreStep" x="210" y="326" text-anchor="middle" class="coreSmall">Trin –/3</text>
+        </g>
+      </svg>
+
+      <!-- Age gate -->
+      <div class="centerInputWrap" id="centerWrap">
+        <div class="centerCard">
+          <div class="centerTitle">Hvor gammel er du?</div>
+          <input id="ageField" class="centerField" type="number" inputmode="numeric" min="15" max="100" placeholder="fx 35">
+          <div class="centerHint">Indtast alder. Bekræft med Fortsæt (eller Enter).</div>
+          <div class="centerBtns">
+            <button class="go" id="ageGo">Fortsæt</button>
+            <button class="demo" id="ageDemo">Demo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Focus UI -->
+      <div class="focusUI" id="focusUI">
+        <div class="focusCard">
+          <div class="focusTitle" id="focusTitle">—</div>
+          <div class="focusH" id="focusH">—</div>
+          <div class="focusHint" id="focusHint">—</div>
+          <div class="hr"></div>
+          <div id="focusBody"></div>
+          <div class="wizFooter">
+            <button class="back" id="btnBack">Tilbage</button>
+            <button class="ok" id="btnOk">OK</button>
+          </div>
+          <div class="wizSub" id="wizSub"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goal section -->
+    <div class="goalBox" id="goalBox">
+      <div class="goalHeader" id="goalHeader" role="button" aria-label="Mål">
+        <div class="goalTitle" id="goalTitle">Sæt et mål</div>
+        <div class="chev">›</div>
+      </div>
+      <div class="goalSub" id="goalSub">
+        Sæt en ønsket stopalder og se hvor realistisk målet er.
+      </div>
+    </div>
+
+    <div class="badges">
+      <div class="badge" id="badgeOfficial">System: –</div>
+      <div class="badge blue" id="badgeActive">0/3 aktiveret</div>
+      <div class="badge ok hidden" id="badgeLive">Live</div>
+    </div>
+
+    <div class="progressRow">
+      <div class="left" id="progLeft">Indtast alder for at starte.</div>
+      <div class="right" id="progRight"></div>
+    </div>
+
+    <div class="statusLine hidden" id="statusLine">—</div>
+  </div>
+</div>
+
+<!-- Goal Modal -->
+<div class="modalShade" id="goalModalShade" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Mål">
+    <div class="modalTop">
+      <div class="modalH" id="goalModalH">Dit mål</div>
+      <button class="xbtn" id="goalClose">X</button>
+    </div>
+
+    <div class="modalP" id="goalModalP">Se hvor realistisk dit mål er.</div>
+
+    <div class="modalGrid">
+      <div class="kv">
+        <div class="k">System</div>
+        <div class="v" id="kvSystem">—</div>
+      </div>
+      <div class="kv">
+        <div class="k">Din frihed</div>
+        <div class="v" id="kvFreedom">—</div>
+      </div>
+    </div>
+
+    <div class="scRow" style="margin-top:10px">
+      <label>Ønsket stopalder</label>
+      <input id="goalAgeField" class="number" type="number" inputmode="numeric" min="15" max="100" placeholder="fx 58">
+    </div>
+
+    <div class="modalGrid" style="margin-top:10px">
+      <div class="kv">
+        <div class="k">Fremdrift</div>
+        <div class="v"><strong id="kvProgress">—</strong></div>
+      </div>
+      <div class="kv">
+        <div class="k">Vurdering</div>
+        <div class="v" id="kvRating">—</div>
+      </div>
+    </div>
+
+    <div class="noteLine" id="goalExplain"></div>
+
+    <div class="hr"></div>
+
+    <div id="goalSuggestWrap" class="hidden">
+      <div class="noteLine" id="goalSuggestText">—</div>
+      <div class="inlineAction">
+        <button class="miniBtn primaryMini" id="btnUseSuggestion">Brug forslag</button>
+      </div>
+    </div>
+
+    <div class="rowBtns">
+      <button class="ghost" id="goalSave">Gem</button>
+      <button class="danger" id="goalRemove">Fjern mål</button>
+    </div>
+  </div>
+</div>
+
+<!-- Assumptions / Model Modal -->
+<div class="modalShade" id="assumModalShade" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Forudsætninger">
+    <div class="modalTop">
+      <div class="modalH">Forudsætninger</div>
+      <button class="xbtn" id="assumClose">X</button>
+    </div>
+
+    <div class="modalP">Justér modellen. Resultater opdaterer live.</div>
+
+    <div class="scRow">
+      <div class="scLabel">
+        <div class="left">Scenarie</div>
+        <div class="right" id="scRight">Standard · 6%</div>
+      </div>
+      <input id="scSlider" class="range" type="range" min="0" max="2" step="1" value="1">
+      <div class="scNames">
+        <span id="sc0">Forsigtig</span>
+        <span id="sc1" class="active">Standard</span>
+        <span id="sc2">Optimistisk</span>
+      </div>
+    </div>
+
+    <div class="modalGrid" style="margin-top:10px">
+      <div>
+        <label>Målindkomst (kr./md)</label>
+        <input id="targetMonthlyField" class="number" type="number" inputmode="numeric" min="5000" max="50000">
+      </div>
+      <div>
+        <label>Udbetaling (år)</label>
+        <input id="payoutYearsField" class="number" type="number" inputmode="numeric" min="5" max="35">
+      </div>
+    </div>
+
+    <div class="modalGrid" style="margin-top:10px">
+      <div class="kv">
+        <div class="k">Målkapital</div>
+        <div class="v" id="kvNeed">—</div>
+      </div>
+      <div class="kv">
+        <div class="k">Forventet kapital</div>
+        <div class="v" id="kvHave">—</div>
+      </div>
+    </div>
+
+    <div class="kv" style="margin-top:10px">
+      <div class="k">Mangler</div>
+      <div class="v" id="kvGap">—</div>
+    </div>
+
+    <div class="rowBtns">
+      <button class="primary" id="assumDone">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== Baseline ===== */
+const nowYear = 2026;
+const $ = (id)=>document.getElementById(id);
+
+const CHOICES = [
+  {id:"c1", label:"☕ Mindre café-kaffe", monthly:200},
+  {id:"c2", label:"🍔 1 mindre take-away", monthly:400},
+  {id:"c3", label:"📺 Del streaming", monthly:150},
+  {id:"c4", label:"🚲 Cykel 1 dag mere", monthly:300},
+  {id:"c5", label:"🛒 5% mindre forbrug", monthly:250},
+  {id:"c6", label:"🧾 Abonnement-scan", monthly:150},
+  {id:"c7", label:"🧁 Færre snacks", monthly:200},
+  {id:"c8", label:"🛍️ Impulskøb færre", monthly:400},
+  {id:"c9", label:"📦 Køb brugt 1x", monthly:350},
+  {id:"c10", label:"🚆 Transport-optimering", monthly:300},
+];
+const PAGE_SIZE = 5;
+
+const state = {
+  age:null,
+  birthYear:null,
+  pensionAge:null,
+
+  monthly:0,
+  savings:0,
+  choicesOn: new Set(),
+  choicesManual: 0,
+
+  // Model / assumptions
+  scenarioIdx: 1, // 0=4%, 1=6%, 2=8%
+  r: 0.06,
+  targetMonthly: 20000,
+  payoutYears: 20,
+
+  // Goal
+  goalAge: null,          // desired stop age
+  lastManualMonthly: null, // for undo after suggestion
+  undoArmed: false,
+
+  choicesPage: 0,
+
+  /* Wizard */
+  wizardMode: true,
+  stepIndex: 0, // 0..2
+  confirmed: { monthly:false, savings:false, choices:false },
+  focusOpen: false,
+  focusStep: null,
+};
+
+const CLAMP = {
+  ageMin: 15, ageMax: 100,
+  monthlyMin: 0, monthlyMax: 30000,
+  savingsMin: 0, savingsMax: 50000000,
+  choicesManualMin: 0, choicesManualMax: 10000,
+  targetMonthlyMin: 5000, targetMonthlyMax: 50000,
+  payoutYearsMin: 5, payoutYearsMax: 35,
+};
+
+function clamp(n, a, b){
+  n = Number.isFinite(n) ? n : 0;
+  return Math.min(b, Math.max(a, n));
+}
+function toInt(v){
+  const n = parseInt(String(v ?? "").replace(/[^0-9]/g,""), 10);
+  return Number.isFinite(n) ? n : 0;
+}
+function fmtDKK(n){
+  try{return Math.round(n).toLocaleString("da-DK");}catch(e){return String(Math.round(n));}
+}
+
+/* NOTE: pensionsalder-model er et estimat (ikke autoritativt regelsæt) */
+function pensionAgeFromBirthYear(y){
+  if (y < 1963) return 67;
+  if (y < 1967) return 68;
+  if (y < 1971) return 69;
+  if (y < 1975) return 70;
+  if (y < 1979) return 71;
+  return 72;
+}
+function neededCapital(){ return state.targetMonthly * 12 * state.payoutYears; }
+function choicesSum(){
+  let sum = 0;
+  for (const id of state.choicesOn){
+    const c = CHOICES.find(x=>x.id===id);
+    if (c) sum += c.monthly;
+  }
+  return sum + (state.choicesManual||0);
+}
+function activeCount(){
+  let n=0;
+  if (state.monthly>0) n++;
+  if (state.savings>0) n++;
+  if (choicesSum()>0) n++;
+  return n;
+}
+function hardenAll(){
+  if(state.age != null) state.age = clamp(toInt(state.age), CLAMP.ageMin, CLAMP.ageMax);
+  state.monthly = clamp(toInt(state.monthly), CLAMP.monthlyMin, CLAMP.monthlyMax);
+  state.savings = clamp(toInt(state.savings), CLAMP.savingsMin, CLAMP.savingsMax);
+  state.choicesManual = clamp(toInt(state.choicesManual), CLAMP.choicesManualMin, CLAMP.choicesManualMax);
+  state.targetMonthly = clamp(toInt(state.targetMonthly), CLAMP.targetMonthlyMin, CLAMP.targetMonthlyMax);
+  state.payoutYears = clamp(toInt(state.payoutYears), CLAMP.payoutYearsMin, CLAMP.payoutYearsMax);
+
+  // scenario-driven r
+  const map = [0.04, 0.06, 0.08];
+  state.scenarioIdx = clamp(toInt(state.scenarioIdx), 0, 2);
+  state.r = map[state.scenarioIdx] ?? 0.06;
+
+  // goal clamp (optional)
+  if(state.goalAge != null){
+    const g = clamp(toInt(state.goalAge), CLAMP.ageMin, CLAMP.ageMax);
+    state.goalAge = g || null;
+  }
+}
+
+function computeFreedom(){
+  hardenAll();
+  if (!state.age || !state.pensionAge) return null;
+
+  const baseAge = state.pensionAge;
+  const yearsLeft = Math.max(0, baseAge - state.age);
+  const r = state.r;
+
+  const annual = (state.monthly + choicesSum()) * 12;
+  const fvContrib = annual * (r===0 ? yearsLeft : ((Math.pow(1+r, yearsLeft)-1)/r));
+  const fvSavings = state.savings * Math.pow(1+r, yearsLeft);
+  const total = fvContrib + fvSavings;
+
+  const need = neededCapital();
+  const ratio = need>0 ? total/need : 0;
+
+  const cap = yearsLeft * 0.35;
+  const yearsGained = Math.max(0, Math.min(cap, ratio*cap));
+  const freedomAge = baseAge - yearsGained;
+  return {baseAge, freedomAge, yearsGained, total, need};
+}
+
+/* ===== Goal logic ===== */
+function goalIsActive(){
+  return state.goalAge != null && Number.isFinite(state.goalAge);
+}
+function goalProgress(res){
+  if(!res || !goalIsActive()) return null;
+  const baseAge = res.baseAge;
+  const goalAge = state.goalAge;
+
+  const needYears = baseAge - goalAge;
+  if (needYears <= 0) return {progress:1, missingPct:0, label:"Realistisk", achieved:true};
+
+  const haveYears = baseAge - res.freedomAge;
+  const raw = haveYears / needYears;
+  const prog = Math.max(0, Math.min(1, raw));
+  const missingPct = Math.max(0, Math.min(100, Math.round((1-prog)*100)));
+
+  const achieved = (prog >= 1);
+
+  let label = "Urealistisk";
+  if (prog >= 0.85) label = "Realistisk";
+  else if (prog >= 0.60) label = "Ambitiøst";
+
+  return {progress:prog, missingPct, label, achieved};
+}
+function suggestedMonthlyForGoal(){
+  const res = computeFreedom();
+  if(!res || !goalIsActive()) return null;
+
+  const g = state.goalAge;
+  const t = Math.max(0, g - state.age);
+  const r = state.r;
+
+  const need = neededCapital();
+  const fvSavings = state.savings * Math.pow(1+r, t);
+  const gap = need - fvSavings;
+
+  if (gap <= 0) return 0;
+
+  const factor = (r===0) ? t : ((Math.pow(1+r, t)-1)/r);
+  if (factor <= 0) return null;
+
+  const annualNeeded = gap / factor;
+  const totalMonthlyNeeded = annualNeeded / 12;
+
+  const suggest = Math.max(0, totalMonthlyNeeded - (choicesSum()));
+  const rounded = Math.round(suggest / 100) * 100;
+  return rounded;
+}
+
+/* ===== Persistence ===== */
+const LS_KEY = "tidhjulet_v22_state_v1";
+function saveState(){
+  try{
+    const payload = {
+      age: state.age,
+      monthly: state.monthly,
+      savings: state.savings,
+      choicesOn: Array.from(state.choicesOn),
+      choicesManual: state.choicesManual,
+      scenarioIdx: state.scenarioIdx,
+      targetMonthly: state.targetMonthly,
+      payoutYears: state.payoutYears,
+      choicesPage: state.choicesPage,
+      goalAge: state.goalAge,
+      wizardMode: state.wizardMode,
+      stepIndex: state.stepIndex,
+      confirmed: state.confirmed,
+      wheelRot: $("wheelRot")?.style?.transform ?? "",
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(payload));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return false;
+    const p = JSON.parse(raw);
+    if(p && typeof p === "object"){
+      if(p.age != null){
+        const a = clamp(toInt(p.age), CLAMP.ageMin, CLAMP.ageMax);
+        state.age = a;
+        state.birthYear = nowYear - a;
+        state.pensionAge = pensionAgeFromBirthYear(state.birthYear);
+        $("centerWrap")?.classList.add("hidden");
+        lockWheel(false);
+      }
+      state.monthly = clamp(toInt(p.monthly), CLAMP.monthlyMin, CLAMP.monthlyMax);
+      state.savings = clamp(toInt(p.savings), CLAMP.savingsMin, CLAMP.savingsMax);
+      state.choicesOn = new Set(Array.isArray(p.choicesOn) ? p.choicesOn : []);
+      state.choicesManual = clamp(toInt(p.choicesManual), CLAMP.choicesManualMin, CLAMP.choicesManualMax);
+
+      state.scenarioIdx = clamp(toInt(p.scenarioIdx), 0, 2);
+      state.targetMonthly = clamp(toInt(p.targetMonthly), CLAMP.targetMonthlyMin, CLAMP.targetMonthlyMax);
+      state.payoutYears = clamp(toInt(p.payoutYears), CLAMP.payoutYearsMin, CLAMP.payoutYearsMax);
+      state.choicesPage = clamp(toInt(p.choicesPage), 0, 1000);
+
+      state.goalAge = (p.goalAge == null) ? null : clamp(toInt(p.goalAge), CLAMP.ageMin, CLAMP.ageMax);
+
+      state.wizardMode = (p.wizardMode === false) ? false : true;
+      state.stepIndex = clamp(toInt(p.stepIndex), 0, 2);
+      if(p.confirmed && typeof p.confirmed === "object"){
+        state.confirmed = {
+          monthly: !!p.confirmed.monthly,
+          savings: !!p.confirmed.savings,
+          choices: !!p.confirmed.choices,
+        };
+        if(state.confirmed.monthly && state.confirmed.savings && state.confirmed.choices){
+          state.wizardMode = false;
+        }
+      }
+
+      if(typeof p.wheelRot === "string" && p.wheelRot.includes("rotate(")){
+        $("wheelRot").style.transform = p.wheelRot;
+      }
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+/* ===== UI helpers ===== */
+function easeOutCubic(p){ return 1 - Math.pow(1-p, 3); }
+
+let lastShown = null;
+let animSeq = 0;
+
+function animateCore(to){
+  const el = $("coreAge");
+  if(!el) return;
+
+  animSeq++;
+  const seq = animSeq;
+
+  if (lastShown === null){
+    el.textContent = (Math.round(to*10)/10).toString();
+    lastShown = to;
+    return;
+  }
+
+  const from = lastShown;
+  const start = performance.now();
+  const dur = 320;
+
+  function tick(t){
+    if (seq !== animSeq) return;
+    const p = Math.min(1, (t-start)/dur);
+    const v = from + (to-from) * easeOutCubic(p);
+    el.textContent = (Math.round(v*10)/10).toString();
+    if (p<1) requestAnimationFrame(tick);
+    else lastShown = to;
+  }
+  requestAnimationFrame(tick);
+}
+
+function pulseCore(){
+  const g = $("coreStatic");
+  if(!g) return;
+  g.classList.remove("corePulse");
+  void g.offsetWidth;
+  g.classList.add("corePulse");
+}
+
+function lockWheel(locked){ $("wheelWrap").classList.toggle("locked", locked); }
+function setLiveBadge(on){ $("badgeLive").classList.toggle("hidden", !on); }
+
+function updateSegmentStates(){
+  const m=$("segMonthly"), s=$("segSavings"), c=$("segChoices");
+  const onM = state.monthly>0;
+  const onS = state.savings>0;
+  const onC = choicesSum()>0;
+
+  [m,s,c].forEach(el=>{ el.classList.remove("active"); el.classList.add("inactive"); el.classList.remove("isFocus"); });
+  if (onM){ m.classList.add("active"); m.classList.remove("inactive"); }
+  if (onS){ s.classList.add("active"); s.classList.remove("inactive"); }
+  if (onC){ c.classList.add("active"); c.classList.remove("inactive"); }
+}
+
+const STEP_ORDER = ["monthly","savings","choices"];
+function stepName(step){
+  if(step==="monthly") return "Månedlig investering";
+  if(step==="savings") return "Opsparing i dag";
+  if(step==="choices") return "Små valg";
+  return "—";
+}
+function stepHint(step){
+  if(step==="monthly") return "Indtast 0 hvis du ikke investerer månedligt. Midten opdaterer live.";
+  if(step==="savings") return "Indtast 0 hvis du ikke har opsparing. Midten opdaterer live.";
+  if(step==="choices") return "Vælg små valg – eller 0. Midten opdaterer live.";
+  return "";
+}
+
+function rotateToStepIndex(i){
+  const degMap = [0, 120, -120];
+  const deg = degMap[i] ?? 0;
+  $("wheelRot").style.transform = `rotate(${deg}deg)`;
+  saveState();
+}
+
+function isAllConfirmed(){
+  return state.confirmed.monthly && state.confirmed.savings && state.confirmed.choices;
+}
+function activeCount(){
+  let n=0;
+  if (state.monthly>0) n++;
+  if (state.savings>0) n++;
+  if (choicesSum()>0) n++;
+  return n;
+}
+
+function setSegmentInteractivity(){
+  const current = STEP_ORDER[state.stepIndex];
+  const map = { monthly:$("segMonthly"), savings:$("segSavings"), choices:$("segChoices") };
+
+  if(!state.age){
+    Object.values(map).forEach(el=>{ el.style.pointerEvents="none"; });
+    return;
+  }
+  if(state.focusOpen){
+    Object.values(map).forEach(el=>{ el.style.pointerEvents="none"; });
+    return;
+  }
+  if(state.wizardMode){
+    Object.entries(map).forEach(([k,el])=>{
+      el.style.pointerEvents = (k===current) ? "auto" : "none";
+      el.classList.toggle("active", k===current || el.classList.contains("active"));
+      el.classList.toggle("inactive", k!==current);
+    });
+    return;
+  }
+  Object.values(map).forEach(el=>{ el.style.pointerEvents="auto"; });
+}
+
+/* Goal ring drawing */
+function setGoalRing(progress){
+  const bg = $("goalBg");
+  const ring = $("goalRing");
+  const r = 118;
+  const C = 2*Math.PI*r;
+
+  if(progress == null){
+    bg.style.opacity = "0";
+    ring.style.opacity = "0";
+    ring.setAttribute("stroke-dasharray", `0 ${C}`);
+    return;
+  }
+  const frac = Math.max(0, Math.min(1, progress));
+  const dash = C * frac;
+  const gap = C - dash;
+
+  bg.style.opacity = "1";
+  ring.style.opacity = "1";
+  ring.setAttribute("stroke-dasharray", `${dash} ${gap}`);
+}
+
+function updateGoalSection(res){
+  const titleEl = $("goalTitle");
+  const subEl = $("goalSub");
+
+  if(!state.age){
+    titleEl.textContent = "Sæt et mål";
+    subEl.textContent = "Sæt en ønsket stopalder og se hvor realistisk målet er.";
+    return;
+  }
+  if(goalIsActive()){
+    titleEl.innerHTML = `Dit mål: <small>${state.goalAge} år</small>`;
+    subEl.textContent = "Tryk for at se fremdrift, vurdering og forslag.";
+  }else{
+    titleEl.textContent = "Sæt et mål";
+    subEl.textContent = "Sæt en ønsket stopalder og se hvor realistisk målet er.";
+  }
+}
+
+function updateStatusLine(res){
+  const line = $("statusLine");
+  line.classList.add("hidden");
+  line.textContent = "";
+  if(!res || !goalIsActive()) return;
+
+  const gp = goalProgress(res);
+  if(!gp) return;
+
+  if(gp.achieved){
+    line.textContent = "Du kan allerede stoppe";
+    line.classList.remove("hidden");
+  }
+}
+
+function updateUI(){
+  const res = computeFreedom();
+  updateGoalSection(res);
+
+  if (!res){
+    $("coreBase").textContent = "System: –";
+    $("coreAge").textContent = "–";
+    $("coreDelta").textContent = "Indtast alder";
+    $("coreStep").textContent = "Trin –/3";
+    $("badgeOfficial").textContent = "System: –";
+    $("badgeActive").textContent = "0/3 aktiveret";
+    $("progLeft").textContent = "Indtast alder for at starte.";
+    $("progRight").textContent = "";
+    setLiveBadge(false);
+
+    setGoalRing(null);
+    $("coreBase").classList.remove("faded");
+    $("badgeOfficial").classList.remove("faded");
+    updateStatusLine(null);
+
+    lastShown = null;
+    animSeq++;
+    updateSegmentStates();
+    setSegmentInteractivity();
+    return;
+  }
+
+  $("coreBase").textContent = "System: " + res.baseAge + " år";
+  $("badgeOfficial").textContent = "System: " + res.baseAge + " år (estimat)";
+
+  animateCore(Math.round(res.freedomAge*10)/10);
+
+  const gained = Math.round(res.yearsGained*10)/10;
+  if (gained < 0.05){
+    $("coreDelta").textContent = "Lav et valg og se effekten";
+    $("progRight").textContent = "";
+  }else{
+    $("coreDelta").textContent = "+" + gained + " år tidligere muligt";
+    $("progRight").textContent = "+" + gained + " år";
+  }
+
+  const act = activeCount();
+  $("badgeActive").textContent = act + "/3 aktiveret";
+  setLiveBadge(act>0);
+
+  $("coreStep").textContent = "Trin " + (state.wizardMode ? (state.stepIndex+1) : "✓") + "/3";
+  $("progLeft").textContent = state.wizardMode
+    ? ("Trin " + (state.stepIndex+1) + " af 3 · Tryk for at zoome ind og bekræft med OK.")
+    : "Fri redigering: Tryk på et felt og justér.";
+
+  if(goalIsActive()){
+    const gp = goalProgress(res);
+    setGoalRing(gp ? gp.progress : null);
+    $("coreBase").classList.add("faded");
+    $("badgeOfficial").classList.add("faded");
+  }else{
+    setGoalRing(null);
+    $("coreBase").classList.remove("faded");
+    $("badgeOfficial").classList.remove("faded");
+  }
+
+  updateStatusLine(res);
+  updateSegmentStates();
+  setSegmentInteractivity();
+  saveState();
+}
+
+/* ===== Focus (Zoom) ===== */
+function setFocusVisual(step){
+  const wrap = $("wheelWrap");
+  wrap.classList.add("focus");
+  $("segMonthly").classList.toggle("isFocus", step==="monthly");
+  $("segSavings").classList.toggle("isFocus", step==="savings");
+  $("segChoices").classList.toggle("isFocus", step==="choices");
+}
+function clearFocusVisual(){
+  $("wheelWrap").classList.remove("focus");
+  ["segMonthly","segSavings","segChoices"].forEach(id=>$(id).classList.remove("isFocus"));
+}
+
+function openFocus(step){
+  if(!state.age) return;
+  state.focusOpen = true;
+  state.focusStep = step;
+
+  setFocusVisual(step);
+  $("focusTitle").textContent = state.wizardMode ? ("Trin " + (state.stepIndex+1) + " af 3") : "Redigér";
+  $("focusH").textContent = stepName(step);
+  $("focusHint").textContent = stepHint(step);
+  $("wizSub").textContent = "";
+
+  renderFocusBody(step);
+
+  $("btnBack").disabled = state.wizardMode ? (state.stepIndex===0) : false;
+  $("btnBack").textContent = "Tilbage";
+  $("btnOk").textContent = "OK";
+
+  setSegmentInteractivity();
+}
+
+function closeFocus(){
+  state.focusOpen = false;
+  state.focusStep = null;
+  clearFocusVisual();
+  $("wizSub").textContent = "";
+  setSegmentInteractivity();
+  saveState();
+}
+
+/* Focus content */
+function focusMonthlyHtml(){
+  const undoBtn = state.undoArmed
+    ? `<div style="margin-top:10px"><button type="button" class="miniBtn" id="btnUndoMonthly">Fortryd</button></div>`
+    : ``;
+
+  return `
+    <label>Beløb (kr./md)</label>
+    <input id="mRange" class="range" type="range" min="0" max="15000" step="100" value="${state.monthly}">
+    <div class="inline2" style="margin-top:10px">
+      <div>
+        <label>Skriv beløb</label>
+        <input id="mNum" class="number" type="number" inputmode="numeric" min="0" value="${state.monthly}">
+        ${undoBtn}
+      </div>
+      <div>
+        <label>Hurtigt</label>
+        <div class="quick">
+          <button type="button" data-add="100">+100</button>
+          <button type="button" data-add="500">+500</button>
+          <button type="button" data-add="1000">+1000</button>
+        </div>
+      </div>
+    </div>
+    <div class="small">0 er tilladt. OK betyder “bekræftet”.</div>
+  `;
+}
+function clearUndoOnManualChange(){
+  if(state.undoArmed){
+    state.undoArmed = false;
+    state.lastManualMonthly = null;
+  }
+}
+function bindMonthly(){
+  const r=$("mRange"), n=$("mNum");
+
+  const onManual = ()=>{ clearUndoOnManualChange(); };
+
+  r.addEventListener("input", (e)=>{
+    onManual();
+    state.monthly = clamp(toInt(e.target.value||"0"), CLAMP.monthlyMin, CLAMP.monthlyMax);
+    n.value = state.monthly;
+    updateUI(); pulseCore();
+  });
+  n.addEventListener("input", (e)=>{
+    onManual();
+    state.monthly = clamp(toInt(e.target.value||"0"), CLAMP.monthlyMin, CLAMP.monthlyMax);
+    r.value = state.monthly;
+    updateUI(); pulseCore();
+  });
+  $("focusBody").querySelectorAll(".quick button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      onManual();
+      state.monthly = clamp(state.monthly + toInt(btn.dataset.add), CLAMP.monthlyMin, CLAMP.monthlyMax);
+      r.value = state.monthly; n.value = state.monthly;
+      updateUI(); pulseCore();
+    });
+  });
+
+  const undo = $("btnUndoMonthly");
+  if(undo){
+    undo.addEventListener("click", ()=>{
+      if(state.lastManualMonthly == null) return;
+      state.monthly = clamp(toInt(state.lastManualMonthly), CLAMP.monthlyMin, CLAMP.monthlyMax);
+      state.undoArmed = false;
+      state.lastManualMonthly = null;
+      r.value = state.monthly; n.value = state.monthly;
+      updateUI(); pulseCore();
+      $("focusBody").innerHTML = focusMonthlyHtml();
+      bindMonthly();
+    });
+  }
+}
+
+function focusSavingsHtml(){
+  return `
+    <label>Beløb (kr.)</label>
+    <input id="sNum" class="number" type="number" inputmode="numeric" min="0" value="${state.savings}" placeholder="fx 250000">
+    <div class="quick">
+      <button type="button" data-add="10000">+10k</button>
+      <button type="button" data-add="50000">+50k</button>
+      <button type="button" data-add="100000">+100k</button>
+    </div>
+    <div class="small">0 er tilladt. OK betyder “bekræftet”.</div>
+  `;
+}
+function bindSavings(){
+  const n=$("sNum");
+  n.addEventListener("input", (e)=>{
+    state.savings = clamp(toInt(e.target.value||"0"), CLAMP.savingsMin, CLAMP.savingsMax);
+    updateUI(); pulseCore();
+  });
+  $("focusBody").querySelectorAll(".quick button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.savings = clamp(state.savings + toInt(btn.dataset.add), CLAMP.savingsMin, CLAMP.savingsMax);
+      n.value = state.savings;
+      updateUI(); pulseCore();
+    });
+  });
+}
+function renderChoices(){
+  const totalPages = Math.ceil(CHOICES.length / PAGE_SIZE);
+  const start = state.choicesPage * PAGE_SIZE;
+  const items = CHOICES.slice(start, start + PAGE_SIZE);
+
+  let chipsHtml = "";
+  for (const c of items){
+    const on = state.choicesOn.has(c.id) ? "on" : "";
+    chipsHtml += `<div class="chip ${on}" data-id="${c.id}"><span>${c.label}</span><small>${c.monthly} kr./md</small></div>`;
+  }
+
+  const prevDisabled = (state.choicesPage===0) ? "disabled" : "";
+  const nextDisabled = (state.choicesPage===totalPages-1) ? "disabled" : "";
+
+  return `
+    <div class="small">Vælg konkrete ting. 0 er tilladt.</div>
+    <div class="small" style="margin-top:6px"><b>Små valg i alt:</b> <span id="choicesTotal">${choicesSum()}</span> kr./md</div>
+
+    <div class="chipsGrid" id="chipsGrid">${chipsHtml}</div>
+
+    <div class="pagerRow">
+      <button id="prevPg" type="button" ${prevDisabled}>Forrige</button>
+      <div>Side ${state.choicesPage+1}/${totalPages}</div>
+      <button id="nextPg" type="button" ${nextDisabled}>Næste</button>
+    </div>
+
+    <label>Tilpas selv (kr./md) – ekstra</label>
+    <input id="choicesManual" class="number" type="number" inputmode="numeric" min="0" value="${state.choicesManual}" placeholder="fx 300">
+
+    <div class="small">OK betyder “bekræftet”.</div>
+  `;
+}
+function bindChoices(){
+  const grid = $("chipsGrid");
+  if (grid){
+    grid.addEventListener("click", (e)=>{
+      const el = e.target.closest(".chip");
+      if(!el) return;
+      const id = el.getAttribute("data-id");
+      if(state.choicesOn.has(id)) state.choicesOn.delete(id); else state.choicesOn.add(id);
+      $("focusBody").innerHTML = renderChoices();
+      bindChoices();
+      updateUI(); pulseCore();
+    });
+  }
+
+  const totalPages = Math.ceil(CHOICES.length / PAGE_SIZE);
+  const prev = $("prevPg"), next = $("nextPg");
+  if (prev){
+    prev.addEventListener("click", ()=>{
+      if(state.choicesPage>0) state.choicesPage--;
+      $("focusBody").innerHTML = renderChoices();
+      bindChoices();
+    });
+  }
+  if (next){
+    next.addEventListener("click", ()=>{
+      if(state.choicesPage<totalPages-1) state.choicesPage++;
+      $("focusBody").innerHTML = renderChoices();
+      bindChoices();
+    });
+  }
+
+  const manual = $("choicesManual");
+  if (manual){
+    manual.addEventListener("input", (e)=>{
+      state.choicesManual = clamp(toInt(e.target.value||"0"), CLAMP.choicesManualMin, CLAMP.choicesManualMax);
+      const t = $("choicesTotal");
+      if (t) t.textContent = choicesSum();
+      updateUI(); pulseCore();
+    });
+  }
+}
+
+function renderFocusBody(step){
+  if(step==="monthly"){
+    $("focusBody").innerHTML = focusMonthlyHtml();
+    bindMonthly();
+  }else if(step==="savings"){
+    $("focusBody").innerHTML = focusSavingsHtml();
+    bindSavings();
+  }else if(step==="choices"){
+    $("focusBody").innerHTML = renderChoices();
+    bindChoices();
+  }
+}
+
+function okZeroMessage(step){
+  if(step==="monthly" && state.monthly===0) return "Ingen ændring registreret.";
+  if(step==="savings" && state.savings===0) return "Ingen ændring registreret.";
+  if(step==="choices" && choicesSum()===0) return "Ingen ændring registreret.";
+  return "";
+}
+function confirmStep(step){
+  state.confirmed[step] = true;
+  if(isAllConfirmed()){
+    state.wizardMode = false;
+  }
+}
+
+$("btnBack").addEventListener("click", ()=>{
+  if(!state.focusOpen) return;
+  if(state.wizardMode){
+    if(state.stepIndex===0) return;
+    closeFocus();
+    state.stepIndex--;
+    rotateToStepIndex(state.stepIndex);
+    updateUI();
+    return;
+  }
+  closeFocus();
+  updateUI();
+});
+
+$("btnOk").addEventListener("click", ()=>{
+  if(!state.focusOpen) return;
+  const step = state.focusStep;
+
+  const msg = okZeroMessage(step);
+  if(msg){
+    $("wizSub").textContent = msg;
+    $("wizSub").className = "wizSub warn";
+  }else{
+    $("wizSub").textContent = "";
+    $("wizSub").className = "wizSub";
+  }
+
+  confirmStep(step);
+
+  if(state.wizardMode){
+    closeFocus();
+    if(state.stepIndex < 2){
+      state.stepIndex++;
+      rotateToStepIndex(state.stepIndex);
+      updateUI();
+      return;
+    }
+    state.wizardMode = false;
+    updateUI();
+    return;
+  }
+
+  closeFocus();
+  updateUI();
+});
+
+function openCurrentWizardStep(){
+  const step = STEP_ORDER[state.stepIndex];
+  openFocus(step);
+}
+$("segMonthly").addEventListener("click", ()=>{
+  if(!state.age || state.focusOpen) return;
+  if(state.wizardMode){
+    if(STEP_ORDER[state.stepIndex] !== "monthly") return;
+    openCurrentWizardStep();
+    return;
+  }
+  state.stepIndex = 0;
+  rotateToStepIndex(0);
+  openFocus("monthly");
+  updateUI();
+});
+$("segSavings").addEventListener("click", ()=>{
+  if(!state.age || state.focusOpen) return;
+  if(state.wizardMode){
+    if(STEP_ORDER[state.stepIndex] !== "savings") return;
+    openCurrentWizardStep();
+    return;
+  }
+  state.stepIndex = 1;
+  rotateToStepIndex(1);
+  openFocus("savings");
+  updateUI();
+});
+$("segChoices").addEventListener("click", ()=>{
+  if(!state.age || state.focusOpen) return;
+  if(state.wizardMode){
+    if(STEP_ORDER[state.stepIndex] !== "choices") return;
+    openCurrentWizardStep();
+    return;
+  }
+  state.stepIndex = 2;
+  rotateToStepIndex(2);
+  openFocus("choices");
+  updateUI();
+});
+
+/* ===== Age handling ===== */
+function unlockWithAge(age){
+  age = clamp(toInt(age), CLAMP.ageMin, CLAMP.ageMax);
+  state.age = age;
+  state.birthYear = nowYear - age;
+  state.pensionAge = pensionAgeFromBirthYear(state.birthYear);
+
+  lastShown = null;
+  animSeq++;
+
+  $("centerWrap").classList.add("hidden");
+  lockWheel(false);
+
+  if(isAllConfirmed()) state.wizardMode = false;
+  rotateToStepIndex(state.stepIndex);
+  updateUI();
+}
+
+function enterAgeEdit(){
+  if(state.focusOpen) return;
+  $("centerWrap").classList.remove("hidden");
+  lockWheel(true);
+  $("ageField").value = state.age ?? "";
+  $("ageField").focus();
+  $("coreDelta").textContent = "Indtast alder";
+}
+$("coreTap").addEventListener("click", enterAgeEdit);
+
+const ageField = $("ageField");
+ageField.addEventListener("input", ()=>{
+  const raw = ageField.value || "";
+  if (!raw){
+    $("coreBase").textContent = "System: –";
+    $("coreAge").textContent = "–";
+    $("coreDelta").textContent = "Indtast alder";
+    $("coreStep").textContent = "Trin –/3";
+    $("badgeOfficial").textContent = "System: –";
+    return;
+  }
+
+  const a = clamp(toInt(raw), CLAMP.ageMin, CLAMP.ageMax);
+  const by = nowYear - a;
+  const pa = pensionAgeFromBirthYear(by);
+
+  $("coreBase").textContent = "System: " + pa + " år";
+  $("badgeOfficial").textContent = "System: " + pa + " år (estimat)";
+  $("coreAge").textContent = String(a);
+  $("coreDelta").textContent = "Bekræft med Fortsæt";
+  $("coreStep").textContent = "Trin –/3";
+});
+
+ageField.addEventListener("keydown", (e)=>{
+  if (e.key==="Enter"){
+    e.preventDefault();
+    const a = clamp(toInt(ageField.value||""), CLAMP.ageMin, CLAMP.ageMax);
+    if (a>=CLAMP.ageMin && a<=CLAMP.ageMax) unlockWithAge(a);
+  }
+});
+$("ageGo").addEventListener("click", ()=>{
+  const a = clamp(toInt(ageField.value||""), CLAMP.ageMin, CLAMP.ageMax);
+  if (a>=CLAMP.ageMin && a<=CLAMP.ageMax) unlockWithAge(a);
+});
+$("ageDemo").addEventListener("click", ()=>{
+  ageField.value = 37;
+  unlockWithAge(37);
+  state.savings = 250000;
+  state.monthly = 1500;
+  state.choicesOn = new Set(["c1","c3"]);
+  state.choicesManual = 0;
+  updateUI();
+});
+
+/* ===== Goal modal ===== */
+function openGoalModal(){
+  if(!state.age) return;
+  $("goalModalShade").classList.add("open");
+  $("goalModalShade").setAttribute("aria-hidden","false");
+  $("goalAgeField").value = state.goalAge ?? "";
+  renderGoalModal();
+}
+function closeGoalModal(){
+  $("goalModalShade").classList.remove("open");
+  $("goalModalShade").setAttribute("aria-hidden","true");
+  saveState();
+}
+function renderGoalModal(){
+  const res = computeFreedom();
+  $("kvSystem").textContent = res ? `${res.baseAge} år` : "—";
+  $("kvFreedom").textContent = res ? `${Math.round(res.freedomAge*10)/10} år` : "—";
+
+  if(!goalIsActive()){
+    $("goalModalH").textContent = "Sæt et mål";
+    $("goalModalP").textContent = "Se hvor realistisk dit mål er.";
+    $("kvProgress").textContent = "—";
+    $("kvRating").textContent = "—";
+    $("goalExplain").textContent = "Se hvor realistisk dit mål er.";
+    $("goalExplain").className = "noteLine";
+    $("goalSuggestWrap").classList.add("hidden");
+    return;
+  }
+
+  $("goalModalH").textContent = `Dit mål: ${state.goalAge} år`;
+
+  const gp = goalProgress(res);
+  if(!gp){
+    $("kvProgress").textContent = "—";
+    $("kvRating").textContent = "—";
+    $("goalExplain").textContent = "";
+    $("goalSuggestWrap").classList.add("hidden");
+    return;
+  }
+
+  const pct = Math.round(gp.progress * 100);
+  $("kvProgress").textContent = `${pct}%`;
+  $("kvRating").textContent = gp.label;
+
+  if(gp.achieved){
+    $("goalExplain").textContent = "Du kan allerede stoppe";
+    $("goalExplain").className = "noteLine ok";
+    $("goalSuggestWrap").classList.add("hidden");
+  }else{
+    $("goalExplain").textContent = `Du mangler ${gp.missingPct}% af målet`;
+    $("goalExplain").className = "noteLine";
+
+    const showSuggest = (gp.label !== "Realistisk");
+    const s = suggestedMonthlyForGoal();
+    if(showSuggest && s != null){
+      $("goalSuggestWrap").classList.remove("hidden");
+      $("goalSuggestText").textContent = `Prøv ca. ${fmtDKK(s)} kr./md i månedlig investering`;
+    }else{
+      $("goalSuggestWrap").classList.add("hidden");
+    }
+  }
+}
+
+$("goalHeader").addEventListener("click", openGoalModal);
+$("goalClose").addEventListener("click", closeGoalModal);
+$("goalModalShade").addEventListener("click", (e)=>{
+  if(e.target === $("goalModalShade")) closeGoalModal();
+});
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "Escape"){
+    if($("goalModalShade").classList.contains("open")) closeGoalModal();
+    if($("assumModalShade").classList.contains("open")) closeAssumModal();
+  }
+});
+
+$("goalAgeField").addEventListener("input", ()=>{
+  const v = $("goalAgeField").value || "";
+  if(!v) state.goalAge = null;
+  else state.goalAge = clamp(toInt(v), CLAMP.ageMin, CLAMP.ageMax);
+
+  updateUI();
+  renderGoalModal();
+});
+
+$("goalSave").addEventListener("click", ()=>{
+  closeGoalModal();
+  updateUI();
+});
+
+$("goalRemove").addEventListener("click", ()=>{
+  state.goalAge = null;
+  $("goalAgeField").value = "";
+  updateUI();
+  renderGoalModal();
+});
+
+$("btnUseSuggestion").addEventListener("click", ()=>{
+  const s = suggestedMonthlyForGoal();
+  if(s == null) return;
+  state.lastManualMonthly = state.monthly;
+  state.undoArmed = true;
+  state.monthly = clamp(toInt(s), CLAMP.monthlyMin, CLAMP.monthlyMax);
+  updateUI();
+  renderGoalModal();
+});
+
+/* ===== Assumptions / Model modal ===== */
+function openAssumModal(){
+  $("assumModalShade").classList.add("open");
+  $("assumModalShade").setAttribute("aria-hidden","false");
+  $("scSlider").value = String(state.scenarioIdx ?? 1);
+  $("targetMonthlyField").value = state.targetMonthly;
+  $("payoutYearsField").value = state.payoutYears;
+  renderAssumModal();
+}
+function closeAssumModal(){
+  $("assumModalShade").classList.remove("open");
+  $("assumModalShade").setAttribute("aria-hidden","true");
+  saveState();
+}
+function renderAssumModal(){
+  const names = ["Forsigtig","Standard","Optimistisk"];
+  const rates = ["4%","6%","8%"];
+  const i = clamp(toInt(state.scenarioIdx),0,2);
+
+  $("scRight").textContent = `${names[i]} · ${rates[i]}`;
+  ["sc0","sc1","sc2"].forEach((id,idx)=>{
+    $(id).classList.toggle("active", idx===i);
+  });
+
+  const res = computeFreedom();
+  if(!res){
+    $("kvNeed").textContent = "—";
+    $("kvHave").textContent = "—";
+    $("kvGap").textContent = "—";
+    return;
+  }
+  const need = res.need;
+  const have = res.total;
+  const gap = Math.max(0, need - have);
+
+  $("kvNeed").textContent = fmtDKK(need) + " kr.";
+  $("kvHave").textContent = fmtDKK(have) + " kr.";
+  $("kvGap").textContent = fmtDKK(gap) + " kr.";
+}
+
+$("btnAssum").addEventListener("click", openAssumModal);
+$("assumClose").addEventListener("click", closeAssumModal);
+$("assumDone").addEventListener("click", closeAssumModal);
+$("assumModalShade").addEventListener("click", (e)=>{
+  if(e.target === $("assumModalShade")) closeAssumModal();
+});
+
+$("scSlider").addEventListener("input", ()=>{
+  state.scenarioIdx = clamp(toInt($("scSlider").value), 0, 2);
+  updateUI();
+  renderAssumModal();
+  if($("goalModalShade").classList.contains("open")) renderGoalModal();
+});
+$("targetMonthlyField").addEventListener("input", ()=>{
+  state.targetMonthly = clamp(toInt($("targetMonthlyField").value||"0"), CLAMP.targetMonthlyMin, CLAMP.targetMonthlyMax);
+  updateUI();
+  renderAssumModal();
+  if($("goalModalShade").classList.contains("open")) renderGoalModal();
+});
+$("payoutYearsField").addEventListener("input", ()=>{
+  state.payoutYears = clamp(toInt($("payoutYearsField").value||"0"), CLAMP.payoutYearsMin, CLAMP.payoutYearsMax);
+  updateUI();
+  renderAssumModal();
+  if($("goalModalShade").classList.contains("open")) renderGoalModal();
+});
+
+/* Init */
+lockWheel(true);
+loadState();
+rotateToStepIndex(state.stepIndex);
+updateUI();
+</script>
+</body>
+</html>
