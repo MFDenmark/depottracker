@@ -265,12 +265,12 @@ label{display:block;font-size:12px;color:var(--muted);font-weight:900;margin:10p
         </g>
       </svg>
 
-      <!-- Age gate (same idea as V20.3) -->
+      <!-- Age gate -->
       <div class="centerInputWrap" id="centerWrap">
         <div class="centerCard">
           <div class="centerTitle">Hvor gammel er du?</div>
           <input id="ageField" class="centerField" type="number" inputmode="numeric" min="15" max="100" placeholder="fx 35">
-          <div class="centerHint">Når du indtaster alder, starter flowet.</div>
+          <div class="centerHint">Indtast alder. Bekræft med Fortsæt (eller Enter).</div>
           <div class="centerBtns">
             <button class="go" id="ageGo">Fortsæt</button>
             <button class="demo" id="ageDemo">Demo</button>
@@ -278,7 +278,7 @@ label{display:block;font-size:12px;color:var(--muted);font-weight:900;margin:10p
         </div>
       </div>
 
-      <!-- Focus UI (rendered dynamically) -->
+      <!-- Focus UI -->
       <div class="focusUI" id="focusUI">
         <div class="focusCard">
           <div class="focusTitle" id="focusTitle">—</div>
@@ -309,7 +309,7 @@ label{display:block;font-size:12px;color:var(--muted);font-weight:900;margin:10p
 </div>
 
 <script>
-/* ===== Baseline (uændret beregningsmodel fra V20.3) ===== */
+/* ===== Baseline ===== */
 const nowYear = 2026;
 const $ = (id)=>document.getElementById(id);
 
@@ -426,7 +426,7 @@ function computeFreedom(){
   return {baseAge, freedomAge, yearsGained};
 }
 
-/* ===== Persistence (udvidet) ===== */
+/* ===== Persistence ===== */
 const LS_KEY = "tidhjulet_v21_wizardzoom_state_v1";
 function saveState(){
   try{
@@ -495,24 +495,42 @@ function loadState(){
   return false;
 }
 
-/* ===== UI ===== */
-let lastShown = null;
+/* ===== UI helpers ===== */
 function easeOutCubic(p){ return 1 - Math.pow(1-p, 3); }
+
+let lastShown = null;
+let animSeq = 0; // IMPORTANT: cancel older animations so core always ends at newest value
+
 function animateCore(to){
   const el = $("coreAge");
-  if (lastShown === null){ el.textContent = (Math.round(to*10)/10).toString(); lastShown = to; return; }
+  if(!el) return;
+
+  animSeq++;
+  const seq = animSeq;
+
+  if (lastShown === null){
+    el.textContent = (Math.round(to*10)/10).toString();
+    lastShown = to;
+    return;
+  }
+
   const from = lastShown;
   const start = performance.now();
-  const dur = 360;
+  const dur = 320;
+
   function tick(t){
+    if (seq !== animSeq) return; // cancelled by a newer update
+
     const p = Math.min(1, (t-start)/dur);
     const v = from + (to-from) * easeOutCubic(p);
     el.textContent = (Math.round(v*10)/10).toString();
+
     if (p<1) requestAnimationFrame(tick);
     else lastShown = to;
   }
   requestAnimationFrame(tick);
 }
+
 function pulseCore(){
   const g = $("coreStatic");
   if(!g) return;
@@ -551,8 +569,6 @@ function stepHint(step){
 }
 
 function rotateToStepIndex(i){
-  // Holdes simple og stabile (tre positioner). Målet er “ét felt i top”.
-  // Hvis du senere vil have helt præcis top-align, kan vi kalibrere grader her.
   const degMap = [0, 120, -120];
   const deg = degMap[i] ?? 0;
   $("wheelRot").style.transform = `rotate(${deg}deg)`;
@@ -567,7 +583,6 @@ function confirmedCount(){
   return n;
 }
 function updateProgressRing(){
-  // dash calc
   const r = 118;
   const C = 2*Math.PI*r;
   const done = confirmedCount();
@@ -589,7 +604,6 @@ function setSegmentInteractivity(){
   }
 
   if(state.focusOpen){
-    // while open, lock all clicks (close only via OK/Back)
     Object.values(map).forEach(el=>{ el.style.pointerEvents="none"; });
     return;
   }
@@ -603,11 +617,10 @@ function setSegmentInteractivity(){
     return;
   }
 
-  // free mode
   Object.values(map).forEach(el=>{ el.style.pointerEvents="auto"; });
 }
 
-/* ===== Core messaging (adfærd) ===== */
+/* ===== Core messaging ===== */
 function updateUI(){
   const res = computeFreedom();
   if (!res){
@@ -621,6 +634,7 @@ function updateUI(){
     $("progRight").textContent = "";
     setLiveBadge(false);
     lastShown = null;
+    animSeq++; // cancel any running animation
     updateSegmentStates();
     updateProgressRing();
     setSegmentInteractivity();
@@ -629,6 +643,7 @@ function updateUI(){
 
   $("coreBase").textContent = "Folkepension: " + res.baseAge + " år";
   $("badgeOfficial").textContent = "Folkepension: " + res.baseAge + " år (estimat)";
+
   animateCore(Math.round(res.freedomAge*10)/10);
 
   const gained = Math.round(res.yearsGained*10)/10;
@@ -644,8 +659,6 @@ function updateUI(){
   $("badgeActive").textContent = act + "/3 aktiveret";
   setLiveBadge(act>0);
 
-  // progress / wizard messaging
-  const done = confirmedCount();
   $("coreStep").textContent = "Trin " + (state.wizardMode ? (state.stepIndex+1) : "✓") + "/3";
   $("progLeft").textContent = state.wizardMode
     ? ("Trin " + (state.stepIndex+1) + " af 3 · Tryk for at zoome ind og bekræft med OK.")
@@ -657,7 +670,7 @@ function updateUI(){
   saveState();
 }
 
-/* ===== Focus (Zoom) rendering ===== */
+/* ===== Focus (Zoom) ===== */
 function setFocusVisual(step){
   const wrap = $("wheelWrap");
   wrap.classList.add("focus");
@@ -683,11 +696,8 @@ function openFocus(step){
 
   renderFocusBody(step);
 
-  // Back label/state
   $("btnBack").disabled = state.wizardMode ? (state.stepIndex===0) : false;
-  $("btnBack").textContent = state.wizardMode ? "Tilbage" : "Tilbage";
-
-  // OK label changes after wizard completion? keep OK.
+  $("btnBack").textContent = "Tilbage";
   $("btnOk").textContent = "OK";
 
   setSegmentInteractivity();
@@ -702,7 +712,7 @@ function closeFocus(){
   saveState();
 }
 
-/* Content builders */
+/* Focus content */
 function focusMonthlyHtml(){
   return `
     <label>Beløb (kr./md)</label>
@@ -863,7 +873,6 @@ function okZeroMessage(step){
   if(step==="choices" && choicesSum()===0) return "Ingen ændring registreret.";
   return "";
 }
-
 function confirmStep(step){
   state.confirmed[step] = true;
   if(isAllConfirmed()){
@@ -876,14 +885,12 @@ $("btnBack").addEventListener("click", ()=>{
   if(!state.focusOpen) return;
   if(state.wizardMode){
     if(state.stepIndex===0) return;
-    // go back one step
     closeFocus();
     state.stepIndex--;
     rotateToStepIndex(state.stepIndex);
     updateUI();
     return;
   }
-  // free mode: just close
   closeFocus();
   updateUI();
 });
@@ -901,11 +908,9 @@ $("btnOk").addEventListener("click", ()=>{
     $("wizSub").className = "wizSub";
   }
 
-  // Confirm always (0 allowed)
   confirmStep(step);
 
   if(state.wizardMode){
-    // advance if not last
     closeFocus();
     if(state.stepIndex < 2){
       state.stepIndex++;
@@ -913,13 +918,11 @@ $("btnOk").addEventListener("click", ()=>{
       updateUI();
       return;
     }
-    // last step confirmed -> exit wizard
     state.wizardMode = false;
     updateUI();
     return;
   }
 
-  // free mode: close only
   closeFocus();
   updateUI();
 });
@@ -936,7 +939,6 @@ $("segMonthly").addEventListener("click", ()=>{
     openCurrentWizardStep();
     return;
   }
-  // free
   state.stepIndex = 0;
   rotateToStepIndex(0);
   openFocus("monthly");
@@ -967,7 +969,7 @@ $("segChoices").addEventListener("click", ()=>{
   updateUI();
 });
 
-/* Assumptions button (minimal, still available) */
+/* Assumptions button */
 $("btnAssum").addEventListener("click", ()=>{
   const res = computeFreedom();
   const need = neededCapital();
@@ -981,39 +983,59 @@ $("btnAssum").addEventListener("click", ()=>{
   alert(text);
 });
 
-/* Age */
+/* ===== Age handling (NO auto-advance on input) ===== */
 function unlockWithAge(age){
   age = clamp(toInt(age), CLAMP.ageMin, CLAMP.ageMax);
   state.age = age;
   state.birthYear = nowYear - age;
   state.pensionAge = pensionAgeFromBirthYear(state.birthYear);
+
   lastShown = null;
+  animSeq++; // cancel any running animation immediately
+
   $("centerWrap").classList.add("hidden");
   lockWheel(false);
 
-  // start wizard at step 0
   if(isAllConfirmed()) state.wizardMode = false;
   rotateToStepIndex(state.stepIndex);
   updateUI();
 }
 
 function enterAgeEdit(){
-  if(state.focusOpen) return; // close only via OK/back (your requirement)
+  if(state.focusOpen) return;
   $("centerWrap").classList.remove("hidden");
   lockWheel(true);
   $("ageField").value = state.age ?? "";
   $("ageField").focus();
   $("coreDelta").textContent = "Indtast alder";
 }
-
 $("coreTap").addEventListener("click", enterAgeEdit);
 
 const ageField = $("ageField");
+
+/* Preview-only on input: do NOT unlock/advance */
 ageField.addEventListener("input", ()=>{
-  const a = clamp(toInt(ageField.value||""), CLAMP.ageMin, CLAMP.ageMax);
-  if (!a) return;
-  if (a>=CLAMP.ageMin && a<=CLAMP.ageMax) unlockWithAge(a);
+  const raw = ageField.value || "";
+  if (!raw){
+    $("coreBase").textContent = "Folkepension: –";
+    $("coreAge").textContent = "–";
+    $("coreDelta").textContent = "Indtast alder";
+    $("coreStep").textContent = "Trin –/3";
+    $("badgeOfficial").textContent = "Folkepension: –";
+    return;
+  }
+
+  const a = clamp(toInt(raw), CLAMP.ageMin, CLAMP.ageMax);
+  const by = nowYear - a;
+  const pa = pensionAgeFromBirthYear(by);
+
+  $("coreBase").textContent = "Folkepension: " + pa + " år";
+  $("badgeOfficial").textContent = "Folkepension: " + pa + " år (estimat)";
+  $("coreAge").textContent = String(a);
+  $("coreDelta").textContent = "Bekræft med Fortsæt";
+  $("coreStep").textContent = "Trin –/3";
 });
+
 ageField.addEventListener("keydown", (e)=>{
   if (e.key==="Enter"){
     e.preventDefault();
@@ -1032,7 +1054,6 @@ $("ageDemo").addEventListener("click", ()=>{
   state.monthly = 1500;
   state.choicesOn = new Set(["c1","c3"]);
   state.choicesManual = 0;
-  // demo: still wizard until 3 OK
   updateUI();
 });
 
