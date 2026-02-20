@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>TidsHjulet V20.2 · Round Wheel Fix</title>
+<style>
+:root{
+  --bg1:#f6fbff;
+  --bg2:#eef5ff;
+  --card:#ffffff;
+  --text:#0b1220;
+  --muted:#5a6b85;
+  --line:#e7eef8;
+  --blue:#2c6cff;
+  --blue2:#1f4ed8;
+  --alt:#00a6ff;
+  --shadow: 0 18px 45px rgba(10,30,80,0.10);
+  --segB:#cfe2ff;
+  --segC:#dbe9ff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  background: linear-gradient(180deg, var(--bg1), var(--bg2));
+  color: var(--text);
+}
+.app{max-width:520px;margin:0 auto;padding:18px 14px 44px;}
+.top{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 6px 14px;
+  position:sticky; top:0; z-index:20;
+  background: linear-gradient(180deg, rgba(246,251,255,0.92), rgba(246,251,255,0.70));
+  backdrop-filter: blur(10px);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.dot{width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--alt),var(--blue));
+  box-shadow:0 0 0 3px rgba(44,108,255,0.08);}
+.name{font-weight:900;letter-spacing:-0.02em}
+.tag{font-size:12px;color:var(--muted)}
+.btn{
+  border:1px solid var(--line);
+  background: rgba(255,255,255,0.85);
+  color: var(--text);
+  border-radius: 14px;
+  padding:10px 12px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow: 0 10px 26px rgba(10,30,80,0.06);
+}
+.btn:active{transform:translateY(1px)}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: 0 25px 60px rgba(10,30,80,0.12);
+}
+.hero{padding:16px;}
+.kicker{font-size:12px;color:var(--muted);letter-spacing:0.02em;text-transform:uppercase}
+.h1{margin:6px 0 0;font-size:22px;font-weight:950;letter-spacing:-0.02em}
+.p{margin:8px 0 0;font-size:13px;color:var(--muted);line-height:1.4}
+.wheel-wrap{margin-top:12px;text-align:center;position:relative;padding:12px 6px 8px;}
+svg{width:100%;max-width:470px;height:auto;display:block;margin:0 auto;}
+.segment{
+  cursor:pointer;
+  transition: opacity .18s ease, filter .18s ease, transform .12s ease, stroke .18s ease;
+  filter: drop-shadow(0 10px 18px rgba(44,108,255,0.10));
+  stroke: rgba(11,18,32,0.10);
+  stroke-width: 2;
+}
+.segment:hover{opacity:0.93; filter: drop-shadow(0 16px 26px rgba(44,108,255,0.16));}
+.segment:active{transform:scale(0.996);}
+.locked .segment{pointer-events:none;opacity:0.55;filter:none;}
+.segment.active{filter: drop-shadow(0 18px 30px rgba(44,108,255,0.24)); stroke: rgba(44,108,255,0.55); stroke-width: 3;}
+.segment.inactive{opacity:0.72;}
+#wheelRot{transform-origin: 210px 210px; transition: transform .28s ease;}
+.coreTap{cursor:pointer;}
+.coreAge{font-size:62px;font-weight:950;fill:var(--text);letter-spacing:-0.05em}
+.coreSmall{font-size:12px;fill:rgba(11,18,32,0.64)}
+.coreDelta{font-size:13px;font-weight:950;fill:rgba(31,78,216,0.98)}
+.centerInputWrap{position:absolute;left:50%; top:50%; transform:translate(-50%,-50%); width:230px; pointer-events:none;}
+.centerCard{width:100%; background: rgba(255,255,255,0.95); border:1px solid var(--line); border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(10,30,80,0.14); padding:12px 12px 10px; pointer-events:auto;}
+.centerTitle{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:0.02em;text-transform:uppercase}
+.centerField{width:100%; margin-top:8px; padding:12px 12px; border-radius:14px; border:1px solid var(--line);
+  background:#fff; color: var(--text); font-size:22px; font-weight:950; outline:none; text-align:center;}
+.centerHint{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.35}
+.centerBtns{display:flex;gap:8px;margin-top:10px}
+.centerBtns button{flex:1;border:0;border-radius:14px;padding:10px 10px;font-weight:950;cursor:pointer;}
+.centerBtns .go{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.centerBtns .demo{background:rgba(0,166,255,0.10);color:rgba(0,90,140,0.95); border:1px solid rgba(0,166,255,0.20)}
+.hidden{display:none;}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{border:1px solid var(--line); background: rgba(255,255,255,0.70); padding:7px 10px; border-radius:999px;
+  font-size:12px; color: rgba(11,18,32,0.78); font-weight:900;}
+.badge.blue{border-color: rgba(44,108,255,0.18); background: rgba(44,108,255,0.08); color: rgba(31,78,216,0.95);}
+.badge.ok{border-color: rgba(5,150,105,0.18); background: rgba(5,150,105,0.08); color: rgba(5,150,105,0.95);}
+.progressRow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:10px}
+.progressRow .left{font-size:12px;color:var(--muted);line-height:1.35;flex:1;text-align:left}
+.progressRow .right{font-size:13px;font-weight:950;color:rgba(11,18,32,0.85);white-space:nowrap}
+.panel{position:fixed;left:0;right:0;bottom:-100%;background:var(--card);border-top-left-radius:26px;border-top-right-radius:26px;
+  border-top:1px solid var(--line);box-shadow:0 -24px 55px rgba(10,30,80,0.16);padding:16px 16px 20px;transition: bottom .28s ease;z-index:50;}
+.panel.open{bottom:0}
+.panelInner{max-width:520px;margin:0 auto}
+.panelTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.panelTitle{font-weight:950;letter-spacing:-0.01em}
+.panelClose{border:1px solid var(--line);background: rgba(255,255,255,0.85);border-radius:14px;padding:10px 12px;font-weight:950;cursor:pointer;}
+.hr{height:1px;background:var(--line);margin:12px 0;}
+label{display:block;font-size:12px;color:var(--muted);font-weight:900;margin:10px 0 6px}
+.number{width:100%;padding:12px 12px;border-radius:14px;border:1px solid var(--line);font-size:18px;font-weight:900;color:var(--text);outline:none;}
+.inline2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick{display:flex;gap:8px;margin-top:10px}
+.quick button{flex:1;border:1px solid var(--line);background: rgba(44,108,255,0.07);color: rgba(31,78,216,0.98);
+  border-radius:14px;padding:10px 10px;font-weight:950;cursor:pointer;}
+.small{font-size:12px;color:var(--muted);line-height:1.35;margin-top:8px}
+.panelOpenShift{padding-bottom:240px;}
+.range{-webkit-appearance:none;appearance:none;width:100%;height:12px;border-radius:999px;background: linear-gradient(90deg, rgba(44,108,255,0.35), rgba(44,108,255,0.10));outline:none;}
+.range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:999px;background: linear-gradient(135deg, var(--alt), var(--blue));
+  border:3px solid rgba(255,255,255,0.95);box-shadow:0 10px 22px rgba(44,108,255,0.24);}
+.range::-moz-range-thumb{width:26px;height:26px;border-radius:999px;background: linear-gradient(135deg, var(--alt), var(--blue));
+  border:3px solid rgba(255,255,255,0.95);box-shadow:0 10px 22px rgba(44,108,255,0.24);}
+.range::-moz-range-track{height:12px;border-radius:999px;background: linear-gradient(90deg, rgba(44,108,255,0.35), rgba(44,108,255,0.10));}
+.chipsGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+.chip{padding:12px;border-radius:16px;border:1px solid var(--line);background:#f8fbff;cursor:pointer;font-size:13px;font-weight:950;
+  display:flex;justify-content:space-between;gap:10px;}
+.chip small{font-weight:950;color:var(--muted);}
+.chip.on{background: rgba(44,108,255,0.10);border-color: rgba(44,108,255,0.45);color: rgba(31,78,216,0.98);}
+.pager{display:flex;align-items:center;justify-content:space-between;margin-top:12px;color:var(--muted);font-size:12px;}
+.pager button{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px;font-weight:950;cursor:pointer;}
+.pager button:disabled{opacity:0.45;cursor:not-allowed;}
+</style>
+</head>
+<body>
+<div class="app" id="appRoot">
+  <div class="top">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <div class="name">TidsHjulet</div>
+        <div class="tag">V20.3 · rund ring · test + validering</div>
+      </div>
+    </div>
+    <button class="btn" id="btnAssum">Forudsætninger</button>
+  </div>
+
+  <div class="card hero" id="heroCard">
+    <div class="kicker">Din frihed</div>
+    <div class="h1">Se effekten, mens du justerer</div>
+    <div class="p">Hjulet snapper ved valg. Ring-geometrien er nu en ægte donut (ingen “flad pie”).</div>
+
+    <div class="wheel-wrap locked" id="wheelWrap">
+      <svg viewBox="0 0 420 420" aria-label="Tids-hjul">
+        <defs>
+          <linearGradient id="gMonthly" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4f8dff"/>
+            <stop offset="100%" stop-color="#2c6cff"/>
+          </linearGradient>
+          <radialGradient id="gCore" cx="40%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.98)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0.92)"/>
+          </radialGradient>
+        </defs>
+
+        <g id="wheelRot">
+          <path id="segMonthly" class="segment inactive" fill="url(#gMonthly)" d="M 210.000 40.000 A 170 170 0 0 1 309.923 347.533 L 274.656 298.992 A 110 110 0 0 0 210.000 100.000 Z"/>
+          <path id="segSavings" class="segment inactive" fill="var(--segB)" d="M 309.923 347.533 A 170 170 0 0 1 40.000 210.000 L 100.000 210.000 A 110 110 0 0 0 274.656 298.992 Z"/>
+          <path id="segChoices" class="segment inactive" fill="var(--segC)" d="M 40.000 210.000 A 170 170 0 0 1 210.000 40.000 L 210.000 100.000 A 110 110 0 0 0 100.000 210.000 Z"/>
+
+          <!-- Core -->
+          <circle id="coreTap" class="coreTap" cx="210" cy="210" r="106" fill="url(#gCore)"/>
+          <circle cx="210" cy="210" r="106" fill="none" stroke="rgba(11,18,32,0.06)" stroke-width="2"/>
+
+          <text id="coreBase" x="210" y="168" text-anchor="middle" class="coreSmall">Officiel: –</text>
+          <text id="coreAge" x="210" y="248" text-anchor="middle" class="coreAge">–</text>
+          <text x="210" y="273" text-anchor="middle" class="coreSmall">år</text>
+          <text id="coreDelta" x="210" y="302" text-anchor="middle" class="coreDelta">Indtast alder</text>
+
+          <text x="347.9" y="165.2" text-anchor="middle" font-size="12" fill="rgba(11,18,32,0.70)" font-weight="900">Månedlig</text>
+          <text x="144.2" y="339.2" text-anchor="middle" font-size="12" fill="rgba(11,18,32,0.70)" font-weight="900">Opsparing</text>
+          <text x="107.5" y="107.5" text-anchor="middle" font-size="12" fill="rgba(11,18,32,0.70)" font-weight="900">Små valg</text>
+        </g>
+      </svg>
+
+      <div class="centerInputWrap" id="centerWrap">
+        <div class="centerCard">
+          <div class="centerTitle">Hvor gammel er du?</div>
+          <input id="ageField" class="centerField" type="number" inputmode="numeric" min="15" max="100" placeholder="fx 35">
+          <div class="centerHint">Skriver du en alder, låser hjulet op automatisk.</div>
+          <div class="centerBtns">
+            <button class="go" id="ageGo">Fortsæt</button>
+            <button class="demo" id="ageDemo">Demo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="badges">
+      <div class="badge" id="badgeOfficial">Folkepension: –</div>
+      <div class="badge blue" id="badgeActive">0/3 aktiveret</div>
+      <div class="badge ok hidden" id="badgeLive">Live</div>
+    </div>
+
+    <div class="progressRow">
+      <div class="left" id="progLeft">Indtast alder for at starte.</div>
+      <div class="right" id="progRight"></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="panel">
+  <div class="panelInner">
+    <div class="panelTop">
+      <div class="panelTitle" id="panelTitle">—</div>
+      <button class="panelClose" id="panelClose">Luk</button>
+    </div>
+    <div class="hr"></div>
+    <div id="panelBody"></div>
+  </div>
+</div>
+
+<script>
+const nowYear = 2026;
+const $ = (id)=>document.getElementById(id);
+
+const CHOICES = [
+  {id:"c1", label:"☕ Mindre café-kaffe", monthly:200},
+  {id:"c2", label:"🍔 1 mindre take-away", monthly:400},
+  {id:"c3", label:"📺 Del streaming", monthly:150},
+  {id:"c4", label:"🚲 Cykel 1 dag mere", monthly:300},
+  {id:"c5", label:"🛒 5% mindre forbrug", monthly:250},
+  {id:"c6", label:"🧾 Abonnement-scan", monthly:150},
+  {id:"c7", label:"🧁 Færre snacks", monthly:200},
+  {id:"c8", label:"🛍️ Impulskøb færre", monthly:400},
+  {id:"c9", label:"📦 Køb brugt 1x", monthly:350},
+  {id:"c10", label:"🚆 Transport-optimering", monthly:300},
+];
+const PAGE_SIZE = 5;
+
+const state = {
+  age:null,
+  birthYear:null,
+  pensionAge:null,
+  monthly:0,
+  savings:0,
+  choicesOn: new Set(),
+  choicesManual: 0,
+  r: 0.06,
+  targetMonthly: 20000,
+  payoutYears: 20,
+  choicesPage: 0,
+};
+
+/* ===== V20.3 hardening: validation + clamps + persistence + self-test ===== */
+const CLAMP = {
+  ageMin: 15, ageMax: 100,
+  monthlyMin: 0, monthlyMax: 30000,      // kr./md
+  savingsMin: 0, savingsMax: 50000000,   // kr.
+  choicesManualMin: 0, choicesManualMax: 10000, // kr./md
+  targetMonthlyMin: 5000, targetMonthlyMax: 50000,
+  payoutYearsMin: 5, payoutYearsMax: 35,
+  rMin: 0.00, rMax: 0.10,
+};
+
+function clamp(n, a, b){
+  n = Number.isFinite(n) ? n : 0;
+  return Math.min(b, Math.max(a, n));
+}
+function toInt(v){ 
+  const n = parseInt(String(v ?? "").replace(/[^0-9]/g,""), 10);
+  return Number.isFinite(n) ? n : 0;
+}
+function toFloat(v){
+  const n = parseFloat(String(v ?? "").replace(",", "."));
+  return Number.isFinite(n) ? n : 0;
+}
+
+const LS_KEY = "tidhjulet_v20_3_state_v1";
+function saveState(){
+  try{
+    const payload = {
+      age: state.age,
+      monthly: state.monthly,
+      savings: state.savings,
+      choicesOn: Array.from(state.choicesOn),
+      choicesManual: state.choicesManual,
+      r: state.r,
+      targetMonthly: state.targetMonthly,
+      payoutYears: state.payoutYears,
+      choicesPage: state.choicesPage,
+      wheelRot: document.getElementById("wheelRot")?.style?.transform ?? "",
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(payload));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return false;
+    const p = JSON.parse(raw);
+    if(p && typeof p === "object"){
+      if(p.age != null){
+        const a = clamp(toInt(p.age), CLAMP.ageMin, CLAMP.ageMax);
+        state.age = a;
+        state.birthYear = nowYear - a;
+        state.pensionAge = pensionAgeFromBirthYear(state.birthYear);
+        document.getElementById("centerWrap")?.classList.add("hidden");
+        lockWheel(false);
+      }
+      state.monthly = clamp(toInt(p.monthly), CLAMP.monthlyMin, CLAMP.monthlyMax);
+      state.savings = clamp(toInt(p.savings), CLAMP.savingsMin, CLAMP.savingsMax);
+      state.choicesOn = new Set(Array.isArray(p.choicesOn) ? p.choicesOn : []);
+      state.choicesManual = clamp(toInt(p.choicesManual), CLAMP.choicesManualMin, CLAMP.choicesManualMax);
+      state.r = clamp(toFloat(p.r), CLAMP.rMin, CLAMP.rMax);
+      state.targetMonthly = clamp(toInt(p.targetMonthly), CLAMP.targetMonthlyMin, CLAMP.targetMonthlyMax);
+      state.payoutYears = clamp(toInt(p.payoutYears), CLAMP.payoutYearsMin, CLAMP.payoutYearsMax);
+      state.choicesPage = clamp(toInt(p.choicesPage), 0, 1000);
+      if(typeof p.wheelRot === "string" && p.wheelRot.includes("rotate(")){
+        document.getElementById("wheelRot").style.transform = p.wheelRot;
+      }
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+function hardenAll(){
+  if(state.age != null) state.age = clamp(toInt(state.age), CLAMP.ageMin, CLAMP.ageMax);
+  state.monthly = clamp(toInt(state.monthly), CLAMP.monthlyMin, CLAMP.monthlyMax);
+  state.savings = clamp(toInt(state.savings), CLAMP.savingsMin, CLAMP.savingsMax);
+  state.choicesManual = clamp(toInt(state.choicesManual), CLAMP.choicesManualMin, CLAMP.choicesManualMax);
+  state.r = clamp(toFloat(state.r), CLAMP.rMin, CLAMP.rMax);
+  state.targetMonthly = clamp(toInt(state.targetMonthly), CLAMP.targetMonthlyMin, CLAMP.targetMonthlyMax);
+  state.payoutYears = clamp(toInt(state.payoutYears), CLAMP.payoutYearsMin, CLAMP.payoutYearsMax);
+}
+
+function runSelfTests(){
+  // Console-only sanity checks. No UI dependency.
+  try{
+    const s = {
+      age: 37, birthYear: nowYear-37, pensionAge: pensionAgeFromBirthYear(nowYear-37),
+      monthly: 1500, savings: 250000, choicesManual: 0,
+      choicesOn: new Set(["c1","c3"]), r: 0.06, targetMonthly: 20000, payoutYears: 20,
+    };
+    // inline compute replica
+    function _choicesSum(set, manual){
+      let sum=0;
+      for (const id of set){
+        const c = CHOICES.find(x=>x.id===id);
+        if(c) sum += c.monthly;
+      }
+      return sum + manual;
+    }
+    function _need(){ return s.targetMonthly*12*s.payoutYears; }
+    function _compute(){
+      const yearsLeft = Math.max(0, s.pensionAge - s.age);
+      const annual = (s.monthly + _choicesSum(s.choicesOn, s.choicesManual))*12;
+      const r = s.r;
+      const fvContrib = annual * (r===0 ? yearsLeft : ((Math.pow(1+r, yearsLeft)-1)/r));
+      const fvSavings = s.savings * Math.pow(1+r, yearsLeft);
+      const total = fvContrib + fvSavings;
+      const ratio = total/_need();
+      const cap = yearsLeft*0.35;
+      const yearsGained = Math.max(0, Math.min(cap, ratio*cap));
+      const freedomAge = s.pensionAge - yearsGained;
+      return {yearsLeft, total, yearsGained, freedomAge};
+    }
+    const r1 = _compute();
+    console.assert(r1.yearsLeft >= 0, "yearsLeft negative");
+    console.assert(r1.total >= 0, "total negative");
+    console.assert(r1.freedomAge <= s.pensionAge + 1e-9, "freedomAge above base");
+    // Edge: age above pension age -> yearsLeft 0 -> gained 0
+    s.age = s.pensionAge + 5;
+    const r2 = _compute();
+    console.assert(r2.yearsLeft === 0, "yearsLeft should be 0 when age>pension");
+    console.assert(r2.yearsGained === 0, "yearsGained should be 0 when yearsLeft=0");
+    // Edge: extreme inputs clamped in runtime path; here just sanity finite
+    s.age = 37; s.monthly = 30000; s.savings = 50000000;
+    const r3 = _compute();
+    console.assert(Number.isFinite(r3.freedomAge), "freedomAge not finite");
+    console.log("TidsHjulet V20.3 self-tests OK");
+  }catch(e){
+    console.warn("TidsHjulet V20.3 self-tests failed:", e);
+  }
+}
+
+
+
+function pensionAgeFromBirthYear(y){
+  if (y < 1963) return 67;
+  if (y < 1967) return 68;
+  if (y < 1971) return 69;
+  if (y < 1975) return 70;
+  if (y < 1979) return 71;
+  return 72;
+}
+
+function neededCapital(){ return state.targetMonthly * 12 * state.payoutYears; }
+function choicesSum(){
+  let sum = 0;
+  for (const id of state.choicesOn){
+    const c = CHOICES.find(x=>x.id===id);
+    if (c) sum += c.monthly;
+  }
+  return sum + (state.choicesManual||0);
+}
+function activeCount(){
+  let n=0;
+  if (state.monthly>0) n++;
+  if (state.savings>0) n++;
+  if (choicesSum()>0) n++;
+  return n;
+}
+
+function computeFreedom(){
+  hardenAll();
+  if (!state.age || !state.pensionAge) return null;
+  const baseAge = state.pensionAge;
+  const yearsLeft = Math.max(0, baseAge - state.age);
+  const r = state.r;
+
+  const annual = (state.monthly + choicesSum()) * 12;
+  const fvContrib = annual * (r===0 ? yearsLeft : ((Math.pow(1+r, yearsLeft)-1)/r));
+  const fvSavings = state.savings * Math.pow(1+r, yearsLeft);
+  const total = fvContrib + fvSavings;
+
+  const need = neededCapital();
+  const ratio = need>0 ? total/need : 0;
+
+  const cap = yearsLeft * 0.35;
+  const yearsGained = Math.max(0, Math.min(cap, ratio*cap));
+  const freedomAge = baseAge - yearsGained;
+  return {baseAge, freedomAge, yearsGained};
+}
+
+function easeOutCubic(p){ return 1 - Math.pow(1-p, 3); }
+let lastShown = null;
+function animateCore(to){
+  const el = $("coreAge");
+  if (lastShown === null){ el.textContent = (Math.round(to*10)/10).toString(); lastShown = to; return; }
+  const from = lastShown;
+  const start = performance.now();
+  const dur = 360;
+  function tick(t){
+    const p = Math.min(1, (t-start)/dur);
+    const v = from + (to-from) * easeOutCubic(p);
+    el.textContent = (Math.round(v*10)/10).toString();
+    if (p<1) requestAnimationFrame(tick);
+    else lastShown = to;
+  }
+  requestAnimationFrame(tick);
+}
+
+function lockWheel(locked){ $("wheelWrap").classList.toggle("locked", locked); }
+function setLiveBadge(on){ $("badgeLive").classList.toggle("hidden", !on); }
+
+function updateSegmentStates(){
+  const m=$("segMonthly"), s=$("segSavings"), c=$("segChoices");
+  const onM = state.monthly>0;
+  const onS = state.savings>0;
+  const onC = choicesSum()>0;
+
+  [m,s,c].forEach(el=>{ el.classList.remove("active"); el.classList.add("inactive"); });
+  if (onM){ m.classList.add("active"); m.classList.remove("inactive"); }
+  if (onS){ s.classList.add("active"); s.classList.remove("inactive"); }
+  if (onC){ c.classList.add("active"); c.classList.remove("inactive"); }
+}
+
+/* Snap rotation only on selection */
+function snapTo(field){
+  const targets = { monthly: 0, savings: -28, choices: 28 };
+  $("wheelRot").style.transform = `rotate(${targets[field] ?? 0}deg)`;
+}
+
+function updateUI(){
+  const res = computeFreedom();
+  if (!res){
+    $("coreBase").textContent = "Officiel: –";
+    $("coreAge").textContent = "–";
+    $("coreDelta").textContent = "Indtast alder";
+    $("badgeOfficial").textContent = "Folkepension: –";
+    $("badgeActive").textContent = "0/3 aktiveret";
+    $("progLeft").textContent = "Indtast alder for at starte.";
+    $("progRight").textContent = "";
+    setLiveBadge(false);
+    lastShown = null;
+    updateSegmentStates();
+    return;
+  }
+
+  $("coreBase").textContent = "Officiel: " + res.baseAge + " år (estimat)";
+  $("badgeOfficial").textContent = "Folkepension: " + res.baseAge + " år (estimat)";
+  animateCore(Math.round(res.freedomAge*10)/10);
+
+  $("coreDelta").textContent = (res.yearsGained < 0.05)
+    ? "Tryk på et felt"
+    : ("Du har skabt mulighed for ca. " + (Math.round(res.yearsGained*10)/10) + " år tidligere");
+
+  const act = activeCount();
+  $("badgeActive").textContent = act + "/3 aktiveret";
+
+  $("progLeft").textContent =
+    (act===0) ? "Tryk på et felt for at justere."
+    : (act===1) ? "Godt. Prøv et felt mere."
+    : (act===2) ? "Du har momentum."
+    : "Alle felter er aktive.";
+
+  $("progRight").textContent = (res.yearsGained>=0.2) ? ("+" + (Math.round(res.yearsGained*10)/10) + " år") : "";
+  setLiveBadge(act>0);
+  updateSegmentStates();
+  saveState();
+}
+
+/* Panel plumbing (same as V20.1) */
+function openPanel(title, bodyHtml){
+  $("panelTitle").textContent = title;
+  $("panelBody").innerHTML = bodyHtml;
+  $("panel").classList.add("open");
+  $("appRoot").classList.add("panelOpenShift");
+}
+function closePanel(){
+  saveState();
+  $("panel").classList.remove("open");
+  $("appRoot").classList.remove("panelOpenShift");
+}
+
+function showMonthly(){
+  openPanel("Månedlig investering", `
+    <label>Beløb (kr./md)</label>
+    <input id="mRange" class="range" type="range" min="0" max="15000" step="100" value="${state.monthly}">
+    <div class="inline2" style="margin-top:10px">
+      <div>
+        <label>Skriv beløb</label>
+        <input id="mNum" class="number" type="number" inputmode="numeric" min="0" value="${state.monthly}">
+      </div>
+      <div>
+        <label>Hurtigt</label>
+        <div class="quick">
+          <button data-add="100">+100</button>
+          <button data-add="500">+500</button>
+          <button data-add="1000">+1000</button>
+        </div>
+      </div>
+    </div>
+    <div class="small">Slider er hurtig. Tal-feltet er præcist.</div>
+  `);
+
+  const r=$("mRange"), n=$("mNum");
+  r.addEventListener("input", (e)=>{ state.monthly = clamp(toInt(e.target.value||"0"), CLAMP.monthlyMin, CLAMP.monthlyMax); n.value = state.monthly; updateUI(); });
+  n.addEventListener("input", (e)=>{ state.monthly = clamp(toInt(e.target.value||"0"), CLAMP.monthlyMin, CLAMP.monthlyMax); r.value = state.monthly; updateUI(); });
+  $("panelBody").querySelectorAll(".quick button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ state.monthly = clamp(state.monthly + toInt(btn.dataset.add), CLAMP.monthlyMin, CLAMP.monthlyMax); r.value = state.monthly; n.value = state.monthly; updateUI(); });
+  });
+}
+
+function showSavings(){
+  openPanel("Opsparing i dag", `
+    <label>Beløb (kr.)</label>
+    <input id="sNum" class="number" type="number" inputmode="numeric" min="0" value="${state.savings}" placeholder="fx 250000">
+    <div class="quick">
+      <button data-add="10000">+10k</button>
+      <button data-add="50000">+50k</button>
+      <button data-add="100000">+100k</button>
+    </div>
+    <div class="small">Opsparing i dag slår direkte igennem.</div>
+  `);
+
+  const n=$("sNum");
+  n.addEventListener("input", (e)=>{ state.savings = clamp(toInt(e.target.value||"0"), CLAMP.savingsMin, CLAMP.savingsMax); updateUI(); });
+  $("panelBody").querySelectorAll(".quick button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ state.savings = clamp(state.savings + toInt(btn.dataset.add), CLAMP.savingsMin, CLAMP.savingsMax); n.value = state.savings; updateUI(); });
+  });
+}
+
+function renderChoices(){
+  const totalPages = Math.ceil(CHOICES.length / PAGE_SIZE);
+  const start = state.choicesPage * PAGE_SIZE;
+  const items = CHOICES.slice(start, start + PAGE_SIZE);
+
+  let chipsHtml = "";
+  for (const c of items){
+    const on = state.choicesOn.has(c.id) ? "on" : "";
+    chipsHtml += `<div class="chip ${on}" data-id="${c.id}"><span>${c.label}</span><small>${c.monthly} kr./md</small></div>`;
+  }
+
+  const prevDisabled = (state.choicesPage===0) ? "disabled" : "";
+  const nextDisabled = (state.choicesPage===totalPages-1) ? "disabled" : "";
+
+  return `
+    <div class="small">Vælg konkrete ting. Målet er at finde penge uden at det føles tungt.</div>
+    <div class="small" style="margin-top:6px"><b>Små valg i alt:</b> <span id="choicesTotal">${choicesSum()}</span> kr./md</div>
+
+    <div class="chipsGrid" id="chipsGrid">${chipsHtml}</div>
+
+    <div class="pager">
+      <button id="prevPg" ${prevDisabled}>Forrige</button>
+      <div>Side ${state.choicesPage+1}/${totalPages}</div>
+      <button id="nextPg" ${nextDisabled}>Næste</button>
+    </div>
+
+    <label>Tilpas selv (kr./md) – ekstra</label>
+    <input id="choicesManual" class="number" type="number" inputmode="numeric" min="0" value="${state.choicesManual}" placeholder="fx 300">
+
+    <div class="small">“Tilpas selv” lægges oveni valgte chips.</div>
+  `;
+}
+
+function bindChoices(){
+  const grid = $("chipsGrid");
+  if (grid){
+    grid.addEventListener("click", (e)=>{
+      const el = e.target.closest(".chip");
+      if(!el) return;
+      const id = el.getAttribute("data-id");
+      if(state.choicesOn.has(id)) state.choicesOn.delete(id); else state.choicesOn.add(id);
+      $("panelBody").innerHTML = renderChoices();
+      bindChoices();
+      updateUI();
+    });
+  }
+
+  const totalPages = Math.ceil(CHOICES.length / PAGE_SIZE);
+  const prev = $("prevPg"), next = $("nextPg");
+  if (prev){
+    prev.addEventListener("click", ()=>{ if(state.choicesPage>0) state.choicesPage--; $("panelBody").innerHTML = renderChoices(); bindChoices(); });
+  }
+  if (next){
+    next.addEventListener("click", ()=>{ if(state.choicesPage<totalPages-1) state.choicesPage++; $("panelBody").innerHTML = renderChoices(); bindChoices(); });
+  }
+
+  const manual = $("choicesManual");
+  if (manual){
+    manual.addEventListener("input", (e)=>{
+      state.choicesManual = clamp(toInt(e.target.value||"0"), CLAMP.choicesManualMin, CLAMP.choicesManualMax);
+      const t = $("choicesTotal");
+      if (t) t.textContent = choicesSum();
+      updateUI();
+    });
+  }
+}
+
+function showChoices(){ openPanel("Små valg", renderChoices()); bindChoices(); }
+
+function showAssumptions(){
+  const res = computeFreedom();
+  const need = neededCapital();
+  const html = `
+    <div class="small">
+      <div><b>Afkastforudsætning:</b> ${Math.round(state.r*100)}%</div>
+      <div style="margin-top:6px"><b>Mål:</b> ${state.targetMonthly.toLocaleString("da-DK")} kr./md i ${state.payoutYears} år</div>
+      <div style="margin-top:6px"><b>Målkapital:</b> ${need.toLocaleString("da-DK")} kr.</div>
+      <div style="margin-top:6px"><b>Alder:</b> ${state.age ?? "—"} · <b>Estimeret fødselsår:</b> ${state.birthYear ?? "—"}</div>
+      <div style="margin-top:6px"><b>Folkepensionsalder:</b> ${state.pensionAge ?? "—"} (estimat)</div>
+      ${res ? `<div style="margin-top:6px"><b>Mulig alder:</b> ${(Math.round(res.freedomAge*10)/10)} · <b>Frigjort:</b> ${(Math.round(res.yearsGained*10)/10)} år</div>` : ""}
+      <div style="margin-top:10px">Estimat. Ikke garanti eller rådgivning.</div>
+    </div>
+  `;
+  openPanel("Forudsætninger", html + `<div class="small" style="margin-top:10px"><b>Input-lofter (for stabilitet):</b> månedlig ≤ ${CLAMP.monthlyMax.toLocaleString("da-DK")} kr./md · opsparing ≤ ${CLAMP.savingsMax.toLocaleString("da-DK")} kr.</div>`);
+}
+
+/* Age */
+function unlockWithAge(age){
+  age = clamp(toInt(age), CLAMP.ageMin, CLAMP.ageMax);
+  state.age = age;
+  state.birthYear = nowYear - age;
+  state.pensionAge = pensionAgeFromBirthYear(state.birthYear);
+  lastShown = null;
+  $("centerWrap").classList.add("hidden");
+  lockWheel(false);
+  updateUI();
+}
+function enterAgeEdit(){
+  $("centerWrap").classList.remove("hidden");
+  lockWheel(true);
+  $("ageField").value = state.age ?? "";
+  $("ageField").focus();
+  $("coreDelta").textContent = "Indtast alder";
+}
+
+/* Init */
+lockWheel(true);
+const loaded = loadState();
+updateUI();
+runSelfTests();
+
+/* Wire */
+$("panelClose").addEventListener("click", closePanel);
+$("btnAssum").addEventListener("click", showAssumptions);
+$("coreTap").addEventListener("click", enterAgeEdit);
+
+$("segMonthly").addEventListener("click", ()=>{ if(state.age){ snapTo("monthly"); showMonthly(); } });
+$("segSavings").addEventListener("click", ()=>{ if(state.age){ snapTo("savings"); showSavings(); } });
+$("segChoices").addEventListener("click", ()=>{ if(state.age){ snapTo("choices"); showChoices(); } });
+
+const ageField = $("ageField");
+ageField.addEventListener("input", ()=>{
+  const a = clamp(toInt(ageField.value||""), CLAMP.ageMin, CLAMP.ageMax);
+  if (!a) return;
+  if (a>=CLAMP.ageMin && a<=CLAMP.ageMax) unlockWithAge(a);
+});
+ageField.addEventListener("keydown", (e)=>{
+  if (e.key==="Enter"){
+    e.preventDefault();
+    const a = clamp(toInt(ageField.value||""), CLAMP.ageMin, CLAMP.ageMax);
+    if (a>=CLAMP.ageMin && a<=CLAMP.ageMax) unlockWithAge(a);
+  }
+});
+$("ageGo").addEventListener("click", ()=>{
+  const a = clamp(toInt(ageField.value||""), CLAMP.ageMin, CLAMP.ageMax);
+  if (a>=CLAMP.ageMin && a<=CLAMP.ageMax) unlockWithAge(a);
+});
+$("ageDemo").addEventListener("click", ()=>{
+  ageField.value = 37;
+  unlockWithAge(37);
+  state.savings = 250000;
+  state.monthly = 1500;
+  state.choicesOn = new Set(["c1","c3"]);
+  state.choicesManual = 0;
+  updateUI();
+});
+</script>
+</body>
+</html>
