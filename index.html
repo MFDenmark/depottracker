@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>FrihedOptimer</title>
+<style>
+:root{
+  --bg1:#f6fbff;
+  --bg2:#eef5ff;
+  --card:#ffffff;
+  --text:#0b1220;
+  --muted:#5a6b85;
+  --line:#e7eef8;
+  --blue:#2c6cff;
+  --blue2:#1f4ed8;
+  --alt:#00a6ff;
+  --shadow: 0 24px 70px rgba(10,30,80,0.12);
+  --shadow2: 0 18px 45px rgba(10,30,80,0.10);
+  --ok:#059669;
+  --warn:#b42318;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  background: linear-gradient(180deg,var(--bg1),var(--bg2));
+  color:var(--text);
+}
+.app{max-width:760px;margin:0 auto;padding:18px 14px 54px;}
+.top{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 6px 14px;
+  position:sticky;top:0;z-index:30;
+  background: linear-gradient(180deg, rgba(246,251,255,0.92), rgba(246,251,255,0.70));
+  backdrop-filter: blur(10px);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.dot{
+  width:10px;height:10px;border-radius:999px;
+  background:linear-gradient(135deg,var(--alt),var(--blue));
+  box-shadow:0 0 0 3px rgba(44,108,255,0.08);
+}
+.name{font-weight:950;letter-spacing:-0.02em}
+.tag{font-size:12px;color:var(--muted)}
+.btn{
+  border:1px solid var(--line);
+  background: rgba(255,255,255,0.85);
+  color: var(--text);
+  border-radius: 14px;
+  padding:10px 12px;
+  font-weight:950;
+  cursor:pointer;
+  box-shadow: 0 10px 26px rgba(10,30,80,0.06);
+}
+.btn:active{transform:translateY(1px)}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+.hero{padding:18px 18px 16px;}
+.kicker{
+  font-size:12px;color:var(--muted);
+  letter-spacing:0.02em;text-transform:uppercase;font-weight:950;
+}
+.h1{margin:8px 0 0;font-size:28px;font-weight:980;letter-spacing:-0.03em;line-height:1.06}
+.p{margin:10px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+
+.progress{
+  margin-top:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.pills{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{
+  border:1px solid var(--line);
+  background: rgba(255,255,255,0.70);
+  padding:7px 10px;border-radius:999px;
+  font-size:12px;color: rgba(11,18,32,0.80);font-weight:950;
+}
+.pill.blue{border-color: rgba(44,108,255,0.22); background: rgba(44,108,255,0.08); color: rgba(31,78,216,0.95);}
+.pill.ok{border-color: rgba(5,150,105,0.20); background: rgba(5,150,105,0.08); color: rgba(5,150,105,0.95);}
+.pRight{font-size:12px;color:var(--muted);font-weight:900;white-space:nowrap}
+
+.stage{
+  padding:14px 18px 18px;
+  border-top:1px solid var(--line);
+  background: linear-gradient(180deg, rgba(248,252,255,0.82), rgba(255,255,255,0.98));
+}
+.label{display:block;margin:0 0 8px;font-size:12px;color:var(--muted);font-weight:950}
+.inputWrap{position:relative}
+.input{
+  width:100%;
+  padding:14px 14px;
+  border-radius: 16px;
+  border:1px solid var(--line);
+  font-size:22px;font-weight:980;
+  outline:none;
+  background:#fff;
+  box-shadow: 0 10px 28px rgba(10,30,80,0.05);
+}
+.input:focus{border-color: rgba(44,108,255,0.45); box-shadow:0 16px 38px rgba(44,108,255,0.12);}
+.hint{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.4}
+.bigRow{
+  margin-top:14px;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+  padding:14px 14px;
+  border:1px solid var(--line);
+  border-radius: 18px;
+  background: radial-gradient(circle at 20% 0%, rgba(44,108,255,0.10), rgba(255,255,255,0.98) 55%);
+}
+.bigLeft{min-width:0}
+.bigTitle{font-size:12px;color:rgba(11,18,32,0.68);font-weight:950;letter-spacing:0.02em;text-transform:uppercase}
+.bigNum{
+  margin-top:6px;
+  font-size:62px;font-weight:980;letter-spacing:-0.05em;line-height:1;
+}
+.bigUnit{font-size:14px;color:rgba(11,18,32,0.70);font-weight:950;margin-left:6px}
+.spark{
+  width:110px;height:54px;border-radius:14px;
+  background: linear-gradient(135deg, rgba(0,166,255,0.14), rgba(44,108,255,0.10));
+  border:1px solid rgba(44,108,255,0.18);
+  position:relative;overflow:hidden;
+}
+.spark:before{
+  content:"";
+  position:absolute; inset:-40%;
+  background: conic-gradient(from 180deg, rgba(44,108,255,0.00), rgba(44,108,255,0.40), rgba(0,166,255,0.00));
+  animation: spin 3.6s linear infinite;
+  opacity:0.55;
+}
+.spark:after{
+  content:"";
+  position:absolute; inset:10px;
+  background: rgba(255,255,255,0.65);
+  border-radius:10px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.ctaRow{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.cta{
+  flex:1;
+  border:0;
+  border-radius: 16px;
+  padding:14px 14px;
+  font-weight:980;
+  cursor:pointer;
+  color:#fff;
+  background: linear-gradient(135deg,var(--blue),var(--blue2));
+  box-shadow: 0 16px 38px rgba(31,78,216,0.18);
+  min-width: 240px;
+}
+.cta:active{transform:translateY(1px)}
+.ghost{
+  border:1px solid var(--line);
+  background:#fff;
+  color:rgba(11,18,32,0.86);
+  box-shadow: 0 12px 28px rgba(10,30,80,0.06);
+}
+.ghost:active{transform:translateY(1px)}
+
+.tease{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:10px;
+}
+@media (min-width:680px){
+  .tease{grid-template-columns: 1fr 1fr;}
+}
+.teaseCard{
+  border:1px solid var(--line);
+  border-radius: 18px;
+  padding:12px 12px;
+  background: rgba(255,255,255,0.72);
+  box-shadow: 0 14px 34px rgba(10,30,80,0.06);
+  position:relative;
+  overflow:hidden;
+}
+.teaseCard.blur:after{
+  content:"";
+  position:absolute; inset:0;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(6px);
+}
+.teaseTop{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.teaseH{
+  font-weight:980;
+  letter-spacing:-0.02em;
+}
+.teaseTag{font-size:12px;color:var(--muted);font-weight:900}
+.teaseP{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.4}
+.lock{
+  position:absolute;right:12px;bottom:10px;
+  font-size:12px;font-weight:980;
+  color: rgba(31,78,216,0.92);
+  background: rgba(44,108,255,0.10);
+  border:1px solid rgba(44,108,255,0.18);
+  padding:6px 10px;border-radius:999px;
+}
+
+.fadeIn{animation:fadeIn .34s ease}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Step 2 */
+.sectionPad{padding:18px}
+.grid2{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:680px){.grid2{grid-template-columns:1fr 1fr;}}
+.small{font-size:12px;color:var(--muted);line-height:1.35}
+.resultBox{
+  margin-top:14px;
+  padding:16px 16px 14px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  box-shadow: var(--shadow2);
+}
+.center{text-align:center}
+.bigBlue{
+  font-size:76px;font-weight:980;letter-spacing:-0.06em;color:var(--blue);
+  line-height:1;
+  transition:transform 320ms ease;
+}
+.pulse{transform:scale(1.02)}
+.timeline{margin:14px 0 6px;position:relative;height:12px;border-radius:999px;background:rgba(11,18,32,0.10);overflow:hidden}
+.timeline .blue{
+  position:absolute;top:0;bottom:0;right:0;
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  border-radius:999px;
+  transition: width 320ms ease-out;
+  box-shadow: 0 10px 22px rgba(44,108,255,.18);
+}
+.marker{
+  position:absolute;top:-26px;font-size:12px;
+  transform:translateX(-50%);
+  transition:left 320ms ease-out;
+  color:#334155;
+}
+.marker.blue{color:#1f4ed8;font-weight:900;}
+.detailsBtn{
+  border:0;background:transparent;color:rgba(31,78,216,0.96);
+  font-weight:980;cursor:pointer;margin-top:10px
+}
+.details{
+  margin-top:12px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background: rgba(248,252,255,0.75);
+  padding:12px 12px;
+  display:none;
+}
+.hr{height:1px;background:var(--line);margin:12px 0}
+.lead{margin-top:14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,0.88);padding:12px 12px}
+.lead button{width:100%}
+.hidden{display:none}
+
+/* Optimizer */
+.optWrap{margin-top:12px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,0.88);padding:12px 12px}
+.optHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.optTitle{font-weight:980;letter-spacing:-0.02em}
+.optSub{font-size:12px;color:var(--muted);line-height:1.35;margin-top:4px}
+.optBtn{border:0;background:transparent;color:rgba(31,78,216,0.96);font-weight:980;cursor:pointer}
+.optBody{display:none;margin-top:10px}
+.optGrid{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:680px){.optGrid{grid-template-columns:1fr 1fr;}}
+.choice{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  padding:12px 12px;
+  cursor:pointer;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  box-shadow: 0 10px 24px rgba(10,30,80,0.06);
+  user-select:none;
+}
+.choice:active{transform:translateY(1px)}
+.choice.on{border-color: rgba(44,108,255,0.45); background: rgba(44,108,255,0.06);}
+.choiceH{font-weight:980}
+.choiceP{margin-top:4px;font-size:12px;color:var(--muted);line-height:1.35}
+.badge{
+  font-size:12px;
+  font-weight:980;
+  color: rgba(31,78,216,0.96);
+  background: rgba(44,108,255,0.10);
+  border:1px solid rgba(44,108,255,0.18);
+  padding:6px 10px;border-radius:999px;
+  white-space:nowrap;
+}
+.simBox{
+  margin-top:10px;
+  border:1px dashed rgba(44,108,255,0.40);
+  background: rgba(44,108,255,0.05);
+  border-radius:16px;
+  padding:12px 12px;
+}
+.simRow{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.simLeft{min-width:220px}
+.simK{font-size:12px;color:rgba(11,18,32,0.72);font-weight:950;text-transform:uppercase;letter-spacing:.02em}
+.simV{margin-top:4px;font-weight:980;letter-spacing:-.02em}
+.simDelta{font-weight:980;color:rgba(31,78,216,0.96)}
+.noteWarn{color:rgba(180,35,24,0.92);font-weight:980}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="top">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <div class="name">FrihedOptimer</div>
+        <div class="tag">Bro til folkepension · realmodel</div>
+      </div>
+    </div>
+    <button class="btn" id="btnAssum">Forudsætninger</button>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card" id="step1">
+    <div class="hero">
+      <div class="kicker">Din frihed</div>
+      <div class="h1">Hvornår rammer du folkepension?</div>
+      <div class="p">Start med din alder. Du får straks et estimat – og kan derefter se, hvor mange år du kan tage tilbage før folkepension.</div>
+
+      <div class="progress">
+        <div class="pills">
+          <div class="pill blue">Trin 1: Alder</div>
+          <div class="pill">Trin 2: Dine tal</div>
+          <div class="pill">Trin 3: Frihedsresultat</div>
+        </div>
+        <div class="pRight">~ 60 sek.</div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <label class="label" for="age">Alder</label>
+      <div class="inputWrap">
+        <input class="input" id="age" type="number" inputmode="numeric" min="15" max="100" placeholder="fx 37">
+      </div>
+      <div class="hint">Vi starter let: kun alder. Du kan justere alt senere.</div>
+
+      <div class="bigRow fadeIn" id="pensionRow" style="display:none">
+        <div class="bigLeft">
+          <div class="bigTitle">Folkepension (estimat)</div>
+          <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
+            <div class="bigNum" id="pensionAge">–</div>
+            <div class="bigUnit">år</div>
+          </div>
+        </div>
+        <div class="spark" aria-hidden="true"></div>
+      </div>
+
+      <div class="ctaRow">
+        <button class="cta" id="btnNext" disabled>Se hvad du kan gøre for at bestemme over din frihed</button>
+        <button class="cta ghost" id="btnDemo">Demo</button>
+      </div>
+
+      <div class="tease">
+        <div class="teaseCard blur">
+          <div class="teaseTop">
+            <div class="teaseH">Din mulighed</div>
+            <div class="teaseTag">År tilbage</div>
+          </div>
+          <div class="teaseP">En konkret alder, hvor du kan stoppe før folkepension – beregnet konservativt.</div>
+          <div class="lock">Låst indtil trin 2</div>
+        </div>
+        <div class="teaseCard blur">
+          <div class="teaseTop">
+            <div class="teaseH">Små valg</div>
+            <div class="teaseTag">“det rykker faktisk”</div>
+          </div>
+          <div class="teaseP">Se hvad 5 små, realistiske ændringer kan gøre for din frihed – som simulation.</div>
+          <div class="lock">Låst indtil trin 3</div>
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:12px">Beregningen medregner ikke eksisterende pensionsordninger.</div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card hidden" id="step2">
+    <div class="hero">
+      <div class="kicker">Trin 2/3</div>
+      <div class="h1">Dine tal</div>
+      <div class="p">Justér og se effekten live. Vi regner konservativt og kun frem til folkepension (bro-model).</div>
+
+      <div class="progress">
+        <div class="pills">
+          <div class="pill ok">Trin 1: Alder ✓</div>
+          <div class="pill blue">Trin 2: Dine tal</div>
+          <div class="pill">Trin 3: Frihedsresultat</div>
+        </div>
+        <div class="pRight" id="pensionBadge">Folkepension: –</div>
+      </div>
+    </div>
+
+    <div class="sectionPad">
+      <div class="grid2">
+        <div>
+          <label class="label" for="savings">Opsparing (kr.)</label>
+          <input class="input" id="savings" type="text" inputmode="numeric" value="250000">
+        </div>
+        <div>
+          <label class="label" for="monthly">Månedlig investering (kr.)</label>
+          <input class="input" id="monthly" type="text" inputmode="numeric" value="1500">
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <label class="label" for="targetMonthly">Ønsket månedlig indkomst før folkepension (kr.)</label>
+          <input class="input" id="targetMonthly" type="text" inputmode="numeric" value="20000">
+          <div class="small">I nutidskroner (realmodel).</div>
+        </div>
+        <div>
+          <label class="label" for="startBridgeAge">Hvornår vil du stoppe?</label>
+          <input class="input" id="startBridgeAge" type="number" inputmode="decimal" min="40" max="80" value="62">
+          <div class="small">Vi beregner om kapitalen kan dække perioden fra stopalder til folkepension.</div>
+        </div>
+      </div>
+
+      <div class="resultBox" id="resultBox">
+        <div class="center">
+          <div class="bigBlue" id="yearsBack">–</div>
+          <div style="font-weight:950;color:rgba(11,18,32,0.80)">år tidligere</div>
+          <div class="small" id="resultText" style="margin-top:8px">—</div>
+        </div>
+
+        <div class="timeline" aria-label="Tidslinje">
+          <div class="blue" id="blueBar" style="width:0%"></div>
+          <div class="marker" id="mToday">I dag</div>
+          <div class="marker blue" id="mFreedom">Mulighed</div>
+          <div class="marker" id="mOfficial">Folkepension</div>
+        </div>
+
+        <button class="detailsBtn" id="btnDetails">Se beregningsdetaljer</button>
+        <div class="details" id="detailsBox"></div>
+
+        <div class="optWrap">
+          <div class="optHead">
+            <div>
+              <div class="optTitle">Se hvad små ændringer kan gøre</div>
+              <div class="optSub">Simulation – påvirker ikke dine grundtal. Du kan vælge flere og se samlet effekt.</div>
+            </div>
+            <button class="optBtn" id="btnOpt">Åbn</button>
+          </div>
+
+          <div class="optBody" id="optBody">
+            <div class="optGrid" id="optGrid"></div>
+
+            <div class="simBox" id="simBox" style="display:none">
+              <div class="simRow">
+                <div class="simLeft">
+                  <div class="simK">Med små justeringer</div>
+                  <div class="simV" id="simLine">—</div>
+                </div>
+                <div style="text-align:right">
+                  <div class="simK">Ekstra</div>
+                  <div class="simDelta" id="simDelta">—</div>
+                </div>
+              </div>
+              <div class="small" style="margin-top:8px" id="simNote"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lead">
+          <button class="cta" id="btnLead">Få en gratis gennemgang</button>
+          <div class="small" style="margin-top:8px">Lead-flow kobles på senere (ingen serverkobling i denne fil).</div>
+        </div>
+
+        <div class="small" style="margin-top:10px">Beregningen er vejledende og bygger på konservative antagelser.</div>
+      </div>
+
+      <div class="ctaRow" style="margin-top:14px">
+        <button class="cta ghost" id="btnBack">Tilbage</button>
+        <button class="cta" id="btnToResult">Gå til resultat</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Forudsætninger modal -->
+<div class="hidden" id="assumModal" style="position:fixed;inset:0;z-index:80;background:rgba(11,18,32,.35);display:none;align-items:flex-end;justify-content:center;padding:16px;">
+  <div class="card" style="width:min(760px,100%);padding:16px 16px 14px;border-radius:20px;box-shadow:var(--shadow)">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div>
+        <div class="kicker">Forudsætninger</div>
+        <div class="h1" style="font-size:18px;margin-top:6px">Sådan regner vi</div>
+        <div class="p" style="margin-top:8px">Vi regner i nutidskroner (realmodel) og trækker 10% margin fra kapitalen.</div>
+      </div>
+      <button class="btn" id="btnCloseAssum">Luk</button>
+    </div>
+    <div class="hr"></div>
+    <div class="small"><b>Opsparingsfase:</b> 4% realafkast</div>
+    <div class="small" style="margin-top:6px"><b>Bro-model:</b> Kapitalen skal dække fra stopalder til folkepension</div>
+    <div class="small" style="margin-top:6px"><b>Udbetalingsfase:</b> 2% realafkast (i bro-perioden)</div>
+    <div class="small" style="margin-top:6px"><b>Margin:</b> 10% fratrukket kapital (sikkerhed)</div>
+    <div class="small" style="margin-top:10px">Beregningen medregner ikke eksisterende pensionsordninger.</div>
+  </div>
+</div>
+
+<script>
+/* ===== Model (real, conservative, bridge-to-folkepension) ===== */
+const nowYear = 2026;
+const rAccum = 0.04;   // 4% real
+const rPayout = 0.02;  // 2% real in bridge payout
+const margin = 0.10;   // 10% safety margin
+const $ = (id)=>document.getElementById(id);
+
+function pensionAgeFromBirthYear(y){
+  if (y < 1963) return 67;
+  if (y < 1967) return 68;
+  if (y < 1971) return 69;
+  if (y < 1975) return 70;
+  if (y < 1979) return 71;
+  return 72;
+}
+function pensionAgeFromAge(age){
+  const birthYear = nowYear - age;
+  return pensionAgeFromBirthYear(birthYear);
+}
+function fvOfContrib(annual, r, years){
+  if (years <= 0) return 0;
+  if (r === 0) return annual * years;
+  return annual * ((Math.pow(1+r, years)-1)/r);
+}
+function futureValueAtAge(ageNow, targetAge, savings, monthly){
+  const years = Math.max(0, targetAge - ageNow);
+  const annual = monthly * 12;
+  const fvSavings = savings * Math.pow(1+rAccum, years);
+  const fvInvest = fvOfContrib(annual, rAccum, years);
+  return (fvSavings + fvInvest) * (1 - margin);
+}
+function bridgeCapitalNeeded(monthlyIncome, bridgeYears){
+  const n = Math.max(0, bridgeYears);
+  const annual = monthlyIncome * 12;
+  if (n <= 0) return 0;
+  if (rPayout === 0) return annual * n;
+  return annual * ((1 - Math.pow(1+rPayout, -n)) / rPayout);
+}
+function computeBridgeFreedom(ageNow, savings, monthly, targetMonthly){
+  const official = pensionAgeFromAge(ageNow);
+  const step = 0.1;
+  let freedom = null;
+
+  for (let a = ageNow; a <= official + 1e-9; a += step){
+    const stopAge = Math.round(a*10)/10;
+    const bridgeYears = Math.max(0, official - stopAge);
+    const need = bridgeCapitalNeeded(targetMonthly, bridgeYears);
+    const fv = futureValueAtAge(ageNow, stopAge, savings, monthly);
+    if (fv >= need){ freedom = stopAge; break; }
+  }
+  if (freedom === null) freedom = official;
+
+  const yearsBack = Math.max(0, official - freedom);
+  const bridgeYearsAtFreedom = Math.max(0, official - freedom);
+  const needAtFreedom = bridgeCapitalNeeded(targetMonthly, bridgeYearsAtFreedom);
+  const fvAtFreedom = futureValueAtAge(ageNow, freedom, savings, monthly);
+  const gap = fvAtFreedom - needAtFreedom;
+
+  return { official, freedom, yearsBack, bridgeYearsAtFreedom, needAtFreedom, fvAtFreedom, gap };
+}
+function computeAtChosenStop(ageNow, chosenStop, savings, monthly, targetMonthly){
+  const official = pensionAgeFromAge(ageNow);
+  const stop = Math.min(official, Math.max(ageNow, chosenStop));
+  const bridgeYears = Math.max(0, official - stop);
+  const need = bridgeCapitalNeeded(targetMonthly, bridgeYears);
+  const fv = futureValueAtAge(ageNow, stop, savings, monthly);
+  const gap = fv - need;
+  return { official, stop, bridgeYears, need, fv, gap };
+}
+
+/* ===== Formatting helpers ===== */
+function fmtDAInt(n){
+  try { return Math.round(n).toLocaleString("da-DK"); } catch(e){ return String(Math.round(n)); }
+}
+function parseDKMoney(str){
+  const s = String(str ?? "").replace(/[^0-9]/g,"");
+  const n = parseInt(s || "0", 10);
+  return Number.isFinite(n) ? n : 0;
+}
+function formatInputMoney(el){
+  const n = parseDKMoney(el.value);
+  el.value = n ? n.toLocaleString("da-DK") : "";
+  return n;
+}
+
+/* ===== Step state ===== */
+let state = {
+  age: null,
+  savings: 250000,
+  monthly: 1500,
+  targetMonthly: 20000,
+  startBridgeAge: 62,
+};
+
+/* ===== Step 1 ===== */
+function updatePensionPreview(){
+  const age = parseInt($("age").value || "", 10);
+  if (!Number.isFinite(age) || age < 15 || age > 100){
+    $("pensionRow").style.display = "none";
+    $("btnNext").disabled = true;
+    return;
+  }
+  state.age = age;
+  const pa = pensionAgeFromAge(age);
+  $("pensionAge").textContent = String(pa);
+  $("pensionRow").style.display = "flex";
+  $("btnNext").disabled = false;
+}
+$("age").addEventListener("input", updatePensionPreview);
+
+$("btnDemo").addEventListener("click", ()=>{
+  $("age").value = 37;
+  updatePensionPreview();
+  state.savings = 250000;
+  state.monthly = 1500;
+  state.targetMonthly = 20000;
+  state.startBridgeAge = 62;
+});
+
+$("btnNext").addEventListener("click", ()=>{
+  if(!state.age) return;
+  $("step1").classList.add("hidden");
+  $("step2").classList.remove("hidden");
+  $("step2").classList.add("fadeIn");
+
+  $("pensionBadge").textContent = "Folkepension: " + pensionAgeFromAge(state.age) + " år";
+
+  $("savings").value = state.savings.toLocaleString("da-DK");
+  $("monthly").value = state.monthly.toLocaleString("da-DK");
+  $("targetMonthly").value = state.targetMonthly.toLocaleString("da-DK");
+  $("startBridgeAge").value = state.startBridgeAge;
+
+  recalcBaseline(true);
+});
+
+/* ===== Animations ===== */
+let lastYearsShown = null;
+let animSeq = 0;
+function easeOutCubic(p){ return 1 - Math.pow(1-p,3); }
+function animateYears(to){
+  const el = $("yearsBack");
+  animSeq++;
+  const seq = animSeq;
+  const from = (lastYearsShown === null) ? to : lastYearsShown;
+  const start = performance.now();
+  const dur = 320;
+
+  function tick(t){
+    if(seq !== animSeq) return;
+    const p = Math.min(1, (t-start)/dur);
+    const v = from + (to-from)*easeOutCubic(p);
+    el.textContent = v.toFixed(1).replace(".",",");
+    if (p<1) requestAnimationFrame(tick);
+    else lastYearsShown = to;
+  }
+  requestAnimationFrame(tick);
+
+  el.classList.remove("pulse");
+  void el.offsetWidth;
+  el.classList.add("pulse");
+  setTimeout(()=>el.classList.remove("pulse"), 260);
+}
+
+/* ===== Optimizer ===== */
+const MICRO_CHOICES = [
+  {id:"mc1", title:"2 cafébesøg mindre om ugen", desc:"Små justeringer i hverdagen, stor effekt over tid.", monthly:400},
+  {id:"mc2", title:"1 takeaway mindre om ugen", desc:"Typisk hurtig gevinst uden at føles ekstremt.", monthly:800},
+  {id:"mc3", title:"Del/opsig 1 streaming", desc:"Lav friktion – næsten usynligt.", monthly:150},
+  {id:"mc4", title:"5% mindre madindkøb", desc:"Planlægning + færre impulskøb i supermarkedet.", monthly:600},
+  {id:"mc5", title:"Invester lønstigning", desc:"Læg fx 1.500 kr./md til side når lønnen stiger.", monthly:1500},
+];
+let optOpen = false;
+let optOn = new Set();
+
+function renderOptimizer(){
+  const grid = $("optGrid");
+  grid.innerHTML = "";
+  for(const c of MICRO_CHOICES){
+    const on = optOn.has(c.id);
+    const div = document.createElement("div");
+    div.className = "choice" + (on ? " on" : "");
+    div.setAttribute("data-id", c.id);
+    div.innerHTML = `
+      <div>
+        <div class="choiceH">${c.title}</div>
+        <div class="choiceP">${c.desc}</div>
+      </div>
+      <div class="badge">+${c.monthly.toLocaleString("da-DK")} kr./md</div>
+    `;
+    div.addEventListener("click", ()=>{
+      if(optOn.has(c.id)) optOn.delete(c.id); else optOn.add(c.id);
+      renderOptimizer();
+      recalcSimulation();
+    });
+    grid.appendChild(div);
+  }
+}
+function sumOptMonthly(){
+  let s = 0;
+  for(const id of optOn){
+    const c = MICRO_CHOICES.find(x=>x.id===id);
+    if(c) s += c.monthly;
+  }
+  return s;
+}
+$("btnOpt").addEventListener("click", ()=>{
+  optOpen = !optOpen;
+  $("optBody").style.display = optOpen ? "block" : "none";
+  $("btnOpt").textContent = optOpen ? "Luk" : "Åbn";
+  if(optOpen){
+    renderOptimizer();
+    recalcSimulation();
+  } else {
+    $("simBox").style.display = "none";
+  }
+});
+
+/* ===== Baseline + simulation ===== */
+let lastBaseline = null;
+
+function recalcSimulation(){
+  if(!optOpen) return;
+  const extraMonthly = sumOptMonthly();
+  if(extraMonthly <= 0 || !lastBaseline){
+    $("simBox").style.display = "none";
+    return;
+  }
+
+  const monthlySim = state.monthly + extraMonthly;
+  const resSim = computeBridgeFreedom(state.age, state.savings, monthlySim, state.targetMonthly);
+
+  const delta = (resSim.yearsBack - lastBaseline.yearsBack);
+
+  $("simBox").style.display = "block";
+  $("simLine").textContent =
+    "Din mulighed: " + resSim.freedom.toFixed(1).replace(".",",") +
+    " år (" + resSim.yearsBack.toFixed(1).replace(".",",") + " år tidligere)";
+  $("simDelta").textContent = "+" + delta.toFixed(1).replace(".",",") + " år";
+  $("simNote").textContent =
+    "Simuleret med " + extraMonthly.toLocaleString("da-DK") + " kr./md ekstra (sum af valgte små ændringer).";
+}
+
+function recalcBaseline(resetAnim=false){
+  if(!state.age) return;
+
+  state.savings = formatInputMoney($("savings"));
+  state.monthly = formatInputMoney($("monthly"));
+  state.targetMonthly = formatInputMoney($("targetMonthly"));
+
+  const official = pensionAgeFromAge(state.age);
+  const chosenStop = parseFloat($("startBridgeAge").value || "0");
+  const stopClamped = Math.min(official, Math.max(state.age, Number.isFinite(chosenStop)?chosenStop:state.age));
+  $("startBridgeAge").value = stopClamped;
+
+  const res = computeBridgeFreedom(state.age, state.savings, state.monthly, state.targetMonthly);
+  lastBaseline = res;
+
+  if(resetAnim){ lastYearsShown = null; }
+  animateYears(Math.round(res.yearsBack*10)/10);
+
+  const denom = Math.max(0.1, res.official - state.age);
+  const posFreedom = ((res.freedom - state.age) / denom) * 100;
+  const posFreedomClamped = Math.min(100, Math.max(0, posFreedom));
+  const blueWidth = 100 - posFreedomClamped;
+  $("blueBar").style.width = blueWidth + "%";
+
+  $("mToday").style.left = "0%";
+  $("mFreedom").style.left = posFreedomClamped + "%";
+  $("mOfficial").style.left = "100%";
+
+  const bridgeYears = res.bridgeYearsAtFreedom;
+  if(res.yearsBack < 0.05){
+    $("resultText").innerHTML = "<span class='noteWarn'>Du kan ikke stoppe før folkepension med disse tal.</span>";
+    lastYearsShown = null;
+  }else{
+    $("resultText").textContent =
+      "Folkepension: " + res.official + " · Din mulighed: " + res.freedom.toFixed(1).replace(".",",") +
+      " · Dækker " + bridgeYears.toFixed(1).replace(".",",") + " år";
+  }
+
+  const gapLabel = (res.gap >= 0) ? "Buffer" : "Mangler";
+  const gapAbs = Math.abs(res.gap);
+
+  $("detailsBox").innerHTML =
+    "<div class='small'><b>Model:</b> Bro til folkepension (kapitalen dækker kun perioden fra stop til folkepension)</div>" +
+    "<div class='small' style='margin-top:6px'><b>Bro-periode:</b> " + bridgeYears.toFixed(1).replace(".",",") + " år</div>" +
+    "<div class='small' style='margin-top:6px'><b>Målkapital for bro:</b> " + fmtDAInt(res.needAtFreedom) + " kr.</div>" +
+    "<div class='small' style='margin-top:6px'><b>Forventet kapital ved stop:</b> " + fmtDAInt(res.fvAtFreedom) + " kr.</div>" +
+    "<div class='small' style='margin-top:6px'><b>" + gapLabel + ":</b> " + fmtDAInt(gapAbs) + " kr.</div>" +
+    "<div class='small' style='margin-top:10px'>Antagelser: 4% real (opsparing) · 2% real (bro) · 10% margin.</div>" +
+    "<div class='small' style='margin-top:6px'>Beregningen medregner ikke eksisterende pensionsordninger.</div>";
+
+  const chosen = computeAtChosenStop(state.age, stopClamped, state.savings, state.monthly, state.targetMonthly);
+  const chosenGapLabel = (chosen.gap >= 0) ? "OK" : "Mangler";
+  const chosenGapAbs = Math.abs(chosen.gap);
+
+  $("detailsBox").innerHTML +=
+    "<div class='hr'></div>" +
+    "<div class='small'><b>Dit valgte stop:</b> " + chosen.stop.toFixed(1).replace(".",",") + " år</div>" +
+    "<div class='small' style='margin-top:6px'><b>Bro-periode:</b> " + chosen.bridgeYears.toFixed(1).replace(".",",") + " år</div>" +
+    "<div class='small' style='margin-top:6px'><b>Status:</b> " + chosenGapLabel +
+      (chosen.gap>=0 ? " (buffer " : " (mangler ") + fmtDAInt(chosenGapAbs) + " kr.)</div>";
+
+  recalcSimulation();
+}
+
+/* Inputs */
+["savings","monthly","targetMonthly","startBridgeAge"].forEach(id=>{
+  $(id).addEventListener("input", ()=>recalcBaseline(false));
+  $(id).addEventListener("blur", ()=>recalcBaseline(false));
+});
+
+$("btnDetails").addEventListener("click", ()=>{
+  const d = $("detailsBox");
+  d.style.display = (d.style.display === "block") ? "none" : "block";
+});
+
+$("btnBack").addEventListener("click", ()=>{
+  $("step2").classList.add("hidden");
+  $("step1").classList.remove("hidden");
+});
+
+$("btnToResult").addEventListener("click", ()=>{
+  $("resultBox").scrollIntoView({behavior:"smooth", block:"start"});
+});
+
+$("btnLead").addEventListener("click", ()=>{
+  alert("Lead-flow kobles på senere. (Ingen serverkobling i denne fil.)");
+});
+
+/* Assumptions modal */
+function openAssum(){ $("assumModal").style.display = "flex"; }
+function closeAssum(){ $("assumModal").style.display = "none"; }
+$("btnAssum").addEventListener("click", openAssum);
+$("btnCloseAssum").addEventListener("click", closeAssum);
+$("assumModal").addEventListener("click", (e)=>{ if(e.target === $("assumModal")) closeAssum(); });
+
+/* Init */
+updatePensionPreview();
+</script>
+</body>
+</html>
