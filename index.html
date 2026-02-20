@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>TidsHjulet V16 · V10-stil</title>
+<style>
+:root{
+  /* V10 palette */
+  --bg1:#f6fbff;
+  --bg2:#eef5ff;
+  --card:#ffffff;
+  --text:#0b1220;
+  --muted:#5a6b85;
+  --line:#e7eef8;
+  --blue:#2c6cff;
+  --blue2:#1f4ed8;
+  --alt:#00a6ff;
+  --shadow: 0 18px 45px rgba(10,30,80,0.10);
+  --radius: 18px;
+
+  /* wheel */
+  --ringA:#dbe9ff;
+  --ringB:#cfe2ff;
+  --ringC:#c3ddff;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  background: linear-gradient(180deg, var(--bg1), var(--bg2));
+  color: var(--text);
+}
+
+.app{
+  max-width:520px;
+  margin:0 auto;
+  padding:18px 14px 36px;
+}
+
+.top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 6px 14px;
+  position:sticky;
+  top:0;
+  z-index:20;
+  background: linear-gradient(180deg, rgba(246,251,255,0.92), rgba(246,251,255,0.70));
+  backdrop-filter: blur(10px);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.dot{width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--alt),var(--blue)); box-shadow:0 0 0 3px rgba(44,108,255,0.08);}
+.name{font-weight:900;letter-spacing:-0.02em}
+.tag{font-size:12px;color:var(--muted)}
+
+.btn{
+  border:1px solid var(--line);
+  background: rgba(255,255,255,0.75);
+  color: var(--text);
+  border-radius: 14px;
+  padding:10px 12px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow: 0 10px 26px rgba(10,30,80,0.06);
+}
+.btn:active{transform:translateY(1px)}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.hero{
+  padding:16px;
+}
+.kicker{font-size:12px;color:var(--muted);letter-spacing:0.02em;text-transform:uppercase}
+.h1{margin:6px 0 0;font-size:22px;font-weight:950;letter-spacing:-0.02em}
+.p{margin:8px 0 0;font-size:13px;color:var(--muted);line-height:1.4}
+
+.wheel-wrap{
+  margin-top:12px;
+  text-align:center;
+  position:relative;
+  padding:10px 6px 6px;
+}
+svg{width:100%;max-width:460px;height:auto;display:block;margin:0 auto}
+.segment{cursor:pointer; transition:opacity .18s ease, filter .18s ease}
+.segment:hover{opacity:0.88; filter: drop-shadow(0 14px 22px rgba(44,108,255,0.14));}
+.coreTap{cursor:pointer}
+
+.coreAge{font-size:54px;font-weight:950;fill:var(--text);letter-spacing:-0.04em}
+.coreSmall{font-size:12px;fill:rgba(11,18,32,0.65)}
+.coreDelta{font-size:13px;font-weight:900;fill:rgba(11,18,32,0.80)}
+
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{
+  border:1px solid var(--line);
+  background: rgba(255,255,255,0.65);
+  padding:7px 10px;
+  border-radius: 999px;
+  font-size:12px;
+  color: rgba(11,18,32,0.75);
+}
+.badge.blue{border-color: rgba(44,108,255,0.18); background: rgba(44,108,255,0.08); color: rgba(31,78,216,0.95);}
+
+.progressRow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:10px}
+.progressRow .left{font-size:12px;color:var(--muted);line-height:1.35;flex:1;text-align:left}
+.progressRow .right{font-size:13px;font-weight:900;color:rgba(11,18,32,0.85);white-space:nowrap}
+
+/* Center age overlay */
+.ageOverlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+.ageCard{
+  width:220px;
+  background: rgba(255,255,255,0.92);
+  border:1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(10,30,80,0.12);
+  padding:12px 12px 10px;
+  pointer-events:auto;
+}
+.ageTitle{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:0.02em;text-transform:uppercase}
+.ageInput{
+  width:100%;
+  margin-top:8px;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:#fff;
+  color: var(--text);
+  font-size:22px;
+  font-weight:900;
+  outline:none;
+}
+.ageHint{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.35}
+.ageBtns{display:flex;gap:8px;margin-top:10px}
+.ageBtns button{
+  flex:1;
+  border:0;
+  border-radius:14px;
+  padding:10px 10px;
+  font-weight:900;
+  cursor:pointer;
+}
+.ageBtns .go{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.ageBtns .demo{background:rgba(0,166,255,0.10);color:rgba(0,90,140,0.95); border:1px solid rgba(0,166,255,0.20)}
+
+/* Panel split */
+.panel{
+  position:fixed;
+  left:0; right:0;
+  bottom:-100%;
+  background: var(--card);
+  border-top-left-radius: 26px;
+  border-top-right-radius: 26px;
+  border-top:1px solid var(--line);
+  box-shadow: 0 -24px 55px rgba(10,30,80,0.16);
+  padding:16px 16px 20px;
+  transition: bottom .28s ease;
+  z-index:50;
+}
+.panel.open{bottom:0}
+.panelInner{max-width:520px;margin:0 auto}
+.panelTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.panelTitle{font-weight:950;letter-spacing:-0.01em}
+.panelClose{
+  border:1px solid var(--line);
+  background: rgba(255,255,255,0.8);
+  border-radius: 14px;
+  padding:10px 12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.hr{height:1px;background:var(--line);margin:12px 0}
+label{display:block;font-size:12px;color:var(--muted);font-weight:800;margin:10px 0 6px}
+.range{width:100%}
+.number{
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  font-size:18px;
+  font-weight:850;
+  color: var(--text);
+  outline:none;
+}
+.inline2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick{display:flex;gap:8px;margin-top:10px}
+.quick button{
+  flex:1;
+  border:1px solid var(--line);
+  background: rgba(44,108,255,0.07);
+  color: rgba(31,78,216,0.98);
+  border-radius: 14px;
+  padding:10px 10px;
+  font-weight:900;
+  cursor:pointer;
+}
+.small{font-size:12px;color:var(--muted);line-height:1.35;margin-top:8px}
+
+/* Prevent panel covering the wheel: push wheel up slightly when open */
+.panelOpenShift{padding-bottom: 220px;}
+
+@media (prefers-reduced-motion: reduce){
+  .panel{transition:none}
+  .segment{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="app" id="appRoot">
+  <div class="top">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <div class="name">TidsHjulet</div>
+        <div class="tag">V16 · V10-stil · alder i midten</div>
+      </div>
+    </div>
+    <button class="btn" id="btnAssum">Forudsætninger</button>
+  </div>
+
+  <div class="card hero">
+    <div class="kicker">Din frihed</div>
+    <div class="h1">Se effekten, mens du justerer</div>
+    <div class="p">Tryk på et felt. Midten forbliver synlig hele tiden. (Du kan altid trykke på midten for at ændre alder.)</div>
+
+    <div class="wheel-wrap" id="wheelWrap">
+      <svg viewBox="0 0 420 420" aria-label="Tids-hjul">
+        <!-- 2 large + 1 small segments (B) -->
+        <!-- Large 1 (Monthly) : 160 degrees -->
+        <path id="segMonthly" class="segment" fill="var(--ringA)" stroke="rgba(11,18,32,0.08)" stroke-width="2"
+          d="M210 40 A170 170 0 0 1 404 210 L210 210 Z"/>
+        <!-- Large 2 (Savings) : 160 degrees -->
+        <path id="segSavings" class="segment" fill="var(--ringB)" stroke="rgba(11,18,32,0.08)" stroke-width="2"
+          d="M404 210 A170 170 0 0 1 210 404 L210 210 Z"/>
+        <!-- Small (Choices) : 40 degrees -->
+        <path id="segChoices" class="segment" fill="var(--ringC)" stroke="rgba(11,18,32,0.08)" stroke-width="2"
+          d="M210 404 A170 170 0 0 1 210 40 L210 210 Z"/>
+
+        <!-- Core -->
+        <circle id="coreTap" class="coreTap" cx="210" cy="210" r="84" fill="rgba(255,255,255,0.96)" stroke="rgba(11,18,32,0.08)" stroke-width="2"/>
+        <text id="coreBase" x="210" y="182" text-anchor="middle" class="coreSmall">Officiel: –</text>
+        <text id="coreAge" x="210" y="242" text-anchor="middle" class="coreAge">–</text>
+        <text x="210" y="265" text-anchor="middle" class="coreSmall">år</text>
+        <text id="coreDelta" x="210" y="292" text-anchor="middle" class="coreDelta">Indtast alder</text>
+
+        <!-- Minimal labels -->
+        <text x="300" y="78" text-anchor="middle" font-size="12" fill="rgba(11,18,32,0.70)" font-weight="900">Månedlig</text>
+        <text x="380" y="260" text-anchor="middle" font-size="12" fill="rgba(11,18,32,0.70)" font-weight="900">Opsparing</text>
+        <text x="135" y="350" text-anchor="middle" font-size="12" fill="rgba(11,18,32,0.70)" font-weight="900">Små valg</text>
+      </svg>
+
+      <!-- Age overlay in center -->
+      <div class="ageOverlay" id="ageOverlay">
+        <div class="ageCard">
+          <div class="ageTitle">Hvor gammel er du?</div>
+          <input id="ageInput" class="ageInput" type="number" inputmode="numeric" min="15" max="100" placeholder="fx 35">
+          <div class="ageHint">Efter du har indtastet alder, låses hjulet op.</div>
+          <div class="ageBtns">
+            <button class="go" id="ageGo">Fortsæt</button>
+            <button class="demo" id="ageDemo">Demo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="badges">
+      <div class="badge" id="badgeOfficial">Folkepension: –</div>
+      <div class="badge blue" id="badgeActive">0/3 aktiveret</div>
+    </div>
+
+    <div class="progressRow">
+      <div class="left" id="progLeft">Indtast alder for at starte.</div>
+      <div class="right" id="progRight"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Split panel -->
+<div class="panel" id="panel">
+  <div class="panelInner">
+    <div class="panelTop">
+      <div class="panelTitle" id="panelTitle">—</div>
+      <button class="panelClose" id="panelClose">Luk</button>
+    </div>
+    <div class="hr"></div>
+    <div id="panelBody"></div>
+  </div>
+</div>
+
+<script>
+const nowYear = 2026;
+const $ = (id)=>document.getElementById(id);
+
+const state = {
+  age: null,
+  birthYear: null,
+  pensionAge: null,
+  monthly: 0,
+  savings: 0,
+  choicesMonthly: 0,
+  // advanced defaults (kept simple; can be exposed in assumptions panel later)
+  r: 0.06,
+  targetMonthly: 20000,
+  payoutYears: 20,
+};
+
+function pensionAgeFromBirthYear(y){
+  // Conservative, simplified mapping (can be refined later)
+  if (y < 1963) return 67;
+  if (y < 1967) return 68;
+  if (y < 1971) return 69;
+  if (y < 1975) return 70;
+  if (y < 1983) return 71;
+  return 72; // placeholder for later cohorts
+}
+
+function activeCount(){
+  let n=0;
+  if (state.monthly>0) n++;
+  if (state.savings>0) n++;
+  if (state.choicesMonthly>0) n++;
+  return n;
+}
+
+function neededCapital(){
+  return state.targetMonthly * 12 * state.payoutYears;
+}
+
+function computeFreedom(){
+  if (!state.age || !state.pensionAge) return null;
+  const baseAge = state.pensionAge;
+  const yearsLeft = Math.max(0, baseAge - state.age);
+  const r = state.r;
+
+  const annual = (state.monthly + state.choicesMonthly) * 12;
+  const fvContrib = annual * (r===0 ? yearsLeft : ((Math.pow(1+r, yearsLeft)-1)/r));
+  const fvSavings = state.savings * Math.pow(1+r, yearsLeft);
+  const total = fvContrib + fvSavings;
+
+  const need = neededCapital();
+  const ratio = need>0 ? total/need : 0;
+
+  const cap = yearsLeft * 0.35; // conservative backstop
+  const yearsGained = Math.max(0, Math.min(cap, ratio*cap));
+  const freedomAge = baseAge - yearsGained;
+  return {baseAge, freedomAge, yearsGained};
+}
+
+function easeOutCubic(p){ return 1 - Math.pow(1-p, 3); }
+let lastShown = null;
+function animateCore(to){
+  const el = $("coreAge");
+  const from = (lastShown===null) ? to : lastShown;
+  const start = performance.now();
+  const dur = 360;
+
+  function tick(t){
+    const p = Math.min(1, (t-start)/dur);
+    const v = from + (to-from)*easeOutCubic(p);
+    el.textContent = (Math.round(v*10)/10).toString();
+    if (p<1) requestAnimationFrame(tick);
+    else lastShown = to;
+  }
+  requestAnimationFrame(tick);
+}
+
+function updateUI(){
+  const res = computeFreedom();
+  if (!res) {
+    $("coreBase").textContent = "Officiel: –";
+    $("coreAge").textContent = "–";
+    $("coreDelta").textContent = "Indtast alder";
+    $("badgeOfficial").textContent = "Folkepension: –";
+    $("badgeActive").textContent = "0/3 aktiveret";
+    $("progLeft").textContent = "Indtast alder for at starte.";
+    $("progRight").textContent = "";
+    return;
+  }
+
+  $("coreBase").textContent = `Officiel: ${res.baseAge} år (estimat)`;
+  $("badgeOfficial").textContent = `Folkepension: ${res.baseAge} år (estimat)`;
+
+  const target = Math.round(res.freedomAge*10)/10;
+  animateCore(target);
+
+  $("coreDelta").textContent = res.yearsGained < 0.05
+    ? "Juster et felt"
+    : `Mulighed: ca. ${Math.round(res.yearsGained*10)/10} år tidligere`;
+
+  const act = activeCount();
+  $("badgeActive").textContent = `${act}/3 aktiveret`;
+
+  $("progLeft").textContent = act===0 ? "Tryk på et felt for at justere."
+    : act===1 ? "Godt. Prøv et felt mere."
+    : act===2 ? "Du har momentum."
+    : "Alle felter er aktive.";
+
+  $("progRight").textContent = (res.yearsGained>=0.2) ? `+${Math.round(res.yearsGained*10)/10} år` : "";
+}
+
+function lockWheel(locked){
+  const segs = ["segMonthly","segSavings","segChoices"];
+  segs.forEach(id=>{
+    const el=$(id);
+    el.style.pointerEvents = locked ? "none" : "auto";
+    el.style.opacity = locked ? "0.55" : "1";
+  });
+}
+
+function openPanel(title, bodyHtml){
+  $("panelTitle").textContent = title;
+  $("panelBody").innerHTML = bodyHtml;
+  $("panel").classList.add("open");
+  $("appRoot").classList.add("panelOpenShift");
+}
+function closePanel(){
+  $("panel").classList.remove("open");
+  $("appRoot").classList.remove("panelOpenShift");
+}
+
+function showMonthly(){
+  openPanel("Månedlig investering", `
+    <label>Beløb (kr./md)</label>
+    <input id="mRange" class="range" type="range" min="0" max="15000" step="100" value="${state.monthly}">
+    <div class="inline2" style="margin-top:10px">
+      <div>
+        <label>Skriv beløb</label>
+        <input id="mNum" class="number" type="number" inputmode="numeric" min="0" value="${state.monthly}">
+      </div>
+      <div>
+        <label>Hurtigt</label>
+        <div class="quick">
+          <button data-add="100">+100</button>
+          <button data-add="500">+500</button>
+          <button data-add="1000">+1000</button>
+        </div>
+      </div>
+    </div>
+    <div class="small">Du kan altid finjustere præcist ved at skrive tallet.</div>
+  `);
+
+  const r=$("mRange"), n=$("mNum");
+  r.addEventListener("input", e=>{
+    state.monthly = parseInt(e.target.value||"0",10);
+    n.value = state.monthly;
+    updateUI();
+  });
+  n.addEventListener("input", e=>{
+    state.monthly = Math.max(0, parseInt(e.target.value||"0",10));
+    r.value = state.monthly;
+    updateUI();
+  });
+  $("panelBody").querySelectorAll(".quick button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.monthly = Math.max(0, state.monthly + parseInt(btn.dataset.add,10));
+      r.value = state.monthly; n.value = state.monthly;
+      updateUI();
+    });
+  });
+}
+
+function showSavings(){
+  openPanel("Opsparing i dag", `
+    <label>Beløb (kr.)</label>
+    <input id="sNum" class="number" type="number" inputmode="numeric" min="0" value="${state.savings}" placeholder="fx 250000">
+    <div class="quick">
+      <button data-add="10000">+10k</button>
+      <button data-add="50000">+50k</button>
+      <button data-add="100000">+100k</button>
+    </div>
+    <div class="small">Opsparing i dag påvirker din mulige alder med det samme.</div>
+  `);
+  const n=$("sNum");
+  n.addEventListener("input", e=>{
+    state.savings = Math.max(0, parseInt(e.target.value||"0",10));
+    updateUI();
+  });
+  $("panelBody").querySelectorAll(".quick button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.savings = Math.max(0, state.savings + parseInt(btn.dataset.add,10));
+      n.value = state.savings;
+      updateUI();
+    });
+  });
+}
+
+function showChoices(){
+  openPanel("Små valg", `
+    <label>Små valg i alt (kr./md)</label>
+    <input id="cRange" class="range" type="range" min="0" max="5000" step="50" value="${state.choicesMonthly}">
+    <div class="inline2" style="margin-top:10px">
+      <div>
+        <label>Skriv beløb</label>
+        <input id="cNum" class="number" type="number" inputmode="numeric" min="0" value="${state.choicesMonthly}">
+      </div>
+      <div>
+        <label>Hurtigt</label>
+        <div class="quick">
+          <button data-add="50">+50</button>
+          <button data-add="100">+100</button>
+          <button data-add="250">+250</button>
+        </div>
+      </div>
+    </div>
+    <div class="small">Denne er en simpel samle-slider (vi kan igen skifte tilbage til 5 chips pr. side uden at ændre motoren).</div>
+  `);
+  const r=$("cRange"), n=$("cNum");
+  r.addEventListener("input", e=>{
+    state.choicesMonthly = parseInt(e.target.value||"0",10);
+    n.value = state.choicesMonthly;
+    updateUI();
+  });
+  n.addEventListener("input", e=>{
+    state.choicesMonthly = Math.max(0, parseInt(e.target.value||"0",10));
+    r.value = state.choicesMonthly;
+    updateUI();
+  });
+  $("panelBody").querySelectorAll(".quick button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.choicesMonthly = Math.max(0, state.choicesMonthly + parseInt(btn.dataset.add,10));
+      r.value = state.choicesMonthly; n.value = state.choicesMonthly;
+      updateUI();
+    });
+  });
+}
+
+function showAssumptions(){
+  const res = computeFreedom();
+  const need = neededCapital();
+  const html = `
+    <div class="small">
+      <div><b>Afkastforudsætning:</b> ${Math.round(state.r*100)}%</div>
+      <div style="margin-top:6px"><b>Mål:</b> ${state.targetMonthly.toLocaleString("da-DK")} kr./md i ${state.payoutYears} år (nominelt)</div>
+      <div style="margin-top:6px"><b>Målkapital:</b> ${need.toLocaleString("da-DK")} kr.</div>
+      <div style="margin-top:6px"><b>Alder:</b> ${state.age ?? "—"} · <b>Estimeret fødselsår:</b> ${state.birthYear ?? "—"}</div>
+      <div style="margin-top:6px"><b>Folkepensionsalder:</b> ${state.pensionAge ?? "—"} (estimat)</div>
+      ${res ? `<div style="margin-top:6px"><b>Mulig alder:</b> ${(Math.round(res.freedomAge*10)/10)} · <b>År frigjort:</b> ${(Math.round(res.yearsGained*10)/10)}</div>` : ""}
+      <div style="margin-top:10px">Bemærk: Dette er et estimat, ikke garanti eller rådgivning.</div>
+    </div>
+  `;
+  openPanel("Forudsætninger", html);
+}
+
+function unlockWithAge(age){
+  state.age = age;
+  state.birthYear = nowYear - age;
+  state.pensionAge = pensionAgeFromBirthYear(state.birthYear);
+  lastShown = null;
+
+  $("ageOverlay").style.display = "none";
+  lockWheel(false);
+  $("coreDelta").textContent = "Tryk på et felt";
+  updateUI();
+}
+
+function openAgeEdit(){
+  $("ageOverlay").style.display = "flex";
+  lockWheel(true);
+  $("coreDelta").textContent = "Indtast alder";
+  $("ageInput").focus();
+}
+
+/* init */
+setTimeout(()=>{ lockWheel(true); }, 0);
+updateUI();
+
+/* events */
+$("segMonthly").addEventListener("click", ()=>{ if(state.age) showMonthly(); });
+$("segSavings").addEventListener("click", ()=>{ if(state.age) showSavings(); });
+$("segChoices").addEventListener("click", ()=>{ if(state.age) showChoices(); });
+$("panelClose").addEventListener("click", closePanel);
+$("btnAssum").addEventListener("click", showAssumptions);
+$("coreTap").addEventListener("click", openAgeEdit);
+
+$("ageGo").addEventListener("click", ()=>{
+  const a = parseInt($("ageInput").value||"",10);
+  if(!a || a<15 || a>100) return;
+  unlockWithAge(a);
+});
+$("ageDemo").addEventListener("click", ()=>{
+  $("ageInput").value = 37;
+  unlockWithAge(37);
+  state.savings = 250000;
+  state.monthly = 1500;
+  state.choicesMonthly = 600;
+  updateUI();
+});
+</script>
+</body>
+</html>
