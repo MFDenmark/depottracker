@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Tidsløft · v5.8.4.4_REBUILD</title>
+<style>
+:root{
+  --bg1:#f4f8ff; --bg2:#e9f1ff; --card:#ffffff;
+  --text:#0b1220; --muted:#566b85; --line:#e6edf7;
+  --blue:#3b82f6; --blue2:#1e40af; --teal:#06b6d4;
+  --shadow:0 26px 70px rgba(10,30,70,.14);
+  --shadow2:0 18px 45px rgba(10,30,70,.10);
+  --radius:26px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  color:var(--text);
+  background:linear-gradient(180deg,var(--bg1),var(--bg2));
+}
+.app{max-width:860px;margin:0 auto;padding:18px 14px 30px;}
+.header{
+  position:sticky; top:0; z-index:50;
+  padding:10px 12px 12px;
+  backdrop-filter: blur(10px);
+  background:linear-gradient(180deg, rgba(244,248,255,.92), rgba(244,248,255,.60));
+  border-bottom:1px solid rgba(230,237,247,.6);
+  border-radius:18px;
+}
+.toprow{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+.brand{display:flex; align-items:flex-start; gap:10px; min-width:0;}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--teal);margin-top:6px; flex:0 0 auto;}
+.brand h1{margin:0;font-size:20px;letter-spacing:.2px; line-height:1.1;}
+.brand .sub{margin:2px 0 0;color:var(--muted);font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pillbtn{
+  border:1px solid var(--line); background:rgba(255,255,255,.85);
+  padding:10px 14px; border-radius:999px; font-weight:700; color:var(--text);
+}
+.progressWrap{margin-top:10px;}
+.progressBar{height:8px;border-radius:999px;background:rgba(230,237,247,.9); overflow:hidden;}
+.progressFill{height:100%; width:0%; background:linear-gradient(90deg,var(--blue),var(--teal)); border-radius:999px; transition:width .25s ease;}
+.card{
+  background:var(--card);
+  border:1px solid rgba(230,237,247,.9);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow2);
+}
+.hero{padding:22px 20px; margin-top:14px;}
+.kicker{letter-spacing:.16em; font-weight:800; font-size:12px; color:var(--muted);}
+.huge{margin:10px 0 10px;font-size:44px;line-height:1.0;letter-spacing:-.03em;}
+.p{margin:0;color:var(--muted);font-size:18px;line-height:1.45;}
+.small{font-size:13px;color:var(--muted);}
+.cta{
+  width:100%; border:0; cursor:pointer;
+  padding:16px 18px;
+  border-radius:999px;
+  font-size:16px; font-weight:800; color:#fff;
+  background:linear-gradient(90deg,var(--blue),var(--blue2));
+  box-shadow: 0 14px 28px rgba(30,64,175,.25);
+  position:relative; z-index:2;
+  touch-action: manipulation;
+}
+.cta:active{transform:translateY(1px);}
+.section{display:none;}
+.section.active{display:block;}
+.stepTitle{font-size:38px; margin:4px 0 6px; letter-spacing:-.02em;}
+.stepMeta{color:var(--muted); margin:0 0 14px; font-size:16px;}
+.tabs{display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 14px;}
+.tab{
+  padding:10px 14px; border-radius:999px;
+  border:1px solid var(--line); background:rgba(255,255,255,.7);
+  font-weight:800; color:var(--muted);
+}
+.tab.active{background:rgba(59,130,246,.10); color:var(--blue2); border-color:rgba(59,130,246,.35);}
+.formCard{padding:18px 16px; margin-top:14px;}
+.label{font-weight:800; color:var(--muted); margin:14px 2px 8px;}
+.input{
+  width:100%; font-size:34px; font-weight:900; letter-spacing:.5px;
+  padding:18px 16px; border-radius:20px;
+  border:1px solid rgba(230,237,247,.9); outline:none;
+  background:rgba(255,255,255,.9);
+}
+.input:focus{border-color:rgba(59,130,246,.55); box-shadow:0 0 0 4px rgba(59,130,246,.12);}
+.row{display:flex; gap:12px; align-items:center;}
+.row > *{flex:1;}
+.btnRow{display:flex; gap:12px; margin-top:16px;}
+.btn{
+  flex:1; border:1px solid var(--line); background:rgba(255,255,255,.85);
+  padding:14px 14px; border-radius:18px;
+  font-weight:900; font-size:16px;
+  cursor:pointer; touch-action: manipulation;
+}
+.btn.primary{border:0; color:#fff; background:linear-gradient(90deg,var(--blue),var(--blue2));}
+.btn.ghost{background:rgba(255,255,255,.75);}
+.note{margin-top:10px; font-size:13px; color:var(--muted); line-height:1.4;}
+.resultWrap{padding:16px 14px; margin-top:14px;}
+.bigNum{font-size:74px; font-weight:1000; letter-spacing:-.04em; margin:0; text-align:center;}
+.center{text-align:center;}
+.subStrong{font-size:22px; font-weight:900; margin:0 0 6px;}
+.hr{height:1px;background:rgba(230,237,247,.9); margin:14px 0;}
+.resultPill{
+  display:flex; justify-content:space-between; gap:10px;
+  padding:10px 12px; border-radius:18px;
+  background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.20);
+  font-weight:900;
+}
+.resultPill span{color:var(--muted); font-weight:800;}
+.details{display:none; margin-top:12px;}
+.details.open{display:block;}
+.mono{font-variant-numeric: tabular-nums;}
+.microSticky{
+  position:sticky; top:88px; z-index:40;
+  margin-top:12px; padding:12px 12px;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(230,237,247,.9);
+  border-radius:22px;
+  box-shadow: var(--shadow2);
+}
+.microSticky .line1{display:flex; justify-content:space-between; gap:10px; align-items:center;}
+.microSticky .ttl{font-weight:1000; letter-spacing:-.01em;}
+.microSticky .gain{font-weight:1000; color:var(--blue2);}
+.microList{margin-top:12px; display:flex; flex-direction:column; gap:12px;}
+.microItem{
+  display:flex; justify-content:space-between; gap:12px; align-items:center;
+  padding:14px 14px; border-radius:22px;
+  border:1px solid rgba(230,237,247,.9);
+  background:rgba(255,255,255,.88);
+  cursor:pointer;
+  touch-action: manipulation;
+}
+.microItem.selected{border-color:rgba(59,130,246,.55); background:rgba(59,130,246,.08);}
+.microLeft{display:flex; gap:12px; align-items:center; min-width:0;}
+.emoji{font-size:22px; width:28px; text-align:center;}
+.microName{font-weight:1000; font-size:18px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.microRight{text-align:right;}
+.microGain{font-weight:1000; color:var(--blue2); line-height:1.05;}
+.microCost{font-weight:900; color:var(--muted);}
+.err{display:none; margin-top:10px; padding:10px 12px; border-radius:16px; background:rgba(180,35,24,.08); border:1px solid rgba(180,35,24,.22); color:#7a1c12; font-weight:800;}
+.err.show{display:block;}
+/* Modal */
+.modalBack{
+  position:fixed; inset:0; background:rgba(10,18,32,.40);
+  display:none; align-items:flex-end; justify-content:center;
+  z-index:200;
+}
+.modalBack.open{display:flex;}
+.modal{
+  width:min(860px, 100%);
+  border-radius:22px 22px 0 0;
+  background:#fff;
+  border:1px solid rgba(230,237,247,.9);
+  padding:16px 16px 22px;
+  box-shadow: var(--shadow);
+}
+.modal h3{margin:0 0 8px; font-size:18px;}
+.modal ul{margin:8px 0 0; padding-left:18px; color:var(--muted); line-height:1.45;}
+.modal .closeRow{display:flex; justify-content:flex-end; margin-top:14px;}
+/* iOS: ensure taps register */
+button, .btn, .cta, .microItem, .pillbtn{-webkit-user-select:none; user-select:none;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="toprow">
+      <div class="brand">
+        <div class="dot" aria-hidden="true"></div>
+        <div style="min-width:0">
+          <h1>Tidsløft</h1>
+          <div class="sub">Små valg. Store løft. · <span class="mono">v5.8.4.4_REBUILD</span> · Seneste</div>
+        </div>
+      </div>
+      <button class="pillbtn" id="assumBtn" type="button">Forudsætninger</button>
+    </div>
+    <div class="progressWrap">
+      <div class="progressBar" aria-hidden="true"><div class="progressFill" id="progressFill"></div></div>
+    </div>
+  </div>
+
+  <section class="section active" id="s_intro">
+    <div class="card hero">
+      <div class="kicker">MULIGHEDEN</div>
+      <div class="huge">Ønsker du færre<br/>år på arbejdsmarkedet?</div>
+      <p class="p">På 90 sekunder ser du, hvad små beløb og små valg kan betyde for din mulighed for at stoppe før folkepension.</p>
+      <div style="height:16px"></div>
+      <button class="cta" id="startBtn" type="button">Tag dit Tidsløft – gratis</button>
+      <div class="hr"></div>
+      <div class="small">Vi regner konservativt og kun frem til folkepension (bro-model). Eksisterende pensioner er ikke med.</div>
+    </div>
+  </section>
+
+  <section class="section" id="s_age">
+    <div class="card formCard">
+      <div class="kicker">TRIN 1/4</div>
+      <div class="stepTitle">Din alder</div>
+      <p class="stepMeta">Start let. Du får straks et estimat på folkepension.</p>
+      <div class="tabs">
+        <div class="tab active">1: Alder</div>
+        <div class="tab">2: Dine tal</div>
+        <div class="tab">3: Resultat</div>
+        <div class="tab">4: Mulige tidsløft</div>
+      </div>
+
+      <div class="label">Alder</div>
+      <input class="input" id="ageInput" inputmode="numeric" pattern="[0-9]*" placeholder="fx 46"/>
+      <div class="note">Beregningen medregner ikke eksisterende pensionsordninger.</div>
+
+      <div class="card" style="margin-top:14px; padding:14px 14px;">
+        <div class="kicker">FOLKEPENSION (ESTIMAT)</div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:12px;">
+          <div style="font-size:64px; font-weight:1000; letter-spacing:-.04em;" class="mono" id="pensionAgeBig">—</div>
+          <div class="small" style="text-align:right;">Tiden er din medspiller – især når du starter tidligt.</div>
+        </div>
+      </div>
+
+      <div class="err" id="errAge">Indtast en gyldig alder (18–80).</div>
+
+      <div class="btnRow">
+        <button class="btn primary" id="ageNextBtn" type="button">Fortsæt</button>
+        <button class="btn ghost" id="demoBtn" type="button">Demo</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="s_numbers">
+    <div class="card formCard">
+      <div class="kicker">TRIN 2/4</div>
+      <div class="stepTitle">Dine tal</div>
+      <p class="stepMeta">Intet er forudfyldt. Små ændringer kan give store forskelle over tid.</p>
+
+      <div class="label">Opsparing i dag (kr.)</div>
+      <input class="input" id="savingsInput" inputmode="numeric" placeholder="0"/>
+
+      <div class="label">Månedlig investering (kr./md)</div>
+      <input class="input" id="monthlyInput" inputmode="numeric" placeholder="0"/>
+
+      <div class="label">Ønsket månedlig indkomst før folkepension (kr./md)</div>
+      <input class="input" id="incomeInput" inputmode="numeric" placeholder="0"/>
+      <div class="note">Kræves for at beregne stop-alder (bro-modellen).</div>
+
+      <div class="row" style="margin-top:12px; gap:10px;">
+        <button class="btn" id="exampleBtn" type="button">Eksempel: 15.000 + 3.000/md</button>
+        <button class="btn" id="resetNumsBtn" type="button">Nulstil tal</button>
+      </div>
+
+      <div class="err" id="errNums">Udfyld alle felter med tal ≥ 0.</div>
+
+      <div class="btnRow">
+        <button class="btn" id="numsBackBtn" type="button">Tilbage</button>
+        <button class="btn primary" id="numsNextBtn" type="button">Fortsæt</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="s_result">
+    <div class="card resultWrap">
+      <div class="kicker">TRIN 3/4</div>
+      <div class="stepTitle">Resultat</div>
+      <p class="stepMeta">Fokus: hvornår du muligvis kan stoppe før folkepension – baseret på dine tal.</p>
+
+      <div class="card" style="padding:14px 14px;">
+        <div class="resultPill">
+          <div>Din alder: <span class="mono" id="curAgeLbl">—</span></div>
+          <div>Folkepension: <span class="mono" id="pensionAgeLbl">—</span></div>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="bigNum mono" id="stopAgeBig">—</div>
+        <div class="center">
+          <div class="subStrong">stop-alder (estimat)</div>
+          <div class="p" style="margin-top:0;" id="gapText">—</div>
+        </div>
+
+        <div style="height:12px"></div>
+        <button class="btn" id="toggleDetailsBtn" type="button">Se beregningsdetaljer</button>
+        <div class="details" id="detailsBox">
+          <div class="card" style="margin-top:12px; padding:14px 14px;">
+            <div class="small mono" id="detailsText">—</div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="btnRow">
+          <button class="btn" id="resBackBtn" type="button">Tilbage</button>
+          <button class="btn" id="startOverBtn" type="button">Start forfra</button>
+          <button class="btn primary" id="toMicroBtn" type="button">Find flere år</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="s_micro">
+    <div class="card formCard">
+      <div class="kicker">TRIN 4/4</div>
+      <div class="stepTitle">Mulige tidsløft</div>
+      <p class="stepMeta">Vælg flere. Vi lægger dem sammen som ekstra månedligt beløb. Resultatet opdateres live.</p>
+
+      <div class="microSticky" id="microSticky">
+        <div class="line1">
+          <div class="ttl">Ekstra tid (samlet)</div>
+          <div class="gain mono" id="totalGainLbl">+0 dage</div>
+        </div>
+        <div class="small" style="margin-top:6px;">
+          Baseret på dine tal. Vi viser kun valg med mindst <strong>1 dag</strong> effekt.
+        </div>
+      </div>
+
+      <div class="microList" id="microList"></div>
+
+      <div class="label">Eget mikrovalg (ekstra kr./md)</div>
+      <input class="input" id="customMicroInput" inputmode="numeric" placeholder="fx 300"/>
+      <div class="note" id="customNote">Tilføjes som et ekstra valg, hvis det giver mindst 1 dag.</div>
+
+      <div class="err" id="errMicro">Der er ikke nok data til at beregne effekten. Gå tilbage og udfyld dine tal.</div>
+
+      <div class="btnRow">
+        <button class="btn" id="microBackBtn" type="button">Tilbage til resultat</button>
+        <button class="btn primary" id="applyMicroBtn" type="button">Opdater resultat</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="modalBack" id="modalBack" role="dialog" aria-modal="true" aria-label="Forudsætninger">
+  <div class="modal">
+    <h3>Forudsætninger</h3>
+    <ul>
+      <li>Folkepensionsalder er et <strong>estimat</strong> baseret på fødselsår (afledt af din alder) og bruges kun som pejlemærke.</li>
+      <li>Opsparing/investering: <strong>4% real</strong> årligt (før stop).</li>
+      <li>Bro-periode (stop → folkepension): forbrug diskonteres med <strong>2% real</strong> og lægges <strong>10% buffer</strong> oveni.</li>
+      <li>Modellen medregner ikke eksisterende pensioner, skat eller afkastbeskatning.</li>
+    </ul>
+    <div class="closeRow">
+      <button class="btn primary" id="closeModalBtn" type="button">Luk</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+  const fmtDK = (n)=>{ 
+    if (!isFinite(n)) return "—";
+    const s = Math.round(n).toString();
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  };
+  const parseDK = (s)=>{
+    if (typeof s !== "string") s = String(s ?? "");
+    const cleaned = s.replace(/\./g,'').replace(/\s/g,'').replace(/,/g,'.');
+    const v = Number(cleaned);
+    return Number.isFinite(v) ? v : NaN;
+  };
+  const yearsToLabel = (years)=>{
+    if (!isFinite(years)) return "—";
+    const days = Math.round(years * 365);
+    if (days < 1) return "+0 dage";
+    if (days < 30) return `+${days} dage`;
+    const months = Math.round(days / 30);
+    if (months < 24) return `+${months} måneder`;
+    const y = (months/12);
+    const yRound = Math.round(y*2)/2;
+    return `+${yRound.toString().replace('.',',')} år`;
+  };
+  const yearsToGapText = (gapYears, pensionAge)=>{
+    if (!isFinite(gapYears) || !isFinite(pensionAge)) return "—";
+    const days = Math.round(gapYears*365);
+    if (days < 30) return `${days} dage før folkepension (${pensionAge} år, estimat)`;
+    const months = Math.round(days/30);
+    if (months < 24) return `${months} måneder før folkepension (${pensionAge} år, estimat)`;
+    const y = Math.round(gapYears*2)/2;
+    return `${y.toString().replace('.',',')} år før folkepension (${pensionAge} år, estimat)`;
+  };
+
+  function estimatePensionAge(currentAge) {
+    const now = new Date();
+    const birthYear = now.getFullYear() - currentAge;
+    let p = 71;
+    if (birthYear >= 1970) p = 72;
+    if (birthYear >= 1980) p = 73;
+    if (birthYear >= 1990) p = 74;
+    return clamp(p, 67, 74);
+  }
+
+  function futureValue(savings, monthly, years, rAnnual=0.04) {
+    if (years <= 0) return savings;
+    const r = rAnnual/12;
+    const n = Math.round(years*12);
+    const fvLump = savings * Math.pow(1+r, n);
+    const fvAnn = monthly * ( (Math.pow(1+r, n) - 1) / r );
+    return fvLump + fvAnn;
+  }
+  function bridgePV(monthlyIncome, years, rAnnual=0.02, buffer=0.10) {
+    const n = Math.max(0, years);
+    if (n === 0) return 0;
+    const r = rAnnual;
+    let pv;
+    if (r === 0) pv = monthlyIncome*12*n;
+    else pv = monthlyIncome*12 * (1 - Math.pow(1+r, -n)) / r;
+    return pv * (1+buffer);
+  }
+  function solveStopAge(currentAge, pensionAge, savings, monthly, desiredIncome) {
+    const minAge = currentAge;
+    const maxAge = pensionAge;
+    let best = NaN;
+    for (let a = minAge; a <= maxAge; a += 0.5) {
+      const t = a - currentAge;
+      const fv = futureValue(savings, monthly, t, 0.04);
+      const bridgeYears = pensionAge - a;
+      const need = bridgePV(desiredIncome, bridgeYears, 0.02, 0.10);
+      if (fv >= need) { best = a; break; }
+    }
+    if (!isFinite(best)) best = pensionAge;
+    return best;
+  }
+
+  const state = {
+    step: "intro",
+    age: NaN,
+    pensionAge: NaN,
+    savings: NaN,
+    monthly: NaN,
+    income: NaN,
+    microSelected: new Set(),
+    microCustom: 0,
+  };
+
+  const microOptions = [
+    { id:"coffee",  emoji:"☕️", name:"Mindre café-kaffe",   kr:200 },
+    { id:"takeaway",emoji:"🍔", name:"1 mindre take-away",  kr:400 },
+    { id:"stream",  emoji:"📺", name:"Del streaming",       kr:150 },
+    { id:"subs",    emoji:"🧾", name:"Abonnement-scan",     kr:150 },
+    { id:"cons",    emoji:"🛒", name:"5% mindre forbrug",   kr:250 },
+    { id:"food",    emoji:"🥗", name:"Spar på madindkøb",   kr:500 },
+    { id:"impulse", emoji:"🛍️", name:"Færre impulskøb",    kr:400 },
+    { id:"transport",emoji:"🚲", name:"Transport-optimering",kr:300 },
+  ];
+
+  const sections = {
+    intro: document.getElementById("s_intro"),
+    age: document.getElementById("s_age"),
+    numbers: document.getElementById("s_numbers"),
+    result: document.getElementById("s_result"),
+    micro: document.getElementById("s_micro"),
+  };
+  const progressFill = document.getElementById("progressFill");
+
+  const startBtn = document.getElementById("startBtn");
+  const ageInput = document.getElementById("ageInput");
+  const pensionAgeBig = document.getElementById("pensionAgeBig");
+  const ageNextBtn = document.getElementById("ageNextBtn");
+  const demoBtn = document.getElementById("demoBtn");
+  const errAge = document.getElementById("errAge");
+
+  const savingsInput = document.getElementById("savingsInput");
+  const monthlyInput = document.getElementById("monthlyInput");
+  const incomeInput = document.getElementById("incomeInput");
+  const numsBackBtn = document.getElementById("numsBackBtn");
+  const numsNextBtn = document.getElementById("numsNextBtn");
+  const exampleBtn = document.getElementById("exampleBtn");
+  const resetNumsBtn = document.getElementById("resetNumsBtn");
+  const errNums = document.getElementById("errNums");
+
+  const curAgeLbl = document.getElementById("curAgeLbl");
+  const pensionAgeLbl = document.getElementById("pensionAgeLbl");
+  const stopAgeBig = document.getElementById("stopAgeBig");
+  const gapText = document.getElementById("gapText");
+  const detailsText = document.getElementById("detailsText");
+  const toggleDetailsBtn = document.getElementById("toggleDetailsBtn");
+  const detailsBox = document.getElementById("detailsBox");
+  const resBackBtn = document.getElementById("resBackBtn");
+  const startOverBtn = document.getElementById("startOverBtn");
+  const toMicroBtn = document.getElementById("toMicroBtn");
+
+  const microList = document.getElementById("microList");
+  const totalGainLbl = document.getElementById("totalGainLbl");
+  const customMicroInput = document.getElementById("customMicroInput");
+  const customNote = document.getElementById("customNote");
+  const microBackBtn = document.getElementById("microBackBtn");
+  const applyMicroBtn = document.getElementById("applyMicroBtn");
+  const errMicro = document.getElementById("errMicro");
+
+  const assumBtn = document.getElementById("assumBtn");
+  const modalBack = document.getElementById("modalBack");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+
+  function setStep(step) {
+    Object.values(sections).forEach(s=>s.classList.remove("active"));
+    sections[step].classList.add("active");
+    state.step = step;
+    const map = { intro:0, age:25, numbers:50, result:75, micro:100 };
+    progressFill.style.width = (map[step] ?? 0) + "%";
+    window.scrollTo({top:0, behavior:"instant"});
+  }
+
+  function getSelectedExtraMonthly() {
+    let sum = 0;
+    for (const opt of microOptions) if (state.microSelected.has(opt.id)) sum += opt.kr;
+    sum += Math.max(0, Number.isFinite(state.microCustom) ? state.microCustom : 0);
+    return sum;
+  }
+
+  function commitAge() {
+    const v = parseDK(ageInput.value);
+    const a = Math.round(v);
+    if (!Number.isFinite(a) || a < 18 || a > 80) return false;
+    state.age = a;
+    state.pensionAge = estimatePensionAge(a);
+    return true;
+  }
+  function commitNums() {
+    const s = parseDK(savingsInput.value);
+    const m = parseDK(monthlyInput.value);
+    const inc = parseDK(incomeInput.value);
+    if (![s,m,inc].every(v=>Number.isFinite(v) && v >= 0)) return false;
+    state.savings = s;
+    state.monthly = m;
+    state.income = inc;
+    state.microSelected.clear();
+    state.microCustom = 0;
+    customMicroInput.value = "";
+    return true;
+  }
+
+  function updateAgeCard() {
+    const v = parseDK(ageInput.value);
+    if (Number.isFinite(v)) pensionAgeBig.textContent = estimatePensionAge(Math.round(v));
+    else pensionAgeBig.textContent = "—";
+  }
+
+  function updateResultUI() {
+    const ok = [state.age, state.pensionAge, state.savings, state.monthly, state.income].every(v=>Number.isFinite(v));
+    curAgeLbl.textContent = Number.isFinite(state.age) ? state.age : "—";
+    pensionAgeLbl.textContent = Number.isFinite(state.pensionAge) ? state.pensionAge : "—";
+    if (!ok) { stopAgeBig.textContent="—"; gapText.textContent="—"; detailsText.textContent="—"; return; }
+
+    const extra = getSelectedExtraMonthly();
+    const stop = solveStopAge(state.age, state.pensionAge, state.savings, state.monthly + extra, state.income);
+    stopAgeBig.textContent = stop.toString().replace('.',',');
+    gapText.textContent = yearsToGapText(state.pensionAge - stop, state.pensionAge);
+
+    const fv = futureValue(state.savings, state.monthly + extra, Math.max(0, stop - state.age), 0.04);
+    const need = bridgePV(state.income, Math.max(0, state.pensionAge - stop), 0.02, 0.10);
+    detailsText.textContent =
+      `Folkepension: ${state.pensionAge} år\n` +
+      `Stop-alder (estimat): ${stop.toString().replace('.',',')} år\n` +
+      `Bro-periode: ${(state.pensionAge-stop).toString().replace('.',',')} år\n\n` +
+      `Kapital ved stop (estimat): ${fmtDK(fv)} kr.\n` +
+      `Målkapital for bro (inkl. 10% buffer): ${fmtDK(need)} kr.\n` +
+      `Ekstra investering fra mikrovalg: ${fmtDK(extra)} kr./md\n\n` +
+      `Antagelser: 4% real (opsparing) · 2% real (bro) · 10% margin.`;
+  }
+
+  function gainIfAdd(extraMonthlyAdd) {
+    const ok = [state.age, state.pensionAge, state.savings, state.monthly, state.income].every(v=>Number.isFinite(v));
+    if (!ok) return NaN;
+    const currentExtra = getSelectedExtraMonthly();
+    const stopNow = solveStopAge(state.age, state.pensionAge, state.savings, state.monthly + currentExtra, state.income);
+    const stopWith = solveStopAge(state.age, state.pensionAge, state.savings, state.monthly + currentExtra + extraMonthlyAdd, state.income);
+    return (stopNow - stopWith);
+  }
+
+  function renderMicroList() {
+    microList.innerHTML = "";
+    const ok = [state.age, state.pensionAge, state.savings, state.monthly, state.income].every(v=>Number.isFinite(v));
+    if (!ok) { errMicro.classList.add("show"); return; }
+    errMicro.classList.remove("show");
+
+    const stopNoMicro = solveStopAge(state.age, state.pensionAge, state.savings, state.monthly, state.income);
+    const stopWithMicro = solveStopAge(state.age, state.pensionAge, state.savings, state.monthly + getSelectedExtraMonthly(), state.income);
+    totalGainLbl.textContent = yearsToLabel(stopNoMicro - stopWithMicro);
+
+    for (const opt of microOptions) {
+      const gainYears = gainIfAdd(opt.kr);
+      const gainDays = Math.round(gainYears*365);
+      if (!Number.isFinite(gainDays) || gainDays < 1) continue;
+
+      const item = document.createElement("div");
+      item.className = "microItem" + (state.microSelected.has(opt.id) ? " selected" : "");
+      item.setAttribute("role","button");
+      item.tabIndex = 0;
+      item.innerHTML = `
+        <div class="microLeft">
+          <div class="emoji" aria-hidden="true">${opt.emoji}</div>
+          <div style="min-width:0">
+            <div class="microName">${opt.name}</div>
+          </div>
+        </div>
+        <div class="microRight">
+          <div class="microGain mono">${yearsToLabel(gainYears)}</div>
+          <div class="microCost mono">${fmtDK(opt.kr)} kr./md</div>
+        </div>
+      `;
+      const toggle = () => {
+        if (state.microSelected.has(opt.id)) state.microSelected.delete(opt.id);
+        else state.microSelected.add(opt.id);
+        renderMicroList();
+      };
+      item.addEventListener("click", toggle, {passive:true});
+      item.addEventListener("touchend", toggle, {passive:true});
+      item.addEventListener("keydown", (e)=>{ if (e.key==="Enter"||e.key===" ") { e.preventDefault(); toggle(); }});
+      microList.appendChild(item);
+    }
+
+    const customVal = parseDK(customMicroInput.value);
+    state.microCustom = Number.isFinite(customVal) ? Math.max(0, customVal) : 0;
+
+    if (state.microCustom > 0) {
+      const gainYears = gainIfAdd(state.microCustom);
+      const gainDays = Math.round(gainYears*365);
+      if (gainDays < 1) customNote.textContent = "Beløbet giver under 1 dag effekt og tælles derfor ikke med.";
+      else customNote.textContent = `Din effekt: ${yearsToLabel(gainYears)} (baseret på dine tal).`;
+    } else customNote.textContent = "Tilføjes som et ekstra valg, hvis det giver mindst 1 dag.";
+  }
+
+  // Tap helper: ONLY click. (touchend on some elements causes double-fire & Safari bugs)
+  const onClick = (el, fn) => el.addEventListener("click", (e)=>{ e.preventDefault(); fn(e); });
+
+  onClick(startBtn, ()=> setStep("age"));
+  onClick(demoBtn, ()=> { ageInput.value="46"; updateAgeCard(); });
+
+  ageInput.addEventListener("input", updateAgeCard);
+
+  onClick(ageNextBtn, ()=> {
+    errAge.classList.remove("show");
+    if (!commitAge()) { errAge.classList.add("show"); return; }
+    updateResultUI();
+    setStep("numbers");
+  });
+
+  onClick(numsBackBtn, ()=> setStep("age"));
+  onClick(exampleBtn, ()=> {
+    savingsInput.value="15.000"; monthlyInput.value="3.000"; incomeInput.value="30.000";
+  });
+  onClick(resetNumsBtn, ()=> { savingsInput.value=""; monthlyInput.value=""; incomeInput.value=""; });
+
+  onClick(numsNextBtn, ()=> {
+    errNums.classList.remove("show");
+    if (!commitAge()) { setStep("age"); errAge.classList.add("show"); return; }
+    if (!commitNums()) { errNums.classList.add("show"); return; }
+    updateResultUI();
+    setStep("result");
+  });
+
+  onClick(toggleDetailsBtn, ()=> {
+    const open = detailsBox.classList.toggle("open");
+    toggleDetailsBtn.textContent = open ? "Skjul beregningsdetaljer" : "Se beregningsdetaljer";
+  });
+
+  onClick(resBackBtn, ()=> setStep("numbers"));
+  onClick(startOverBtn, ()=> {
+    state.age=NaN; state.pensionAge=NaN; state.savings=NaN; state.monthly=NaN; state.income=NaN;
+    state.microSelected.clear(); state.microCustom=0;
+    ageInput.value=""; pensionAgeBig.textContent="—";
+    savingsInput.value=""; monthlyInput.value=""; incomeInput.value="";
+    customMicroInput.value="";
+    detailsBox.classList.remove("open");
+    toggleDetailsBtn.textContent="Se beregningsdetaljer";
+    errAge.classList.remove("show"); errNums.classList.remove("show"); errMicro.classList.remove("show");
+    setStep("intro");
+  });
+
+  onClick(toMicroBtn, ()=> {
+    const ok = [state.age, state.pensionAge, state.savings, state.monthly, state.income].every(v=>Number.isFinite(v));
+    if (!ok) { setStep("numbers"); errNums.classList.add("show"); return; }
+    renderMicroList();
+    setStep("micro");
+  });
+
+  customMicroInput.addEventListener("input", renderMicroList);
+
+  onClick(microBackBtn, ()=> { updateResultUI(); setStep("result"); });
+
+  onClick(applyMicroBtn, ()=> {
+    // Commit custom micro only if >= 1 day, else ignore
+    const customVal = parseDK(customMicroInput.value);
+    state.microCustom = Number.isFinite(customVal) ? Math.max(0, customVal) : 0;
+    if (state.microCustom > 0) {
+      const gainYears = gainIfAdd(state.microCustom);
+      if (Math.round(gainYears*365) < 1) state.microCustom = 0;
+    }
+    updateResultUI();
+    setStep("result");
+  });
+
+  onClick(assumBtn, ()=> modalBack.classList.add("open"));
+  onClick(closeModalBtn, ()=> modalBack.classList.remove("open"));
+  modalBack.addEventListener("click", (e)=>{ if (e.target===modalBack) modalBack.classList.remove("open"); });
+
+  updateAgeCard();
+  updateResultUI();
+})();
+</script>
+</body>
+</html>
