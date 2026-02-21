@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Tidsløft – Små valg. Store løft.</title>
+<style>
+:root{
+--bg1:#f4f8ff;
+--bg2:#e9f1ff;
+--card:#ffffff;
+--line:#e6edf7;
+--text:#0b1220;
+--muted:#5a6b85;
+--blue:#3b82f6;
+--blue2:#1e40af;
+--dark:#0b1220;
+--dark2:#111827;
+--shadow:0 30px 70px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+background:linear-gradient(180deg,var(--bg1),var(--bg2));
+color:var(--text);
+}
+.app{max-width:880px;margin:0 auto;padding:20px}
+.hero{text-align:center;padding:60px 20px 40px;}
+.hero h1{font-size:40px;margin:0 0 16px}
+.hero p{color:var(--muted);font-size:18px;margin:0 0 30px}
+.btn{padding:16px 22px;border-radius:16px;border:0;cursor:pointer;font-weight:700;font-size:16px}
+.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:28px;margin-bottom:20px}
+.input{width:100%;padding:16px;font-size:20px;border-radius:14px;border:1px solid var(--line);margin-bottom:18px}
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.col{flex:1;min-width:220px}
+.result-dark{background:linear-gradient(180deg,var(--dark),var(--dark2));color:#fff;border-radius:24px;padding:60px 30px;text-align:center;margin-top:40px}
+.result-dark h2{margin:0;font-size:18px;letter-spacing:2px;text-transform:uppercase;color:#9ca3af}
+.result-big{font-size:70px;font-weight:800;margin:20px 0 10px;background:linear-gradient(135deg,#60a5fa,#2563eb);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.result-sub{font-size:20px;color:#d1d5db;margin-bottom:20px}
+.small{font-size:14px;color:#9ca3af}
+.hidden{display:none}
+.lead-box{margin-top:40px;padding:30px;border:1px solid rgba(255,255,255,0.2);border-radius:18px}
+.lead-box input{padding:14px;border-radius:12px;border:0;margin-top:12px;width:100%}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="hero" id="landing">
+<h1>Drømmer du om tidligere tilbagetrækning?</h1>
+<p>Tiden kan løfte mere, end du tror. På 90 sekunder viser vi dig, hvad et Tidsløft kan betyde.</p>
+<button class="btn primary" onclick="start()">Tag dit Tidsløft – gratis</button>
+</div>
+
+<div class="card hidden" id="calculator">
+<h2>Din alder</h2>
+<input class="input" id="age" type="number" placeholder="Din alder">
+
+<h2>Det du investerer i din fremtid</h2>
+<div class="row">
+<div class="col"><input class="input" id="savings" placeholder="Opsparing (kr.)"></div>
+<div class="col"><input class="input" id="monthly" placeholder="Månedlig investering (kr.)"></div>
+</div>
+
+<input class="input" id="income" placeholder="Ønsket månedlig indkomst før folkepension (kr.)">
+<button class="btn primary" onclick="calculate()">Se dit Tidsløft</button>
+</div>
+
+<div class="result-dark hidden" id="result">
+<h2>Du kan tage</h2>
+<div class="result-big" id="years"></div>
+<div class="result-sub">år tilbage</div>
+<div class="small" id="days"></div>
+
+<div class="lead-box">
+<h3>Vil du have din personlige optimeringsrapport?</h3>
+<p class="small">Få den sendt direkte til din mail.</p>
+<input placeholder="Din email">
+<button class="btn primary" style="margin-top:14px">Send rapport</button>
+</div>
+</div>
+
+</div>
+
+<script>
+const nowYear=2026;
+const r=0.04;
+const payout=0.02;
+const margin=0.10;
+
+function pensionAge(age){
+const birth=nowYear-age;
+if(birth<1963)return 67;
+if(birth<1967)return 68;
+if(birth<1971)return 69;
+if(birth<1975)return 70;
+if(birth<1979)return 71;
+return 72;
+}
+
+function start(){
+document.getElementById("landing").classList.add("hidden");
+document.getElementById("calculator").classList.remove("hidden");
+}
+
+function fv(age,stop,savings,monthly){
+let years=stop-age;
+let fvSavings=savings*Math.pow(1+r,years);
+let fvInvest=(monthly*12)*((Math.pow(1+r,years)-1)/r);
+return (fvSavings+fvInvest)*(1-margin);
+}
+
+function need(stop,official,income){
+let bridge=official-stop;
+if(bridge<=0)return 0;
+return (income*12)*((1-Math.pow(1+payout,-bridge))/payout);
+}
+
+function calculate(){
+let age=parseInt(document.getElementById("age").value||0);
+let savings=parseInt(document.getElementById("savings").value||0);
+let monthly=parseInt(document.getElementById("monthly").value||0);
+let income=parseInt(document.getElementById("income").value||0);
+
+let official=pensionAge(age);
+let freedom=official;
+
+for(let a=age;a<=official;a+=0.1){
+if(fv(age,a,savings,monthly)>=need(a,official,income)){freedom=a;break;}
+}
+
+let gained=(official-freedom);
+let days=Math.round(gained*365);
+
+document.getElementById("years").innerText=gained.toFixed(1);
+document.getElementById("days").innerText="Det svarer til ca. "+days.toLocaleString("da-DK")+" dage.";
+document.getElementById("calculator").classList.add("hidden");
+document.getElementById("result").classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
