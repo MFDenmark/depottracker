@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+
+<html lang="da">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; connect-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'" http-equiv="Content-Security-Policy"/>
+<title>Tidsløft · v10.9.38</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg1:#0b1a2f;
+  --bg2:#0f2a48;
+  --card: rgba(255,255,255,0.92);
+  --card2: rgba(255,255,255,0.96);
+  --text:#0b1220;
+  --muted: rgba(11,18,32,0.62);
+  --blue1:#2b6cff;
+  --blue2:#4aa7ff;
+  --line: rgba(11,18,32,0.08);
+  --radius:22px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  height:100vh;
+  overflow:hidden;
+  font-family:'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color:var(--text);
+  background: linear-gradient(160deg,var(--bg1),var(--bg2));
+  min-height:100vh;
+  line-height:1.65;
+}
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background:
+    radial-gradient(900px 520px at 20% -10%, rgba(255,255,255,0.09), rgba(255,255,255,0.0) 55%),
+    radial-gradient(900px 520px at 80% 0%, rgba(74,167,255,0.10), rgba(255,255,255,0.0) 60%);
+  pointer-events:none;
+  z-index:-1;
+}
+.wrap{max-width:560px;
+  margin:0 auto;
+  height:100vh;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 18px 14px 96px;
+  overflow-anchor: none;
+}
+
+/* Cards */
+.card{
+  background: var(--card);
+  border:1px solid rgba(255,255,255,0.35);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+}
+.hero{
+  padding:30px 22px;
+}
+.huge{
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:-0.02em;
+  margin:0 0 12px 0;
+}
+.p{
+  margin:0;
+  font-size:18px;
+  color: rgba(11,18,32,0.70);
+}
+.small{
+  font-size:12px;
+  color: rgba(11,18,32,0.55);
+}
+.hr{height:1px; background:var(--line); margin:18px 0;}
+.cta{
+  width:100%;
+  border:0;
+  padding:16px 18px;
+  border-radius: 28px;
+  font-weight:800;
+  font-size:16px;
+  color:white;
+  background: linear-gradient(90deg,var(--blue1),var(--blue2));
+  box-shadow: 0 14px 30px rgba(43,108,255,0.28);
+  cursor:pointer;
+}
+.cta:active{transform: translateY(1px);}
+.btnGhost{
+  width:100%;
+  border:1px solid rgba(11,18,32,0.10);
+  padding:14px 16px;
+  border-radius: 26px;
+  background: rgba(255,255,255,0.80);
+  font-weight:700;
+  cursor:pointer;
+}
+.section{display:none; margin-top:10px; overflow-anchor:none;}
+.section.active{display:block;}
+.formCard{padding:20px 18px;}
+.kicker{
+  font-size:12px;
+  letter-spacing:0.18em;
+  color: rgba(11,18,32,0.45);
+  font-weight:600;
+  text-transform:uppercase;
+}
+.h1{
+  font-size:44px; margin:8px 0 8px; font-weight:700; letter-spacing:-0.03em;
+}
+.helpRow{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
+}
+.label{
+  font-size:16px; font-weight:600; margin:18px 0 8px;
+}
+.input{
+  width:100%;
+  padding:18px 16px;
+  border-radius:18px;
+  border:1px solid rgba(11,18,32,0.10);
+  font-size:26px;
+  font-weight:600;
+  outline:none;
+  background: rgba(255,255,255,0.98);
+}
+.input::placeholder{color: rgba(11,18,32,0.28); font-weight:800;}
+.hint{
+  margin-top:8px;
+  padding:12px 14px;
+  border-radius:14px;
+  background: rgba(43,108,255,0.08);
+  border:1px solid rgba(43,108,255,0.14);
+  color: rgba(11,18,32,0.75);
+  font-size:14px;
+  display:none;
+}
+.hint.open{display:block;}
+.iconBtn{
+  width:34px; height:34px;
+  border-radius:999px;
+  border:1px solid rgba(11,18,32,0.10);
+  background: rgba(255,255,255,0.85);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800;
+  cursor:pointer;
+  color: rgba(11,18,32,0.70);
+}
+/* Result */
+.resultWrap{padding:18px 18px;}
+.metaPills{
+  display:flex; gap:10px; flex-wrap:wrap;
+  margin-top:8px;
+}
+
+/* v10.9.20: Meta pills stable on mobile (no ugly 2+1 wrap) */
+@media (max-width: 520px){
+  .metaPills{
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    gap: 8px;
+  }
+  .metaPills::-webkit-scrollbar{display:none;}
+  .pill{flex: 0 0 auto;}
+}
+
+.pill{
+  padding:10px 12px;
+  border-radius:999px;
+  background: rgba(43,108,255,0.10);
+  border:1px solid rgba(43,108,255,0.16);
+  font-weight:600;
+  font-size:13px;
+}
+.bigNum{
+  font-size:64px;
+  font-weight:800;
+  letter-spacing:-0.02em;
+  margin:12px 0 6px;
+}
+.center{text-align:center;}
+/* v10.8.12: Pretty years+months on one line + consistent estimate note */
+.ageInline{
+  display:inline-flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:12px;
+  white-space:nowrap;
+}
+.ageInline .ageY{font-size:1em; font-weight:800; letter-spacing:-0.02em;}
+.ageInline .ageUnit{font-size:0.38em; font-weight:900; opacity:0.78; letter-spacing:0;}
+.ageInline .ageM{font-size:0.38em; font-weight:900; opacity:0.92; letter-spacing:0;}
+.estNote{
+  text-align:center;
+  margin-top:8px;
+  font-size:13px;
+  color: rgba(11,18,32,0.55);
+  font-weight:800;
+}
+.stickyCtaBar{display:flex; flex-direction:column; gap:0;}
+.stickyCtaRow{display:flex; gap:10px; flex-wrap:nowrap;}
+.stickyCol{flex:1; min-width:0; display:flex; flex-direction:column; gap:6px;}
+.stickyTopNote{text-align:center; font-weight:850; opacity:0.78; margin-top:6px; line-height:1.2;}
+
+.stickyCtaDescRow{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+.stickyCtaDesc{
+  flex:1;
+  text-align:center;
+  font-size:12px;
+  opacity:0.78;
+  font-weight:800;
+  line-height:1.3;
+}
+
+@media (max-width: 430px){
+  .ageInline{gap:10px;}
+  .ageInline .ageUnit, .ageInline .ageM{font-size:0.42em;}
+}
+
+/* Actions */
+.actionsHeader{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:12px;
+}
+.sumBox{
+  margin-top:14px;
+  padding:14px 14px;
+  border-radius:18px;
+  background: rgba(255,255,255,0.92);
+  border:1px solid rgba(11,18,32,0.08);
+}
+.sumBox .t{font-weight:700;}
+.sumBox .r{float:right; font-weight:700; color: rgba(43,108,255,0.90);}
+.actionList{margin-top:12px; display:flex; flex-direction:column; gap:12px;}
+.actionCard{
+  padding:14px 14px;
+  border-radius:18px;
+  border:1px solid rgba(11,18,32,0.08);
+  background: rgba(255,255,255,0.92);
+  display:flex; justify-content:space-between; gap:12px;
+  cursor:pointer;
+}
+.actionCard.selected{
+  border-color: rgba(43,108,255,0.45);
+  box-shadow: 0 10px 22px rgba(43,108,255,0.18);
+}
+.actionLeft{
+  display:flex; gap:10px;
+}
+.badge{
+  display:inline-flex;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(11,18,32,0.10);
+  font-size:12px;
+  font-weight:850;
+  color: rgba(11,18,32,0.62);
+  margin-top:8px;
+}
+.actionTitle{font-weight:700; font-size:16px;}
+.actionSub{font-size:12px; color: rgba(11,18,32,0.55); margin-top:2px;}
+.actionRight{
+  text-align:right;
+  min-width:92px;
+}
+.effect{
+  font-weight:950; color: rgba(43,108,255,0.90);
+}
+.kr{
+  font-weight:900; color: rgba(11,18,32,0.70);
+}
+/* Assumptions footer link (inline, never overlaps) */
+.assumpFooter{
+  margin-top:18px;
+  padding-top:14px;
+  border-top:1px solid rgba(11,18,32,0.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-size:13px;
+  color: rgba(11,18,32,0.55);
+  cursor:pointer;
+  user-select:none;
+}
+.assumpFooter .i{
+  width:22px; height:22px;
+  border-radius:999px;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid rgba(11,18,32,0.12);
+  background: rgba(255,255,255,0.8);
+  font-weight:950;
+  color: rgba(11,18,32,0.65);
+}
+.assumpFooter:hover{ color: rgba(11,18,32,0.72); }
+
+/* Modal / sheet */
+
+.backdrop{
+  position:fixed; inset:0;
+  background: rgba(0,0,0,0.42);
+  display:none;
+  z-index:80;
+}
+.backdrop.open{display:block;}
+.sheet{
+  position:fixed;
+  left:0; right:0; bottom:-100%;
+  z-index:90;
+  transition: bottom .25s ease;
+  padding:0 10px 10px;
+}
+.sheet.open{bottom:0;}
+.sheetCard{
+  max-width:820px;
+  margin:0 auto;
+  background: rgba(255,255,255,0.96);
+  border:1px solid rgba(11,18,32,0.10);
+  border-radius: 22px;
+  box-shadow: 0 26px 60px rgba(0,0,0,0.25);
+  overflow:hidden;
+}
+.sheetHead{
+  padding:14px 16px;
+  display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+  border-bottom:1px solid rgba(11,18,32,0.08);
+}
+.sheetTitle{font-weight:950; font-size:18px;}
+.closeX{
+  border:1px solid rgba(11,18,32,0.12);
+  background: rgba(255,255,255,0.90);
+  border-radius:12px;
+  padding:8px 10px;
+  font-weight:950;
+  cursor:pointer;
+}
+.sheetBody{
+  max-height:62vh;
+  overflow:auto;
+  padding:14px 16px 18px;
+}
+.sheetBody h4{margin:14px 0 8px;}
+.sheetBody ul{margin:8px 0 0 18px;}
+.mono{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+/* Footer button row */
+.row{
+  display:flex; gap:12px; margin-top:18px;
+}
+.row .btnGhost{flex:1}
+.row .cta{flex:2}
+/* Range (slider) fill that respects min/max (set via --pct from JS) */
+input[type="range"]{
+  -webkit-appearance:none;
+  appearance:none;
+  height: 6px;
+  border-radius: 999px;
+  outline:none;
+  background: linear-gradient(90deg, rgba(43,108,255,0.95) 0%, rgba(74,167,255,0.95) calc(var(--pct, 0) * 100%), rgba(11,18,32,0.12) calc(var(--pct, 0) * 100%), rgba(11,18,32,0.12) 100%);
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: white;
+  border: 3px solid rgba(43,108,255,0.95);
+  box-shadow: 0 6px 20px rgba(11,18,32,0.18);
+}
+input[type="range"]::-moz-range-thumb{
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: white;
+  border: 3px solid rgba(43,108,255,0.95);
+  box-shadow: 0 6px 20px rgba(11,18,32,0.18);
+}
+input[type="range"]::-moz-range-track{
+  height: 6px;
+  border-radius: 999px;
+  background: transparent;
+}
+
+
+/* v10.7.0: input gating + mobile-first compact steps 4-5 */
+.disabled{opacity:0.55; pointer-events:none; filter:saturate(0.85);}
+.errBox{
+  display:none;
+  margin: 0 0 12px;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(220,38,38,0.18);
+  background: rgba(220,38,38,0.06);
+  color: rgba(153,27,27,0.95);
+  font-weight: 850;
+  font-size: 14px;
+}
+
+/* Compact the “above the fold” on mobile */
+@media (max-width: 430px){
+  #s_actions .h1{font-size:32px !important; line-height:1.05;}
+  #s_newresult .h1{font-size:32px !important; line-height:1.05;}
+  .card.formCard{padding:18px !important;}
+  .card.resultWrap{padding:18px !important;}
+  #s_actions .p{font-size:15px !important;}
+  #s_newresult .p{font-size:15px !important;}
+  #s_actions .sumBox{padding:12px 12px !important; margin-top:10px !important;}
+  #s_actions .sumBox{position:sticky; top:64px; z-index:20; backdrop-filter: blur(8px);}
+  #s_actions .actionList{margin-top:12px !important;}
+  #s_actions .row{gap:10px !important;}
+  #s_actions .btnGhost, #s_actions .cta{height:52px !important;}
+  #s_newresult .metaPills{gap:8px !important;}
+  #s_newresult .pill{font-size:13px !important; padding:10px 10px !important;}
+  #s_newresult .bigNum{font-size:58px !important;}
+
+/* v10.8.5: Step 5 compact header + sticky CTA bar */
+#s_newresult .h1{font-size:34px !important; line-height:1.05; margin-top:4px !important;}
+#s_newresult .p{font-size:15px !important;}
+#s_newresult .metaPills{gap:8px !important; margin-top:10px !important;}
+#s_newresult .bigNum{font-size:54px !important; margin:10px 0 2px !important;}
+#s_newresult .ctaCards{display:none !important;} /* hide large cards on mobile */
+#s_newresult .stickyCtaBar{display:flex !important;}
+}
+
+.versionBadge{
+  position: fixed;
+  right: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  z-index: 9999;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.78);
+  border: 1px solid rgba(11,18,32,0.12);
+  color: rgba(11,18,32,0.62);
+  backdrop-filter: blur(10px);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ===== Progress rail (right side) =====
+   Visual step indicator for steps 1–5.
+   Hidden on intro (step 0). Non-interactive.
+*/
+.progressRail{
+  position:fixed;
+  right:16px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index: 60;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  pointer-events:none;
+  opacity:0.85;
+}
+.progressRail.hidden{display:none;}
+.progressRail .railLine{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:2px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.18);
+}
+.progressRail .railDot{
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.35);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+.progressRail .railDot.done{
+  background: rgba(74,167,255,0.65);
+  border-color: rgba(74,167,255,0.35);
+}
+.progressRail .railDot.active{
+  width:12px;
+  height:12px;
+  background: rgba(43,108,255,0.95);
+  border-color: rgba(255,255,255,0.50);
+  box-shadow: 0 10px 26px rgba(43,108,255,0.35);
+}
+@media (max-width: 430px){
+  .progressRail{ right:10px; gap:9px; opacity:0.78; }
+}
+
+
+@media (max-width: 430px){
+  .wrap{padding-top: calc(28px + env(safe-area-inset-top)) !important;}
+  .section{margin-top:8px !important;}
+  .card.hero{padding:22px 16px !important;}
+  .card.formCard{padding:16px 16px !important;}
+  .h1{font-size:34px !important; line-height:1.05;}
+  .label{margin:14px 0 6px !important;}
+}
+
+
+@media (max-width: 430px){
+  #s_result .h1{font-size:30px !important; line-height:1.08 !important; margin-top:4px !important;}
+
+  #s_actions .h1{font-size:30px !important; line-height:1.08 !important; margin-top:4px !important;}
+  #s_newresult .h1{font-size:30px !important; line-height:1.08 !important; margin-top:4px !important;}
+}
+
+
+@media (min-width: 900px){
+  /* Keep desktop visually identical to mobile by constraining the content column. */
+  .wrap{max-width:560px;}
+}
+
+
+/* v10.9.38: keep CTA bar identical on mobile + desktop */
+#s_newresult .stickyCtaBar{
+  position: fixed !important;
+  left: 14px !important;
+  right: 14px !important;
+  bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+  max-width: 560px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  z-index: 5000 !important;
+}
+/* Make the bar feel like it belongs to the card column */
+#s_newresult .stickyCtaBar .stickyCtaRow{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+  padding: 10px;
+  backdrop-filter: blur(10px);
+}
+#s_newresult .stickyTopNote{display:none !important;}
+/* ensure content isn't hidden behind the fixed CTA bar */
+#s_newresult{padding-bottom: 160px !important;}
+/* give the “Se opsummering” row a little breathing room above the fixed bar */
+#s_newresult .ghostRow{margin-bottom: 10px;}
+
+
+
+/* ===== Summary link row (Step 5) ===== */
+.ghostRow{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  padding:14px 14px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.08);
+  cursor:pointer;
+}
+.ghostRow:focus{outline:2px solid rgba(74,167,255,0.55); outline-offset:2px;}
+.ghostIcon{
+  width:28px; height:28px;
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(255,255,255,0.14);
+  border:1px solid rgba(255,255,255,0.14);
+  font-weight:700;
+}
+.ghostTitle{font-weight:700; font-size:15px;}
+.ghostSub{margin-top:4px; font-size:13px; opacity:0.85; line-height:1.35;}
+/* Key/value rows */
+.kv{display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid rgba(11,18,32,0.08);}
+.kv:first-of-type{border-top:none;}
+.kvLbl{font-size:13px; opacity:0.8;}
+.kvVal{font-size:15px; font-weight:700; text-align:right;}
+/* Percent input row */
+.pctRow{position:relative;}
+.pctRow .input{padding-right:44px;}
+.pctSuffix{
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  font-weight:700; opacity:0.75;
+}
+/* Hide progress rail on summary page (step 6) */
+body.step6 .progressRail{display:none !important;}
+
+
+/* v10.9.38: keep step 5 identical to mobile (hide desktop-only CTA cards) */
+#s_newresult .ctaCards{display:none !important;}
+</style>
+</head>
+<body class="intro">
+
+<div class="wrap"><!-- INTRO -->
+<section class="section active" data-step="0" id="s_intro">
+<div class="card hero">
+<div class="kicker">TRIN 0/5</div>
+<div class="huge" style="font-size:36px; line-height:1.1;">Hvornår kan du få friheden til at stoppe med at arbejde?</div>
+<p class="p">Indtast tre tal og se dit mulige stop-tidspunkt.</p>
+<div style="height:18px"></div>
+<button class="cta" data-action="start">Start beregningen</button>
+<div class="small" style="margin-top:10px;">Ingen tilmelding. Tager under 3 minutter.</div>
+<div class="hr"></div>
+<div style="margin-top:14px; line-height:1.75; font-weight:900;">
+          ✔ Ét konkret stop-tidspunkt baseret på dine tal<br/>
+          ✔ Vælg en forsigtig eller mere ambitiøs tilgang<br/>
+          ✔ Små månedlige beløb kan rykke friheden flere år
+        </div>
+<div class="small" style="margin-top:16px;">
+          Beregningen er vejledende og bygger på faste antagelser. Skat og individuelle pensioner er ikke medregnet.
+        </div>
+</div>
+</section>
+<!-- STEP 1 AGE -->
+<section class="section" data-step="1" id="s_age">
+<div class="card formCard">
+<div class="kicker">TRIN 1/5</div>
+<div class="h1">Din alder</div>
+<div class="p" style="font-size:16px;">Vi estimerer din folkepensionsalder ud fra din alder.</div>
+<div class="helpRow" style="margin-top:18px;">
+<label class="label" for="ageInput" style="margin:0;">Alder</label>
+<button aria-controls="hintAge" aria-expanded="false" aria-label="Hjælp" class="iconBtn" data-action="toggleHint" data-hint="hintAge">?</button>
+</div>
+<input class="input" id="ageInput" inputmode="numeric" maxlength="3" pattern="[0-9]*" placeholder="fx 27"/>
+<div class="hint" id="hintAge">Indtast din alder i hele år.</div>
+<div style="height:12px"></div>
+<div class="card" style="padding:14px 14px; border-radius:18px; border:1px solid rgba(11,18,32,0.08); background: rgba(255,255,255,0.92);">
+<div class="kicker" style="letter-spacing:0.12em;">FOLKEPENSION (ESTIMAT)</div>
+<div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px;">
+<div class="bigNum mono" id="fpAgeBig" style="font-size:54px; margin:8px 0 0;">—</div>
+<div class="small" style="font-size:14px; font-weight:800;">år</div>
+</div>
+</div>
+<div style="height:16px"></div>
+<button class="cta" data-action="next">Fortsæt</button>
+<div aria-label="Forstå beregningen" class="assumpFooter" data-action="openAssumptions" role="button" tabindex="0">
+<div class="i">i</div>
+<div>Beregningsmetode</div>
+</div>
+</div>
+</section>
+<!-- STEP 2 NUMBERS -->
+<section class="section" data-step="2" id="s_numbers">
+<div class="card formCard">
+<div class="kicker">TRIN 2/5</div>
+<div class="h1">Dine tal</div>
+<div class="p" style="font-size:16px;">Felterne har kun forslag (ikke forudfyldte værdier). Du kan altid justere senere.</div>
+<div class="helpRow" style="margin-top:14px;">
+<label class="label" for="scenarioSelectInline" style="margin:0;">Forudsætninger</label>
+<div class="small" style="margin:0; font-weight:800;">(afkast, diskontering, buffer)</div>
+</div>
+<select aria-label="Vælg forudsætninger" class="input" id="scenarioSelectInline" style="font-size:18px; padding:14px 14px; font-weight:900;">
+<option value="conservative">Forsigtig</option>
+<option selected="" value="base">Standard</option>
+<option value="optimistic">Ambitiøs</option>
+</select>
+<div class="helpRow" style="margin-top:18px;">
+<label class="label" for="savInput" style="margin:0;">Opsparing i dag (kr.)</label>
+<button aria-controls="hintSav" aria-expanded="false" class="iconBtn" data-action="toggleHint" data-hint="hintSav">?</button>
+</div>
+<input class="input" id="savInput" inputmode="numeric" pattern="[0-9]*" placeholder="fx 25.000"/>
+<div class="hint" id="hintSav">Din opsparing/investerede formue i dag (ikke pensioner).</div>
+<div class="helpRow" style="margin-top:18px;">
+<label class="label" for="invInput" style="margin:0;">Månedlig investering (kr./md)</label>
+<button aria-controls="hintInv" aria-expanded="false" class="iconBtn" data-action="toggleHint" data-hint="hintInv">?</button>
+</div>
+<input class="input" id="invInput" inputmode="numeric" pattern="[0-9]*" placeholder="fx 3.500"/>
+<div class="hint" id="hintInv">Det beløb du realistisk kan investere hver måned frem til stop. Brug et beløb du kan holde over tid.</div>
+<div class="helpRow" style="margin-top:18px;">
+<label class="label" for="incInput" style="margin:0;">Ønsket månedlig indkomst før folkepension (kr./md)</label>
+<button aria-controls="hintInc" aria-expanded="false" class="iconBtn" data-action="toggleHint" data-hint="hintInc">?</button>
+</div>
+<input class="input" id="incInput" inputmode="numeric" pattern="[0-9]*" placeholder="fx 35.000"/>
+<div class="hint" id="hintInc">Angiv bruttobeløb. Vi regner uden skat for gennemsigtighed.</div>
+<div style="height:16px"></div>
+<div class="errBox" id="numbersErr"></div>
+<button class="cta disabled" data-action="compute" id="computeBtn">Se resultat</button>
+<div aria-label="Forstå beregningen" class="assumpFooter" data-action="openAssumptions" role="button" tabindex="0">
+<div class="i">i</div>
+<div>Beregningsmetode</div>
+</div>
+</div>
+</section>
+<!-- STEP 3 RESULT -->
+<section class="section" data-step="3" id="s_result">
+<div class="card resultWrap">
+<div class="kicker">TRIN 3/5</div>
+<div class="h1">Dit potentiale</div>
+<div class="p" style="font-size:16px;">Baseret på dine tal lige nu. Små ændringer kan give ekstra frihed.</div>
+<div class="metaPills">
+<div class="pill">Din alder: <span class="mono" id="curAgeLbl">—</span></div>
+<div class="pill">Folkepension: <span class="mono" id="fpAgeLbl">—</span></div>
+<div aria-label="Forstå beregningen" class="pill" data-action="openAssumptions" role="button" tabindex="0">Regnet med: <span class="mono" id="scenarioLbl3">—</span> <span aria-hidden="true" class="mono">ⓘ</span></div>
+</div>
+<div class="center">
+<div class="bigNum mono" id="stopAgeLbl">—</div>
+<div style="font-weight:900; font-size:18px;">mulig stop-alder</div>
+<button aria-controls="hintDetails3" aria-expanded="false" class="btnGhost" data-action="toggleHint" data-hint="hintDetails3" style="width:auto; padding:10px 14px; border-radius:999px; margin-top:10px;">ⓘ Detaljer</button>
+<div class="hint" id="hintDetails3"></div>
+</div>
+<div class="hr"></div>
+<div class="row">
+<button class="btnGhost" data-action="backToNumbers">Tilbage</button>
+<button class="cta" data-action="toActions">Forbedr min plan</button>
+</div>
+<div style="height:12px"></div>
+<button class="btnGhost" data-action="openLead">Ønsker du sparring? Få kontakt til rådgiver</button>
+<div aria-label="Forstå beregningen" class="assumpFooter" data-action="openAssumptions" role="button" tabindex="0">
+<div class="i">i</div>
+<div>Beregningsmetode</div>
+</div>
+</div>
+</section>
+<!-- STEP 4 ACTIONS -->
+<section class="section" data-step="4" id="s_actions">
+<div class="card formCard">
+<div class="kicker">TRIN 4/5</div>
+<div class="h1" style="font-size:40px;">Små ændringer</div>
+<div class="p" style="font-size:16px;">Vælg konkrete greb. Vi viser kun forslag med mindst 1 måned effekt.</div>
+<div class="sumBox">
+<div><span class="t">Samlet frihedsløft</span> <span class="r" id="sumLift">+0 md</span></div>
+<div class="small" style="margin-top:4px;">Effekten vises som potentiale, hvis du kan frigøre beløbet.</div>
+</div>
+<div class="actionList" id="actionList"></div>
+<div class="hr"></div>
+<div class="row">
+<button class="btnGhost" data-action="backToResult">Tilbage</button>
+<button class="cta" data-action="toNewResult">Se nyt resultat</button>
+</div>
+<div style="height:12px"></div>
+<button class="btnGhost" data-action="openLead">Få kontakt til rådgiver</button>
+<div aria-label="Forstå beregningen" class="assumpFooter" data-action="openAssumptions" role="button" tabindex="0">
+<div class="i">i</div>
+<div>Beregningsmetode</div>
+</div>
+</div>
+</section>
+<!-- STEP 5 NEW RESULT -->
+<section class="section" data-step="5" id="s_newresult">
+<div class="card resultWrap">
+<div class="kicker">TRIN 5/5</div>
+<div class="h1">Nyt resultat</div>
+<div class="p" style="font-size:16px;">Med dine valgte ændringer.</div>
+<div class="metaPills">
+<div class="pill">Oprindeligt: <span class="mono" id="baseStopLbl">—</span></div>
+<div class="pill" id="liftPill">Løft: <span class="mono" id="newLiftLbl">—</span></div>
+<div aria-label="Forstå beregningen" class="pill" data-action="openAssumptions" role="button" tabindex="0">Regnet med: <span class="mono" id="scenarioLbl5">—</span> <span aria-hidden="true" class="mono">ⓘ</span></div>
+</div>
+<div class="center" style="margin-top:10px;">
+<div class="bigNum mono" id="newStopBig">—</div>
+<div style="font-weight:900; font-size:18px;">mulig stop-alder</div>
+<button aria-controls="hintDetails5" aria-expanded="false" class="btnGhost" data-action="toggleHint" data-hint="hintDetails5" style="width:auto; padding:10px 14px; border-radius:999px; margin-top:10px;">ⓘ Detaljer</button>
+<div class="hint" id="hintDetails5"></div>
+</div>
+<div class="hr"></div>
+<div aria-label="Næste handling" class="stickyCtaBar">
+<div class="stickyCtaRow">
+<div class="stickyCol">
+<button class="cta" data-action="openWhatItTakes" id="btnWhatItTakes2y" type="button">Stop som —-årig</button>
+<div class="stickyTopNote small">Beregn hvad der skal til</div>
+</div>
+<div class="stickyCol">
+<button class="cta" data-action="openLead" type="button">Få personlig plan</button>
+<div class="stickyTopNote small">20 min. uforpligtende gennemgang af dine muligheder.</div>
+</div>
+</div>
+</div>
+<div class="ctaCards">
+<div class="card" style="padding:16px 16px; border-radius:18px; border:1px solid rgba(11,18,32,0.08); background: rgba(255,255,255,0.92);">
+<div style="font-weight:950; font-size:18px;">Se hvad der skal til</div>
+<div class="p" style="font-size:15px; margin-top:6px;">Få et konkret estimat på, hvor meget der skal investeres ekstra for at nå en tidligere stop-alder.</div>
+<div style="height:10px"></div>
+<button class="cta" data-action="openWhatItTakes">Se beregning</button>
+</div>
+<div style="height:14px"></div>
+<div class="card" style="padding:16px 16px; border-radius:18px; border:1px solid rgba(11,18,32,0.08); background: rgba(255,255,255,0.92);">
+<div style="font-weight:950; font-size:18px;">Få personlig sparring</div>
+<div class="p" style="font-size:15px; margin-top:6px;">20 min. uforpligtende gennemgang af dine tal og muligheder med en rådgiver.</div>
+<div style="height:10px"></div>
+<button class="cta" data-action="openLead">Book samtale</button>
+<div class="small" style="margin-top:10px;">Du kontaktes kun hvis du selv sender din forespørgsel og giver samtykke.</div>
+</div>
+</div>
+
+<div class="hr"></div>
+<div class="ghostRow" role="button" tabindex="0" data-action="toSummary" aria-label="Se opsummering">
+  <div class="ghostIcon">→</div>
+  <div class="ghostText">
+    <div class="ghostTitle">Se opsummering</div>
+    <div class="ghostSub">Udbetaling før skat, depot ved stop og pensionsindbetaling</div>
+  </div>
+</div>
+
+<div class="row">
+<button class="btnGhost" data-action="backToActions">Tilbage</button>
+<button class="btnGhost" data-action="restart">Start forfra</button>
+</div>
+<div aria-label="Forstå beregningen" class="assumpFooter" data-action="openAssumptions" role="button" tabindex="0">
+<div class="i">i</div>
+<div>Beregningsmetode</div>
+</div>
+</div>
+</section>
+<section class="section" data-step="6" id="s_summary">
+  <div class="card resultWrap">
+    <div class="h1">Opsummering af din plan</div>
+    <div class="p" style="font-size:16px;">Her er dine vigtigste tal – og hvad de betyder i praksis.</div>
+
+    <div class="hr"></div>
+
+    <div class="card" style="padding:16px 16px; border-radius:18px; border:1px solid rgba(11,18,32,0.08); background: rgba(255,255,255,0.92);">
+      <div style="font-weight:700; font-size:16px;">Dine nøgletal</div>
+      <div style="height:10px"></div>
+
+      <div class="kv">
+        <div class="kvLbl">Ønsket udbetaling før skat</div>
+        <div class="kvVal mono" id="sumIncome">—</div>
+      </div>
+      <div class="kv">
+        <div class="kvLbl">Estimeret depotværdi ved stop</div>
+        <div class="kvVal mono" id="sumDepot">—</div>
+      </div>
+      <div class="kv">
+        <div class="kvLbl">Du stopper ca.</div>
+        <div class="kvVal mono" id="sumStop">—</div>
+      </div>
+      <div class="kv">
+        <div class="kvLbl">Det er ca.</div>
+        <div class="kvVal mono" id="sumYears">—</div>
+      </div>
+    
+    <div style="height:12px"></div>
+    <div class="metaPills">
+      <div class="pill">Oprindeligt: <span class="mono" id="sumBaseLbl">—</span></div>
+      <div class="pill">Løft: <span class="mono" id="sumLiftLbl">—</span></div>
+      <div aria-label="Forstå beregningen" class="pill" data-action="openAssumptions" role="button" tabindex="0">
+        Regnet med: <span class="mono" id="sumScenarioLbl">—</span> <span aria-hidden="true" class="mono">ⓘ</span>
+      </div>
+    </div>
+
+
+    </div>
+
+    <div style="height:14px"></div>
+
+    <div class="card" style="padding:16px 16px; border-radius:18px; border:1px solid rgba(11,18,32,0.08); background: rgba(255,255,255,0.92);">
+      <div style="font-weight:700; font-size:16px;">Fortsæt pensionsindbetaling (vejledende)</div>
+      <div class="p" style="font-size:14px; margin-top:6px;">Beregnet som bruttoløn × pensionsprocent. Ordninger varierer.</div>
+
+      <div style="height:10px"></div>
+
+      <div class="label">Månedsløn før skat</div>
+      <input class="input mono" id="salaryMonthly" inputmode="numeric" placeholder="fx 45.000" type="text"/>
+
+      <div class="label">Pensionsprocent</div>
+      <div class="pctRow">
+        <input class="input mono" id="pensionPct" inputmode="decimal" type="text" value="12"/>
+        <div class="pctSuffix">%</div>
+      </div>
+      <div class="small" style="margin-top:8px;">Standard er sat til 12% – ret den hvis din ordning er anderledes.</div>
+
+      <div class="hr" style="margin-top:14px;"></div>
+
+      <div class="kv">
+        <div class="kvLbl">Vejledende indbetaling</div>
+        <div class="kvVal mono" id="pensMonthly">—</div>
+      </div>
+      <div class="kv">
+        <div class="kvLbl">Det svarer til ca.</div>
+        <div class="kvVal mono" id="pensAnnual">—</div>
+      </div>
+      <div class="kv">
+        <div class="kvLbl">Samlet i perioden før folkepension</div>
+        <div class="kvVal mono" id="pensTotal">—</div>
+      </div>
+
+      <div class="small" style="margin-top:10px;">Dette er indbetaling – ikke fremtidig pensionsudbetaling.</div>
+    </div>
+
+    <div style="height:14px"></div>
+
+    <div class="card" style="padding:16px 16px; border-radius:18px; border:1px solid rgba(11,18,32,0.08); background: rgba(255,255,255,0.92);">
+      <div style="font-weight:700; font-size:16px;">Vigtigt</div>
+      <div class="p" style="font-size:15px; margin-top:8px;">
+        Når du stopper før folkepension, vil der typisk ikke længere blive indbetalt til din arbejdsmarkedspension via arbejdsgiver i perioden.
+        Hvis du ønsker et pensionsniveau svarende til fortsat arbejde, kan du overveje at fortsætte indbetalingerne selv.
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="row">
+      <button class="btnGhost" data-action="backToNewResult">Tilbage til resultat</button>
+      <button class="btnGhost" data-action="restart">Start forfra</button>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- Backdrop + Sheet -->
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet">
+<div aria-label="Dialog" aria-modal="true" class="sheetCard" role="dialog">
+<div class="sheetHead">
+<div class="sheetTitle" id="sheetTitle">Titel</div>
+<button class="closeX" data-action="closeSheet" type="button">Luk</button>
+</div>
+<div class="sheetBody" id="sheetBody"></div>
+</div>
+</div>
+<div aria-hidden="true" class="versionBadge" id="versionBadge"></div>
+<script>
+const APP_VERSION = "v10.9.38";
+(function(){
+  try { if ("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch(e) {}
+  const el = document.getElementById("versionBadge");
+  if (el) el.textContent = APP_VERSION;
+  document.title = `Tidsløft · ${APP_VERSION}`;
+})();
+
+/* =========================
+   v10.8.2 UX Fix
+   ========================= */
+
+// Model assumptions presets (user-selectable)
+const SCENARIOS = {
+  conservative: {key:"conservative", name:"Forsigtig", real:0.03, discount:0.02, buffer:0.15},
+  base:         {key:"base",         name:"Standard",       real:0.04, discount:0.02, buffer:0.10},
+  optimistic:   {key:"optimistic",   name:"Ambitiøs", real:0.05, discount:0.02, buffer:0.08},
+};
+
+// ---- ACTION SUGGESTIONS (restored) ----
+function recomputeVisibleActions(){
+  const base = state.baseStop;
+  const fp = state.fpAge;
+  const a = state.age;
+  const s = state.savings;
+  const m = state.monthly;
+  const inc = state.income;
+  if (![base,fp,a,s,m,inc].every(x=>isFinite(x))) { state.visibleActions=[]; return; }
+  // compute effect for each action as months gained
+  const enriched = ACTIONS.map(act=>{
+    const newStop = solveStopAge(a, fp, s, m + act.monthly, inc);
+    const months = Math.max(0, yearsToMonths(base - newStop)); // earlier stop => smaller age
+    return {...act, months, newStop};
+  });
+// Show only actions with >= 1 month effect.
+// Curate for breadth: 3 smallest monthly amounts + 2 largest monthly amounts (max 5).
+const eligible = enriched.filter(x=>x.months>=1);
+
+if (eligible.length <= 5){
+  // small amounts first (more actionable)
+  state.visibleActions = eligible.sort((x,y)=> (x.monthly - y.monthly) || (y.months - x.months));
+} else {
+  const asc = eligible.slice().sort((x,y)=> (x.monthly - y.monthly) || (y.months - x.months));
+  const small = asc.slice(0,3);
+  const large = asc.slice(-2).sort((x,y)=> (y.monthly - x.monthly) || (y.months - x.months));
+  state.visibleActions = [...small, ...large];
+}
+  // reset selection to visible ids only
+  const visibleIds = new Set(state.visibleActions.map(x=>x.id));
+  state.selected.forEach(id=>{ if (!visibleIds.has(id)) state.selected.delete(id); });
+}
+
+function renderActions(){
+  recomputeVisibleActions();
+  const list = $("actionList");
+  clearNode(list);
+
+  if (state.visibleActions.length===0){
+    list.appendChild(el("div",{class:"small", text:"Ingen konkrete greb giver mindst 1 måned effekt med dine nuværende tal."}));
+  } else {
+    for (const act of state.visibleActions){
+      const sel = state.selected.has(act.id);
+      const eff = fmtDeltaMonths(act.months);
+
+      const card = el("div",{class:"actionCard"+(sel?" selected":""), "data-action":"toggleAction", "data-id":act.id});
+
+      const left = el("div",{class:"actionLeft"});
+      const emoji = (act.id==="car_less")?"🚗":(act.id==="vacation")?"🏖️":(act.id==="subscriptions")?"📺":(act.id==="groceries")?"🛒":(act.id==="transport")?"⛽":"✅";
+      left.appendChild(el("div",{style:"font-size:22px; line-height:1;", text:emoji}));
+
+      const leftText = el("div",null);
+      leftText.appendChild(el("div",{class:"actionTitle", text:act.title}));
+      leftText.appendChild(el("div",{class:"badge", text:act.tag}));
+      left.appendChild(leftText);
+
+      const right = el("div",{class:"actionRight"});
+      right.appendChild(el("div",{class:"effect", text:eff}));
+
+      const kr = el("div",{class:"kr"});
+      kr.appendChild(document.createTextNode(fmtInt(act.monthly)));
+      kr.appendChild(el("span",{class:"small", text:" kr./md"}));
+      right.appendChild(kr);
+
+      card.appendChild(left);
+      card.appendChild(right);
+
+      list.appendChild(card);
+    }
+  }
+  renderSumLift();
+}
+
+
+// Lead handling mode: "demo" = no send, "send" = forward to advisor via endpoint (not implemented here)
+const LEAD_MODE = "demo";
+
+// Active assumptions (default: base)
+let _assumptions = {...SCENARIOS.base};
+
+function getAssumptions(){ return _assumptions; }
+
+function setScenario(key){
+  const next = SCENARIOS[key] || SCENARIOS.base;
+  _assumptions = {...next};
+  // Recompute if inputs are present
+  if (isFinite(state.age)) updateFpAge();
+  const numbersOk = validateNumbers({commit:true, showErrors:false});
+  if (numbersOk && isFinite(state.age) && isFinite(state.fpAge)){
+    computeBase();
+    renderResult();
+    if (state.step>=4){ renderActions(); }
+    if (state.step===5){ 
+      const extra = selectedExtraMonthly();
+      state.newStop = solveStopAge(state.age, state.fpAge, state.savings, state.monthly + extra, state.income);
+      renderNewResult();
+    }
+  }
+  // Keep UI in sync
+  syncScenarioSelects();
+}
+
+function syncScenarioSelects(){
+  const key = getAssumptions().key || "base";
+  const a = document.getElementById("scenarioSelectInline");
+  if (a && a.value !== key) a.value = key;
+  const b = document.getElementById("scenarioSelectSheet");
+  if (b && b.value !== key) b.value = key;
+}
+function pensionAgeByBirthYearApprox(birthYear){
+  if (birthYear <= 1962) return 67;
+  if (birthYear <= 1966) return 68;
+  if (birthYear <= 1970) return 69;
+  return 70; // cap (vedtaget loft)
+}
+function pensionAgeFromCurrentAgeApprox(currentAge){
+  // deterministic estimate based on birth year approximation (no false precision in UI; still an estimate)
+  const y = new Date().getFullYear();
+  const by = y - currentAge;
+  return Math.min(70, pensionAgeByBirthYearApprox(by));
+}
+
+// --- math ---
+function futureValue(savings, monthly, years, rAnnual){
+  if (rAnnual == null) rAnnual = getAssumptions().real;
+  const n = Math.max(0, Math.round(years * 12));
+  const r = rAnnual/12;
+  let fv = savings * Math.pow(1+r, n);
+  if (monthly > 0){
+    fv += monthly * ((Math.pow(1+r, n)-1)/r);
+  }
+  return fv;
+}
+function bridgePV(annualSpend, years, rAnnual, buffer){
+  const a = getAssumptions();
+  if (rAnnual == null) rAnnual = a.discount;
+  if (buffer == null) buffer = a.buffer;
+  const n = Math.max(0, Math.round(years*12));
+  const r = rAnnual/12;
+  if (n<=0) return 0;
+  const pv = (annualSpend/12) * (1 - Math.pow(1+r, -n)) / r;
+  return pv * (1+buffer);
+}
+function solveStopAge(age, pensionAge, savings, monthlyTotal, income, opts){
+  const a0 = getAssumptions();
+  const real = (opts && isFinite(opts.real)) ? opts.real : a0.real;
+  const disc = (opts && isFinite(opts.discount)) ? opts.discount : a0.discount;
+  const buf  = (opts && isFinite(opts.buffer)) ? opts.buffer : a0.buffer;
+  // Search with monthly resolution for higher precision (max ~ (pensionAge-age)*12 iterations)
+  const maxMonths = Math.max(0, Math.round((pensionAge - age) * 12));
+  let best = NaN;
+
+  for (let m = 0; m <= maxMonths; m++){
+    const a = age + (m / 12);
+    const tYears = m / 12;
+    const fv = futureValue(savings, monthlyTotal, tYears, real);
+    const bridgeYears = Math.max(0, pensionAge - a);
+    const need = bridgePV(income * 12, bridgeYears, disc, buf);
+    if (fv >= need){ best = a; break; }
+  }
+  if (Number.isNaN(best)) best = pensionAge;
+  return best;
+}
+function extraMonthlyNeededForGoal(age, goalAge, pensionAge, savings, monthlyBase, income, opts){
+  const a0 = getAssumptions();
+  const real = (opts && isFinite(opts.real)) ? opts.real : a0.real;
+  const disc = (opts && isFinite(opts.discount)) ? opts.discount : a0.discount;
+  const buf  = (opts && isFinite(opts.buffer)) ? opts.buffer : a0.buffer;
+  goalAge = Math.min(goalAge, pensionAge);
+  const t = Math.max(0, goalAge - age);
+  const fvBase = futureValue(savings, monthlyBase, t, real);
+  const need = bridgePV(income*12, Math.max(0, pensionAge - goalAge), disc, buf);
+  const gap = Math.max(0, need - fvBase);
+  if (gap <= 0) return 0;
+  const n = Math.max(1, Math.round(t*12));
+  const r = real/12;
+  const factor = (Math.pow(1+r, n)-1)/r; // FV of 1 kr/month
+  const m = gap / factor;
+  return Math.ceil(m/50)*50; // round to 50 kr
+}
+function fmtInt(n){
+  if (!isFinite(n)) return "—";
+  return Math.round(n).toLocaleString("da-DK");
+}
+
+function updateRangeFill(el){
+  if (!el) return;
+  const min = Number(el.min);
+  const max = Number(el.max);
+  const val = Number(el.value);
+  const denom = (max - min);
+  let pct = 0;
+  if (isFinite(denom) && denom > 0 && isFinite(val)){
+    pct = (val - min) / denom;
+  }
+  if (!isFinite(pct)) pct = 0;
+  pct = Math.max(0, Math.min(1, pct));
+  el.style.setProperty("--pct", String(pct));
+}
+
+function yearsToMonths(y){ return Math.round(y*12); }
+
+// --- actions library (concrete items) ---
+const ACTIONS = [
+  {id:"car_less", title:"Én bil mindre i husstanden", monthly:2500, tag:"Større greb"},
+  {id:"insurance", title:"Gennemgå forsikringer", monthly:300, tag:"Konkrete greb"},
+  {id:"groceries", title:"Strammere dagligvarebudget", monthly:500, tag:"Konkrete greb"},
+  {id:"subscriptions", title:"Fjern abonnementer du ikke bruger", monthly:250, tag:"Konkrete greb"},
+  {id:"vacation", title:"Færre/enkle ferier (snit pr. md)", monthly:700, tag:"Konkrete greb"},
+  {id:"transport", title:"Mindre benzin/transport (snit pr. md)", monthly:400, tag:"Konkrete greb"},
+  {id:"takeaway", title:"Mindre takeaway/café", monthly:400, tag:"Konkrete greb"},
+  {id:"housing", title:"Lavere boligudgifter (snit pr. md)", monthly:1000, tag:"Større greb"},
+];
+
+// --- state ---
+const state = {
+  step: 0,
+  age: null,
+  fpAge: null,
+  savings: null,
+  monthly: null,
+  income: null,
+  baseStop: null,
+  selected: new Set(),
+  visibleActions: [],
+  newStop: null,
+};
+
+// --- DOM helpers ---
+const $ = (id)=>document.getElementById(id);
+function setActiveStep(step){
+  state.step = step;
+  document.body.classList.toggle("intro", step===0);
+  // step class for styling (e.g., hide rail on summary)
+  document.body.className = document.body.className.replace(/\bstep\d+\b/g, "").trim();
+  document.body.classList.add("step"+String(step));
+  document.querySelectorAll(".section").forEach(sec=>{
+    const s = Number(sec.getAttribute("data-step"));
+    sec.classList.toggle("active", s===step);
+  });
+  updateProgressRail(step);
+
+  requestAnimationFrame(()=>{
+    const scroller = document.querySelector(".wrap");
+    if (scroller) scroller.scrollTo({top:0, left:0, behavior:"auto"});
+  });
+}
+
+
+function updateProgressRail(step){
+  const rail = document.getElementById("progressRail");
+  if(!rail) return;
+  if(step === 0 || step === 6){
+    rail.classList.add("hidden");
+    return;
+  }
+  rail.classList.remove("hidden");
+  rail.querySelectorAll(".railDot[data-rail-step]").forEach(dot=>{
+    const s = Number(dot.getAttribute("data-rail-step"));
+    dot.classList.toggle("done", s < step);
+    dot.classList.toggle("active", s === step);
+  });
+}
+function fmtMonths(m){
+  const mm = Math.max(0, Math.round(Number(m)||0));
+  const y = Math.floor(mm/12);
+  const r = mm % 12;
+  if (y <= 0) return `${r} md`;
+  if (r === 0) return `${y} år`;
+  return `${y} år ${r} md`;
+}
+function fmtDeltaMonths(m){
+  const mm = Math.max(0, Math.round(Number(m)||0));
+  return `+${fmtMonths(mm)}`;
+}
+function agePartsFromYears(ageYears){
+  if (!isFinite(ageYears)) return {years: NaN, months: NaN, totalMonths: NaN};
+  const totalMonths = Math.max(0, Math.round(ageYears * 12));
+  return {years: Math.floor(totalMonths/12), months: totalMonths % 12, totalMonths};
+}
+function fmtAgePartsText(p){
+  if (!p || !isFinite(p.totalMonths)) return "—";
+  return `${p.years} år${p.months ? (" " + p.months + " md") : ""}`;
+}
+function fmtDiffPartsText(months){
+  if (!isFinite(months)) return "—";
+  const tm = Math.max(0, Math.round(months));
+  const y = Math.floor(tm/12);
+  const m = tm % 12;
+  if (y <= 0) return `${m} md`;
+  if (m === 0) return `${y} år`;
+  return `${y} år ${m} md`;
+}
+function setAgeInline(el, ageYears){
+  if (!el) return;
+  while (el.firstChild) el.removeChild(el.firstChild);
+  if (!isFinite(ageYears)){
+    el.textContent = "—";
+    return;
+  }
+  const p = agePartsFromYears(ageYears);
+  const wrap = document.createElement("span");
+  wrap.className = "ageInline";
+
+  const y = document.createElement("span");
+  y.className = "ageY mono";
+  y.textContent = String(p.years);
+
+  const unit = document.createElement("span");
+  unit.className = "ageUnit";
+  unit.textContent = "år";
+
+  wrap.appendChild(y);
+  wrap.appendChild(unit);
+
+  if (p.months){
+    const m = document.createElement("span");
+    m.className = "ageM mono";
+    m.textContent = `${p.months} md`;
+    wrap.appendChild(m);
+  }
+  el.appendChild(wrap);
+}
+
+
+function ageYearsToTotalMonths(ageYears){
+  if (!isFinite(ageYears)) return NaN;
+  return Math.round(ageYears * 12);
+}
+function fmtAgeYMFromTotalMonths(totalMonths){
+  if (!isFinite(totalMonths)) return "—";
+  const tm = Math.max(0, Math.round(totalMonths));
+  const y = Math.floor(tm/12);
+  const m = tm % 12;
+  if (m === 0) return `${y} år`;
+  return `${y} år ${m} md`;
+}
+function fmtAgeYM(ageYears){
+  return fmtAgeYMFromTotalMonths(ageYearsToTotalMonths(ageYears));
+}
+function fmtDiffYMFromTotalMonths(months){
+  if (!isFinite(months)) return "—";
+  const mm = Math.max(0, Math.round(months));
+  const y = Math.floor(mm/12);
+  const r = mm % 12;
+  if (y <= 0) return `${r} md`;
+  if (r === 0) return `${y} år`;
+  return `${y} år ${r} md`;
+}
+
+function parseMoney(v){
+  if (typeof v !== "string") return NaN;
+  const clean = v.replace(/\./g,"").replace(/,/g,"").replace(/\s/g,"");
+  const n = Number(clean);
+  return isFinite(n) ? n : NaN;
+}
+
+function moneyOrNull(raw){
+  const s = String(raw ?? "").trim();
+  if (!s) return null;
+  const n = parseMoney(s);
+  if (!isFinite(n)) return null;
+  return n;
+}
+
+
+// v10.9.20: format money inputs with thousand separators on blur
+function formatMoneyField(el){
+  if (!el) return;
+  const n = moneyOrNull(el.value);
+  if (n === null) return;
+  el.value = fmtInt(n);
+}
+
+
+// --- sheet manager ---
+let sheetMode = null; // "assumptions" | "lead" | "whatItTakes"
+let _lastFocusBeforeSheet = null;
+
+function _sheetIsOpen(){
+  const sh = document.getElementById("sheet");
+  return !!(sh && sh.classList.contains("open"));
+}
+function _getFocusableInSheet(){
+  const sh = document.getElementById("sheet");
+  if (!sh) return [];
+  return Array.from(sh.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+    .filter(el=> !el.hasAttribute("disabled") && el.getAttribute("aria-hidden")!=="true");
+}
+function _focusFirstInSheet(){
+  const items = _getFocusableInSheet();
+  if (items.length) items[0].focus();
+}
+
+// Global key handler for sheet: ESC close + focus trap
+document.addEventListener("keydown", (ev)=>{
+  if (!_sheetIsOpen()) return;
+
+  if (ev.key === "Escape"){
+    ev.preventDefault();
+    closeSheet();
+    return;
+  }
+  if (ev.key !== "Tab") return;
+
+  const items = _getFocusableInSheet();
+  if (!items.length) return;
+
+  const first = items[0];
+  const last = items[items.length - 1];
+  const active = document.activeElement;
+
+  if (ev.shiftKey){
+    if (active === first || !items.includes(active)){
+      ev.preventDefault();
+      last.focus();
+    }
+  } else {
+    if (active === last){
+      ev.preventDefault();
+      first.focus();
+    }
+  }
+});
+function openSheet(mode){
+  sheetMode = mode;
+  _lastFocusBeforeSheet = document.activeElement;
+  const back = $("backdrop"), sh = $("sheet");
+  if (back) back.classList.add("open");
+  if (sh) sh.classList.add("open");
+  // Lock background scroll (wrap is the scroller)
+const scroller = document.querySelector(".wrap");
+if (scroller){
+  scroller.dataset.scrollY = String(scroller.scrollTop || 0);
+  scroller.style.overflow = "hidden";
+}
+const body = $("sheetBody");
+if (body) body.scrollTop = 0;
+renderSheet();
+  // a11y: move focus into the sheet
+  setTimeout(()=>{ try{ _focusFirstInSheet(); }catch(e){} }, 0);
+}
+function closeSheet(){
+  const back = $("backdrop"), sh = $("sheet");
+  if (back) back.classList.remove("open");
+  if (sh) sh.classList.remove("open");
+  sheetMode = null;
+
+  const scroller = document.querySelector(".wrap");
+  if (scroller){
+    const y = parseInt(scroller.dataset.scrollY||"0",10) || 0;
+    scroller.style.overflow = "auto";
+    scroller.scrollTop = y;
+  }
+  // a11y: restore focus to the control that opened the sheet
+  if (_lastFocusBeforeSheet && typeof _lastFocusBeforeSheet.focus === "function"){
+    try{ _lastFocusBeforeSheet.focus(); }catch(e){}
+  }
+  _lastFocusBeforeSheet = null;
+}
+// --- DOM safe builders (avoid innerHTML) ---
+function clearNode(node){
+  if (!node) return;
+  while (node.firstChild) node.removeChild(node.firstChild);
+}
+function el(tag, attrs, ...children){
+  const n = document.createElement(tag);
+  if (attrs){
+    for (const [k,v] of Object.entries(attrs)){
+      if (v === null || v === undefined) continue;
+      if (k === "class") n.className = v;
+      else if (k === "text") n.textContent = v;
+      else if (k.startsWith("on") && typeof v === "function") n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, String(v));
+    }
+  }
+  for (const c of children){
+    if (c === null || c === undefined) continue;
+    if (typeof c === "string") n.appendChild(document.createTextNode(c));
+    else n.appendChild(c);
+  }
+  return n;
+}
+function hrNode(){ return el("div", {class:"hr"}); }
+
+function renderSheet(){
+  const title = $("sheetTitle"), body = $("sheetBody");
+  if (!title || !body) return;
+
+  clearNode(body);
+
+  const a = getAssumptions ? getAssumptions() : {name:"Standard", real:REAL_RETURN_ANNUAL, discount:DISCOUNT_RATE_ANNUAL, buffer:BRIDGE_BUFFER};
+
+  if (sheetMode === "assumptions"){
+    title.textContent = "ⓘ Forstå beregningen";
+
+    body.appendChild(el("div",{class:"small", text:"Formål: give et gennemsigtigt overblik. Resultatet er et estimat – ikke personlig rådgivning."}));
+    body.appendChild(hrNode());
+
+    body.appendChild(el("div",{class:"label", style:"margin:0 0 8px;", text:"Forudsætninger"}));
+
+    const sel = el("select", {
+      id:"scenarioSelectSheet",
+      style:"width:100%; padding:12px 14px; border-radius:14px; border:1px solid rgba(11,18,32,0.10); font-weight:900; background: rgba(255,255,255,0.92);",
+      "aria-label":"Vælg forudsætninger"
+    },
+      el("option",{value:"conservative", text:"Konservativ"}),
+      el("option",{value:"base", text:"Basis"}),
+      el("option",{value:"optimistic", text:"Optimistisk"})
+    );
+
+    // match current
+    if (a && a.key && sel.querySelector(`option[value="${a.key}"]`)) sel.value = a.key;
+
+    sel.addEventListener("change", ()=>{
+      setScenario(sel.value);
+      // Keep sheet in sync (numbers update)
+      renderSheet();
+    });
+
+    body.appendChild(sel);
+    body.appendChild(el("div",{class:"small", style:"margin-top:8px;", text:"Valget påvirker beregningen med det samme."}));
+    body.appendChild(hrNode());
+
+    body.appendChild(el("h4",{text:"Hvad beregningen viser"}));
+    body.appendChild(el("div",{class:"p", style:"font-size:15px;", text:"Et vejledende stop-tidspunkt: hvornår din opsparing (start + løbende indbetaling) realistisk kan finansiere dit ønskede månedlige beløb frem til folkepensionsalderen."}));
+
+    body.appendChild(el("h4",{text:"Afkast/rente og inflation"}));
+    const ul1 = el("ul",null,
+      el("li",null, el("strong",{text:"Realafkast"}), " (efter inflation): ", el("span",{class:"mono", text:`${(a.real*100).toFixed(1)}%`}), " pr. år, med månedlig forrentning."),
+      el("li",null, el("strong",{text:"Diskontering"}), " af brobehov: ", el("span",{class:"mono", text:`${(a.discount*100).toFixed(1)}%`}), " pr. år."),
+      el("li",null, el("strong",{text:"Sikkerhedsbuffer"}), " på brobehov: ", el("span",{class:"mono", text:`${Math.round(a.buffer*100)}%`}), "."),
+      el("li",null, "Beløb forstås som “nutidskroner”, fordi vi bruger realafkast.")
+    );
+    body.appendChild(ul1);
+
+    body.appendChild(el("h4",{text:"Hvad der ikke indgår"}));
+    body.appendChild(el("ul",null,
+      el("li",null, el("strong",{text:"Skat"}), " indgår ikke."),
+      el("li",null, el("strong",{text:"Individuelle pensionsordninger"}), " (arbejdsmarkedspension, ATP, private pensioner) er ikke medregnet.")
+    ));
+
+    body.appendChild(el("h4",{text:"Folkepension og loft"}));
+    body.appendChild(el("ul",null,
+      el("li",null, "Folkepensionsalderen estimeres ud fra alder og følger ", el("strong",{text:"vedtaget loft"}), " (vi gætter ikke på fremtidige politiske ændringer)."),
+      el("li",null, "Der kan være mindre afvigelse ift. præcis fødselsdato.")
+    ));
+
+    body.appendChild(el("h4",{text:"Usikkerhed"}));
+    body.appendChild(el("div",{class:"p", style:"font-size:15px;", text:"Resultatet afhænger især af afkast, stabilitet i indbetalinger og om dit målbeløb ændrer sig over tid."}));
+
+    return;
+  }
+
+  if (sheetMode === "lead"){
+    title.textContent = "Formidl kontakt til rådgiver";
+
+    body.appendChild(el("div",{class:"p", style:"font-size:15px;", text: (LEAD_MODE==="demo" ? "Denne version sender ikke dine oplysninger nogen steder. Formularen er klargjort til senere videresendelse til rådgiver, når der er sat en sikker afsendelse op." : "Dine oplysninger videresendes til en rådgiver, hvis du giver samtykke og sender formularen.") }));
+    body.appendChild(hrNode());
+
+    body.appendChild(el("div",{class:"kicker", style:"margin-bottom:6px;", text:"KONTAKT"}));
+
+    body.appendChild(el("label",{class:"label", for:"leadName", style:"margin:0 0 8px;", text:"Navn"}));
+    body.appendChild(el("input",{class:"input", id:"leadName", placeholder:"Dit navn", style:"font-size:22px; padding:14px 14px;"}));
+
+    body.appendChild(el("label",{class:"label", for:"leadEmail", style:"margin:14px 0 8px;", text:"E-mail"}));
+    body.appendChild(el("input",{class:"input", id:"leadEmail", placeholder:"navn@eksempel.dk", style:"font-size:22px; padding:14px 14px;"}));
+
+    body.appendChild(el("label",{class:"label", for:"leadPhone", style:"margin:14px 0 8px;", text:"Telefon"}));
+    body.appendChild(el("input",{class:"input", id:"leadPhone", placeholder:"+45 ...", style:"font-size:22px; padding:14px 14px;"}));
+
+    const consentRow = el("div",{style:"display:flex; gap:10px; align-items:flex-start; margin-top:14px;"});
+    consentRow.appendChild(el("input",{type:"checkbox", id:"leadConsent", style:"margin-top:3px;"}));
+    consentRow.appendChild(el("label",{for:"leadConsent", class:"p", style:"font-size:14px; margin:0; color: rgba(11,18,32,0.70);", text:"Jeg ønsker at blive kontaktet af en rådgiver vedrørende mine beregninger. Oplysninger bruges kun til dette formål."}));
+    body.appendChild(consentRow);
+
+    body.appendChild(el("div",{class:"small", id:"leadErr", style:"margin-top:8px; color: rgba(180,35,35,0.9); display:none;", text:"Udfyld kontakt og giv samtykke for at sende."}));
+
+    body.appendChild(hrNode());
+    const row = el("div",{class:"row"});
+    row.appendChild(el("button",{class:"btnGhost", "data-action":"closeSheet", type:"button", text:"Annullér"}));
+    row.appendChild(el("button",{class:"cta", "data-action":"sendLead", type:"button", text:"Send kontakt"}));
+    body.appendChild(row);
+
+        body.appendChild(el("div",{class:"small", style:"margin-top:10px; font-weight:900;", text:"Privatliv"}));
+    body.appendChild(el("div",{class:"small", style:"margin-top:6px;", text: (LEAD_MODE==="demo"
+      ? "Ingen afsendelse, ingen lagring: Oplysningerne bliver ikke sendt fra din browser i denne version."
+      : "Oplysningerne sendes til en rådgiver med det formål at kontakte dig om din beregning.") }));
+    const ulp = el("ul",{style:"margin:8px 0 0 18px;"});
+    ulp.appendChild(el("li",{text:"Data: navn, e-mail og/eller telefon (kun hvis du selv udfylder)."}));
+    ulp.appendChild(el("li",{text:"Formål: kontakt om rådgivning baseret på dine beregninger."}));
+    ulp.appendChild(el("li",{text:"Grundlag: dit samtykke i formularen."}));
+    ulp.appendChild(el("li",{text:"Planlagt: når afsendelse aktiveres, videresendes data til rådgiver via et endpoint med server-side validering og rate-limit."}));
+    body.appendChild(ulp);
+
+    return;
+  }
+
+  if (sheetMode === "whatItTakes"){
+    title.textContent = "Hvad skal der til?";
+
+    const fp = state.fpAge;
+    const age = state.age;
+    const selExtra = selectedExtraMonthly();
+
+    const currentStop = isFinite(state.newStop) ? state.newStop : solveStopAge(state.age, state.fpAge, state.savings, state.monthly + selExtra, state.income);
+
+    const curInt = Math.floor(currentStop);
+    const maxEarlierYears = 10;
+    const possibleEarlierYears = Math.max(1, Math.min(maxEarlierYears, curInt - Math.ceil(age) - 1));
+    const minGoal = Math.max(18, Math.ceil(age), curInt - possibleEarlierYears);
+    const maxGoal = Math.min( Math.floor(fp ?? 70), curInt - 1 );
+
+    if (!isFinite(currentStop) || maxGoal < minGoal){
+      body.appendChild(el("div",{class:"p", style:"font-size:15px;", text:"For at beregne “hvad der skal til”, skal vi have et gyldigt estimat først."}));
+      body.appendChild(hrNode());
+      body.appendChild(el("div",{class:"small", text:"Tip: gå tilbage og udfyld dine tal, og vælg evt. et par greb."}));
+      return;
+    }
+
+    let goalDefault = Math.max(minGoal, Math.min(maxGoal, Math.floor(currentStop) - 2));
+    if (isFinite(state._forcedGoalAge)){
+      goalDefault = Math.max(minGoal, Math.min(maxGoal, state._forcedGoalAge));
+      state._forcedGoalAge = null;
+    }
+
+    body.appendChild(el("div",{class:"p", style:"font-size:15px; margin:0 0 10px;", text:"Vælg en tidligere stop-alder. Vi estimerer, hvad det kræver i ekstra investering pr. måned."}));
+
+    const sticky = el("div",{class:"card", style:"padding:14px 14px; border-radius:18px; border:1px solid rgba(11,18,32,0.08); background: rgba(255,255,255,0.92); position:sticky; top:0; z-index:5; backdrop-filter: blur(10px);"});
+    sticky.appendChild(el("div",{class:"kicker", style:"letter-spacing:0.12em;", text:"RESULTAT (ESTIMAT)"}));
+
+    const r1 = el("div",{style:"display:flex; justify-content:space-between; gap:10px; align-items:baseline; margin-top:8px;"});
+    r1.appendChild(el("div",{style:"font-weight:950;", text:"Ekstra pr. md."}));
+    r1.appendChild(el("div",{style:"font-weight:800;", class:"mono"},
+      el("span",{id:"needExtra2", text:"—"})," ",
+      el("span",{class:"small", text:"kr./md"})
+    ));
+    sticky.appendChild(r1);
+
+    const r2 = el("div",{style:"display:flex; justify-content:space-between; gap:10px; align-items:baseline; margin-top:6px;"});
+    r2.appendChild(el("div",{style:"font-weight:950;", text:"Ny investering i alt"}));
+    r2.appendChild(el("div",{style:"font-weight:800;", class:"mono"},
+      el("span",{id:"totalMonthly2", text:"—"})," ",
+      el("span",{class:"small", text:"kr./md"})
+    ));
+    sticky.appendChild(r2);
+
+    sticky.appendChild(el("div",{class:"small", style:"margin-top:8px;", text:`Inkl. valgte greb (+${fmtInt(selExtra)} kr./md) og din nuværende investering (${fmtInt(state.monthly ?? 0)} kr./md).`}));
+    body.appendChild(sticky);
+
+    body.appendChild(el("div",{class:"hr", style:"margin:14px 0;"}));
+
+    body.appendChild(el("div",{class:"label", style:"margin:0 0 10px;", text:"Ønsket stop-alder"}));
+
+    const rowA = el("div",{style:"display:flex; gap:10px; align-items:center; margin-bottom:10px;"});
+    const goalInp = el("input",{
+      type:"number", id:"goalAgeInput", inputmode:"numeric",
+      min:String(minGoal), max:String(maxGoal), value:String(goalDefault),
+      style:"flex:0 0 120px; padding:12px 14px; border-radius:14px; border:1px solid rgba(11,18,32,0.10); font-weight:900; font-size:16px; background: rgba(255,255,255,0.92);",
+      "aria-label":"Ønsket stop-alder (år)"
+    });
+    rowA.appendChild(goalInp);
+    rowA.appendChild(el("div",{class:"small", style:"margin:0;", text:`Interval: ${minGoal}–${maxGoal} år`}));
+    body.appendChild(rowA);
+
+    const slider = el("input",{type:"range", id:"goalSlider2", min:String(minGoal), max:String(maxGoal), value:String(goalDefault), step:"1", style:"width:100%;"});
+    body.appendChild(slider);
+
+    const pills = el("div",{class:"metaPills", style:"margin-top:10px;"});
+    pills.appendChild(el("div",{class:"pill"}, "Ønske: ", el("span",{class:"mono", id:"goalAgeLbl2", text:`${goalDefault} år`})));
+    pills.appendChild(el("div",{class:"pill"}, "Nuværende estimat: ", el("span",{class:"mono", text:fmtAgeYM(currentStop)})));
+    pills.appendChild(el("div",{class:"pill"}, "Folkepension: ", el("span",{class:"mono", text:String(fp ?? "—")})));
+    body.appendChild(pills);
+
+    body.appendChild(hrNode());
+
+    const cta = el("div",{class:"card", style:"padding:16px 16px; border-radius:18px; border:1px solid rgba(11,18,32,0.08); background: rgba(255,255,255,0.92);"});
+    cta.appendChild(el("div",{style:"font-weight:950; font-size:18px;", text:"Ønsker du sparring på din plan?"}));
+    cta.appendChild(el("div",{class:"p", style:"font-size:15px; margin-top:6px;", text:"Få en uforpligtende gennemgang af dine tal og muligheder med en rådgiver."}));
+    cta.appendChild(el("div",{style:"height:10px;"}));
+    cta.appendChild(el("button",{class:"cta", "data-action":"openLead", type:"button", text:"Book en uforpligtende samtale"}));
+    cta.appendChild(el("div",{class:"small", style:"margin-top:10px;", text:"Du kontaktes kun hvis du selv sender din forespørgsel og giver samtykke."}));
+    body.appendChild(cta);
+
+    const clampGoal = (x)=>{
+      x = Math.round(Number(x));
+      if (!isFinite(x)) x = goalDefault;
+      if (x < minGoal) x = minGoal;
+      if (x > maxGoal) x = maxGoal;
+      return x;
+    };
+
+    const compute = (goal)=>{
+      goal = clampGoal(goal);
+      const lbl = document.getElementById("goalAgeLbl2");
+      if (lbl) lbl.textContent = goal + " år";
+
+      const sliderEl = document.getElementById("goalSlider2");
+      if (sliderEl && Number(sliderEl.value) !== goal) sliderEl.value = String(goal);
+      if (sliderEl) updateRangeFill(sliderEl);
+
+      const inpEl = document.getElementById("goalAgeInput");
+      if (inpEl && Number(inpEl.value) !== goal) inpEl.value = String(goal);
+
+      const extraRaw = extraMonthlyNeededForGoal(state.age, goal, state.fpAge, state.savings, state.monthly + selExtra, state.income);
+
+      const out = document.getElementById("needExtra2");
+      const totalOut = document.getElementById("totalMonthly2");
+
+      const ex = Math.max(0, Math.ceil(extraRaw));
+      if (out) out.textContent = (ex<=0) ? "< 100" : fmtInt(ex);
+
+      const total = Math.max(0, Math.round((state.monthly || 0) + selExtra + ex));
+      if (totalOut) totalOut.textContent = fmtInt(total);
+    };
+
+    setTimeout(()=>{
+      const sliderEl = document.getElementById("goalSlider2");
+      const inpEl = document.getElementById("goalAgeInput");
+
+      if (sliderEl) sliderEl.addEventListener("input", ()=>{ compute(sliderEl.value); updateRangeFill(sliderEl); }, {passive:true});
+      if (inpEl){
+        inpEl.addEventListener("input", ()=>compute(inpEl.value), {passive:true});
+        inpEl.addEventListener("change", ()=>compute(inpEl.value), {passive:true});
+      }
+      compute(goalDefault);
+      if (sliderEl) updateRangeFill(sliderEl);
+    }, 0);
+
+    return;
+  }
+}
+
+// --- core computations + rendering ---
+
+// --- core computations + rendering ---
+function updateFpAge(){
+  if (!isFinite(state.age)) { state.fpAge = null; $("fpAgeBig").textContent="—"; return; }
+  state.fpAge = pensionAgeFromCurrentAgeApprox(state.age);
+  $("fpAgeBig").textContent = String(state.fpAge);
+}
+
+(function bindAgeLive(){
+  const el = document.getElementById("ageInput");
+  if (!el) return;
+  const run = ()=>{
+    const n = parseMoney(el.value);
+    if (isFinite(n) && n>=16 && n<=100){
+      state.age = Math.round(n);
+      updateFpAge();
+    } else {
+      state.age = null;
+      state.fpAge = null;
+      const out = document.getElementById("fpAgeBig");
+      if (out) out.textContent = "—";
+    }
+  };
+  ["input","change","keyup"].forEach(evt=> el.addEventListener(evt, run, {passive:true}));
+  el.addEventListener("keydown", (ev)=>{
+    if (ev.key === "Enter"){
+      ev.preventDefault();
+      if (requireAge()) setActiveStep(2);
+    }
+  });
+  requestAnimationFrame(run);
+})();
+
+function computeBase(){
+  const a = state.age;
+  const fp = state.fpAge;
+  const s = state.savings;
+  const m = state.monthly;
+  const inc = state.income;
+  if (![a,fp,s,m,inc].every(x=>isFinite(x))) return false;
+  const stop = solveStopAge(a, fp, s, m, inc);
+  state.baseStop = stop;
+  return true;
+}
+function renderResult(){
+  $("curAgeLbl").textContent = state.age ?? "—";
+  $("fpAgeLbl").textContent = state.fpAge ?? "—";
+  setAgeInline($("stopAgeLbl"), state.baseStop);
+  // Scenario label
+  const a = getAssumptions();
+  const sc3 = $("scenarioLbl3");
+  if (sc3) sc3.textContent = `${a.name}`;
+  const details = $("hintDetails3");
+  if (details && isFinite(state.baseStop) && isFinite(state.fpAge)){
+    const diffM = Math.max(0, agePartsFromYears(state.fpAge).totalMonths - agePartsFromYears(state.baseStop).totalMonths);
+    const lowR  = Math.max(-0.05, a.real - 0.01);
+    const highR = a.real + 0.01;
+    const lowStop  = solveStopAge(state.age, state.fpAge, state.savings, state.monthly, state.income, {real: lowR, discount:a.discount, buffer:a.buffer});
+    const highStop = solveStopAge(state.age, state.fpAge, state.savings, state.monthly, state.income, {real: highR, discount:a.discount, buffer:a.buffer});
+    const baseM = agePartsFromYears(state.baseStop).totalMonths;
+    const lowM  = agePartsFromYears(lowStop).totalMonths;
+    const highM = agePartsFromYears(highStop).totalMonths;
+    const later = Math.max(0, lowM - baseM);
+    const earlier = Math.max(0, baseM - highM);
+    details.innerHTML = `Vejledende beregning (ikke garanti).<br/>`
+      + `Det svarer til ca. <strong>${fmtDiffPartsText(diffM)}</strong> før folkepension (${state.fpAge} år, est.).<br/>`
+      + `Usikkerhed: ca. <strong>${fmtDiffPartsText(later)}</strong> senere / <strong>${fmtDiffPartsText(earlier)}</strong> tidligere (hvis afkast afviger).`;
+  } else if (details){
+    details.textContent = "—";
+  }
+  // set quick target: 2 years earlier (based on new stop if available)
+  const b2y = $("btnWhatItTakes2y");
+  if (b2y){
+    const ref = isFinite(state.newStop) ? state.newStop : state.baseStop;
+    if (isFinite(ref)){
+      const target = Math.max(state.age ?? 0, Math.floor(ref) - 2);
+      b2y.dataset.targetAge = String(target);
+      b2y.textContent = `Stop som ${target}-årig`;
+    }
+  }
+
+}
+
+function renderNewResult(){
+  // compute new stop based on selected actions
+  renderActions();
+  const extra = selectedExtraMonthly();
+  const a = getAssumptions();
+  const fp = state.fpAge;
+  const newStop = solveStopAge(state.age, fp, state.savings, state.monthly + extra, state.income, {real:a.real, discount:a.discount, buffer:a.buffer});
+  state.newStop = newStop;
+
+  // top pills
+  const baseLbl = $("baseStopLbl");
+  if (baseLbl) setAgeInline(baseLbl, state.baseStop);
+  const liftLbl = $("newLiftLbl");
+  if (liftLbl && isFinite(state.baseStop) && isFinite(newStop)){
+    const months = Math.max(0, yearsToMonths(state.baseStop - newStop));
+    liftLbl.textContent = fmtDeltaMonths(months);
+  }
+
+  // main number
+  const big = $("newStopBig");
+  if (big) setAgeInline(big, newStop);
+
+  // scenario label
+  const sc5 = $("scenarioLbl5");
+  if (sc5) sc5.textContent = `${a.name}`;
+
+  // details box (hidden by default)
+  const details = $("hintDetails5");
+  if (details && isFinite(newStop) && isFinite(fp)){
+    const diffM = Math.max(0, agePartsFromYears(fp).totalMonths - agePartsFromYears(newStop).totalMonths);
+    const lowR  = Math.max(-0.05, a.real - 0.01);
+    const highR = a.real + 0.01;
+    const lowStop  = solveStopAge(state.age, fp, state.savings, state.monthly + extra, state.income, {real: lowR, discount:a.discount, buffer:a.buffer});
+    const highStop = solveStopAge(state.age, fp, state.savings, state.monthly + extra, state.income, {real: highR, discount:a.discount, buffer:a.buffer});
+    const baseM = agePartsFromYears(newStop).totalMonths;
+    const lowM  = agePartsFromYears(lowStop).totalMonths;
+    const highM = agePartsFromYears(highStop).totalMonths;
+    const later = Math.max(0, lowM - baseM);
+    const earlier = Math.max(0, baseM - highM);
+    details.innerHTML = `Vejledende beregning (ikke garanti).<br/>`
+      + `Det svarer til ca. <strong>${fmtDiffPartsText(diffM)}</strong> før folkepension (${fp} år, est.).<br/>`
+      + `Usikkerhed: ca. <strong>${fmtDiffPartsText(later)}</strong> senere / <strong>${fmtDiffPartsText(earlier)}</strong> tidligere (hvis afkast afviger).`;
+  } else if (details){
+    details.textContent = "—";
+  }
+
+  // update "Stop som X-årig" button on last page
+  const b2y = $("btnWhatItTakes2y");
+  if (b2y && isFinite(newStop)){
+    const target = Math.max(state.age ?? 0, Math.floor(newStop) - 2);
+    b2y.dataset.targetAge = String(target);
+    b2y.textContent = `Stop som ${target}-årig`;
+  }
+}
+
+function renderSumLift(){
+  const base = state.baseStop;
+  const fp = state.fpAge;
+  if (!isFinite(base) || !isFinite(fp)) { $("sumLift").textContent="+0 md"; return; }
+  let extra = 0;
+  for (const id of state.selected){
+    const act = state.visibleActions.find(x=>x.id===id);
+    if (act) extra += act.monthly;
+  }
+  const newStop = solveStopAge(state.age, fp, state.savings, state.monthly + extra, state.income);
+  const months = Math.max(0, yearsToMonths(base - newStop));
+  $("sumLift").textContent = fmtDeltaMonths(months);
+}
+function selectedExtraMonthly(){
+  let extra=0;
+  for (const id of state.selected){
+    const act = state.visibleActions.find(x=>x.id===id);
+    if (act) extra += act.monthly;
+  }
+  return extra;
+}
+
+// --- validation ---
+function requireAge(){
+  const n = parseMoney($("ageInput").value);
+  if (!isFinite(n) || n<16 || n>100) return false;
+  state.age = Math.round(n);
+  updateFpAge();
+  return true;
+}
+// --- validation ---
+
+function validateNumbers(opts){
+  const {commit=false, showErrors=false} = (opts || {});
+  const s = moneyOrNull($("savInput")?.value ?? "");
+  const m = moneyOrNull($("invInput")?.value ?? "");
+  const inc = moneyOrNull($("incInput")?.value ?? "");
+
+  const sOk = isFinite(s) && s > 0;
+  const mOk = isFinite(m) && m > 0;
+
+  // Income is REQUIRED (desired monthly amount in retirement)
+  const incOk = isFinite(inc) && inc > 0;
+
+  const err = $("numbersErr");
+  const btn = $("computeBtn");
+
+  let ok = true;
+  let msg = "";
+
+  if (!incOk){
+    ok = false;
+    msg = "Ønsket beløb pr. måned skal udfyldes (tal større end 0).";
+  } else if (!sOk && !mOk){
+    ok = false;
+    msg = "Indtast enten opsparing i dag eller månedlig investering (mindst ét felt skal udfyldes).";
+  }
+
+  if (btn){
+    if (ok) btn.classList.remove("disabled");
+    else btn.classList.add("disabled");
+  }
+
+  if (err){
+    if (!ok && showErrors){
+      err.style.display = "block";
+      err.textContent = msg;
+    } else {
+      err.style.display = "none";
+      err.textContent = "";
+    }
+  }
+
+  if (commit && ok){
+    state.savings = sOk ? Math.round(s) : 0;
+    state.monthly = mOk ? Math.round(m) : 0;
+    state.income  = Math.round(inc);
+  }
+
+  return ok;
+}
+
+function hookNumbersValidation(){
+  ["savInput","invInput","incInput"].forEach(id=>{
+    const el = $(id);
+    if (!el) return;
+    ["input","change","keyup"].forEach(evt=>{
+      el.addEventListener(evt, ()=>validateNumbers({commit:false, showErrors:false}), {passive:true});
+    });
+    el.addEventListener("blur", ()=>{ formatMoneyField(el); validateNumbers({commit:false, showErrors:false}); });
+    el.addEventListener("keydown", (ev)=>{
+      if (ev.key === "Enter"){
+        ev.preventDefault();
+        // Try compute when inputs are valid
+        const ok = validateNumbers({commit:true, showErrors:true});
+        if (ok){
+          if (!isFinite(state.age)) return;
+          if (!state.fpAge) updateFpAge();
+          if (!computeBase()) return;
+          renderResult();
+          setActiveStep(3);
+        }
+      }
+    });
+  });
+  validateNumbers({commit:false, showErrors:false});
+}
+
+
+function formatCurrency(n){
+  if(!isFinite(n)) return "—";
+  try { return new Intl.NumberFormat("da-DK").format(Math.round(n)) + " kr."; }
+  catch(e){ return Math.round(n).toString() + " kr."; }
+}
+function formatMoneyPlain(n){
+  if(!isFinite(n)) return "—";
+  try { return new Intl.NumberFormat("da-DK").format(Math.round(n)); }
+  catch(e){ return Math.round(n).toString(); }
+}
+function computeDepotAtStop(stopAge){
+  if(!isFinite(stopAge) || !isFinite(state.age) || !isFinite(state.fpAge) || !isFinite(state.savings) || !isFinite(state.monthly)) return NaN;
+  const a0 = getAssumptions();
+  const real = a0.real;
+  const tYears = Math.max(0, stopAge - state.age);
+  return futureValue(state.savings, state.monthly, tYears, real);
+}
+function yearsBeforePension(stopAge){
+  if(!isFinite(stopAge) || !isFinite(state.fpAge)) return NaN;
+  return Math.max(0, state.fpAge - stopAge);
+}
+function parseNumberLike(s){
+  if(s == null) return NaN;
+  const t = String(s).replace(/\s/g,"").replace(/\./g,"").replace(/,/g,".");
+  const n = Number(t);
+  return isFinite(n) ? n : NaN;
+}
+function updatePensionCalc(){
+  const salary = parseNumberLike(document.getElementById("salaryMonthly")?.value);
+  const pct = parseNumberLike(document.getElementById("pensionPct")?.value);
+  const stop = isFinite(state.newStop) ? state.newStop : state.baseStop;
+  const y = yearsBeforePension(stop);
+  const months = isFinite(y) ? Math.round(y*12) : NaN;
+
+  const pensMonthlyEl = document.getElementById("pensMonthly");
+  const pensAnnualEl = document.getElementById("pensAnnual");
+  const pensTotalEl = document.getElementById("pensTotal");
+
+  if(!isFinite(salary) || !isFinite(pct) || pct < 0){
+    if(pensMonthlyEl) pensMonthlyEl.textContent = "—";
+    if(pensAnnualEl) pensAnnualEl.textContent = "—";
+    if(pensTotalEl) pensTotalEl.textContent = "—";
+    return;
+  }
+  const monthly = salary * (pct/100);
+  const annual = monthly * 12;
+  const total = isFinite(months) ? monthly * months : NaN;
+
+  if(pensMonthlyEl) pensMonthlyEl.textContent = formatCurrency(monthly) + " pr. måned";
+  if(pensAnnualEl) pensAnnualEl.textContent = formatCurrency(annual) + " pr. år";
+  if(pensTotalEl) pensTotalEl.textContent = isFinite(total) ? formatCurrency(total) : "—";
+}
+function renderSummary(){
+  const stop = isFinite(state.newStop) ? state.newStop : state.baseStop;
+  const depot = computeDepotAtStop(stop);
+  const income = isFinite(state.income) ? state.income : NaN;
+  const y = yearsBeforePension(stop);
+
+  const sumIncome = document.getElementById("sumIncome");
+  const sumDepot = document.getElementById("sumDepot");
+  const sumStop = document.getElementById("sumStop");
+  const sumYears = document.getElementById("sumYears");
+
+  const sumBaseLbl = document.getElementById("sumBaseLbl");
+  const sumLiftLbl = document.getElementById("sumLiftLbl");
+  const sumScenarioLbl = document.getElementById("sumScenarioLbl");
+
+  if(sumIncome) sumIncome.textContent = isFinite(income) ? (formatCurrency(income) + " pr. måned") : "—";
+  if(sumDepot) sumDepot.textContent = isFinite(depot) ? formatCurrency(depot) : "—";
+  if(sumStop) sumStop.textContent = isFinite(stop) ? (formatMoneyPlain(stop) + " år") : "—";
+  if(sumYears) sumYears.textContent = isFinite(y) ? (formatMoneyPlain(y) + " år før folkepension") : "—";
+
+  const salEl = document.getElementById("salaryMonthly");
+  const pctEl = document.getElementById("pensionPct");
+  if(pctEl && (pctEl.value == null || String(pctEl.value).trim()==="")) pctEl.value = "12";
+
+  if(salEl && !salEl.dataset.bound){
+    salEl.dataset.bound = "1";
+    salEl.addEventListener("input", updatePensionCalc);
+    salEl.addEventListener("blur", ()=>{
+      const v = parseNumberLike(salEl.value);
+      if(isFinite(v)) salEl.value = formatMoneyPlain(v);
+      updatePensionCalc();
+    });
+  }
+  if(pctEl && !pctEl.dataset.bound){
+    pctEl.dataset.bound = "1";
+    pctEl.addEventListener("input", updatePensionCalc);
+    pctEl.addEventListener("focus", ()=>{ try{ pctEl.select(); }catch(e){} });
+  }
+  updatePensionCalc();
+}
+
+// --- event delegation (single binding) ---
+document.addEventListener("click", (e)=>{
+  const el = e.target.closest("[data-action]");
+  if (!el) return;
+  const act = el.getAttribute("data-action");
+
+    if (act==="toSummary"){ renderSummary(); setActiveStep(6); return; }
+
+  if (act==="backToNewResult"){ setActiveStep(5); return; }
+
+if (act==="start"){ setActiveStep(1); return; }
+
+  if (act==="toggleHint"){
+    const id = el.getAttribute("data-hint");
+    const box = $(id);
+    if (box){
+      const isOpen = box.classList.toggle("open");
+      // a11y: expose state for assistive tech
+      el.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      if (!el.getAttribute("aria-controls")) el.setAttribute("aria-controls", id || "");
+    }
+    return;
+  }
+
+  if (act==="next"){
+    if (!requireAge()) return;
+    setActiveStep(2);
+    return;
+  }
+
+  if (act==="compute"){
+    if (!validateNumbers({commit:true, showErrors:true})) return;
+    if (!isFinite(state.age)) return;
+    if (!state.fpAge) updateFpAge();
+    if (!computeBase()) return;
+    renderResult();
+    setActiveStep(3);
+    return;
+  }
+
+  if (act==="backToNumbers"){ setActiveStep(2); return; }
+  if (act==="toActions"){ renderActions(); setActiveStep(4); return; }
+  if (act==="backToResult"){ setActiveStep(3); return; }
+  if (act==="backToActions"){ setActiveStep(4); return; }
+
+  if (act==="toggleAction"){
+    const id = el.getAttribute("data-id");
+    if (!id) return;
+    if (state.selected.has(id)) state.selected.delete(id); else state.selected.add(id);
+    renderActions();
+    if (state.step===5) renderNewResult();
+    return;
+  }
+
+  if (act==="openLead"){ openSheet("lead"); return; }
+
+  if (act==="openAssumptions"){ openSheet("assumptions"); return; }
+
+  if (act==="toNewResult"){
+    renderActions();
+    const extra = selectedExtraMonthly();
+    state.newStop = solveStopAge(state.age, state.fpAge, state.savings, state.monthly + extra, state.income);
+    renderNewResult();
+    setActiveStep(5);
+    return;
+  }
+
+  if (act==="openWhatItTakes"){
+    const btn = e.target.closest("button");
+    if (btn && btn.dataset && btn.dataset.targetAge){
+      state._forcedGoalAge = Number(btn.dataset.targetAge);
+    }
+    openSheet("whatItTakes");
+    return;
+  }
+
+  if (act==="restart"){
+    state.step = 0;
+    state.age = null; state.fpAge=null; state.savings=null; state.monthly=null; state.income=null;
+    state.baseStop=null; state.newStop=null;
+    state.selected = new Set();
+    state.visibleActions = [];
+    ["ageInput","savInput","invInput","incInput"].forEach(id=>{ const inp = $(id); if (inp) inp.value=""; });
+    closeSheet();
+    document.querySelectorAll(".hint.open").forEach(x=>x.classList.remove("open"));
+    const fpBig = $("fpAgeBig"); if (fpBig) fpBig.textContent="—";
+    setActiveStep(0);
+    return;
+  }
+
+  if (act==="closeSheet"){ closeSheet(); return; }
+
+  if (act==="sendLead"){
+    const name = ($("leadName")?.value || "").trim();
+    const email = ($("leadEmail")?.value || "").trim();
+    const phone = ($("leadPhone")?.value || "").trim();
+    const consent = !!$("leadConsent")?.checked;
+    const err = $("leadErr");
+    const ok = consent && name.length>=2 && (email.includes("@") || phone.replace(/\D/g,"").length>=8);
+    if (!ok){
+      if (err) err.style.display="block";
+      return;
+    }
+    if (err) err.style.display="none";
+    // Demo mode: no endpoint. Provide clear UX.
+        const sb = $("sheetBody");
+    if (sb){
+      clearNode(sb);
+      sb.appendChild(el("div",{class:"p", style:"font-size:15px;", text: (LEAD_MODE==="demo" ? "Tak. I denne version bliver dine oplysninger ikke sendt eller gemt." : "Tak. Din kontakt er sendt til rådgiver (forudsætter endpoint).") }));
+      sb.appendChild(el("div",{class:"small", text: (LEAD_MODE==="demo" ? "Hvis du ønsker faktisk videresendelse, skal der tilføjes et endpoint (server-side validering, rate-limit og aftaler).": "Behandling afhænger af rådgivers setup og aftaler.") }));
+      sb.appendChild(hrNode());
+      const row = el("div",{class:"row"});
+      row.appendChild(el("button",{class:"cta", "data-action":"closeSheet", type:"button", text:"Luk"}));
+      sb.appendChild(row);
+    }
+    return;
+  }
+});
+
+// sheet backdrop close + esc
+$("backdrop").addEventListener("click", closeSheet, {passive:true});
+document.addEventListener("keydown", (e)=>{ if (e.key==="Escape") closeSheet(); });
+
+
+window.addEventListener("DOMContentLoaded", ()=>{ try{ hookNumbersValidation(); }catch(e){} 
+  try{
+    syncScenarioSelects();
+    const sel = document.getElementById("scenarioSelectInline");
+    if (sel){
+      sel.value = getAssumptions().key || "base";
+      sel.addEventListener("change", ()=>setScenario(sel.value));
+    }
+  }catch(e){}
+});
+
+// init
+setActiveStep(0);
+/* =========================
+   Self-test mode (?test=1)
+   - Runs deterministic checks in-browser
+   - No network, no data send
+   ========================= */
+(function selfTestBootstrap(){
+  try{
+    const params = new URLSearchParams(location.search || "");
+    if (params.get("test") !== "1") return;
+
+    // Minimal overlay UI
+    const panel = document.createElement("div");
+    panel.id = "selfTestPanel";
+    panel.setAttribute("role","status");
+    panel.style.position = "fixed";
+    panel.style.left = "10px";
+    panel.style.right = "10px";
+    panel.style.bottom = "10px";
+    panel.style.zIndex = "9999";
+    panel.style.background = "rgba(255,255,255,0.96)";
+    panel.style.border = "1px solid rgba(11,18,32,0.18)";
+    panel.style.borderRadius = "14px";
+    panel.style.boxShadow = "0 18px 40px rgba(0,0,0,0.22)";
+    panel.style.padding = "12px 12px";
+    panel.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+    panel.style.fontSize = "12px";
+    panel.style.maxHeight = "42vh";
+    panel.style.overflow = "auto";
+    const header = document.createElement("div");
+    header.style.fontWeight = "900";
+    header.style.marginBottom = "8px";
+    header.textContent = "Tidsløft · Self-test (test=1)";
+    const body = document.createElement("div");
+    panel.appendChild(header);
+    panel.appendChild(body);
+    document.body.appendChild(panel);
+
+    const lines = [];
+    const log = (s)=>{ lines.push(String(s)); body.textContent = lines.join("\n"); };
+    const fail = (name, msg)=>{ throw new Error(name + (msg ? (": " + msg) : "")); };
+    const assert = (name, cond, msg)=>{
+      if (!cond) fail(name, msg || "assertion failed");
+      log("PASS  " + name);
+    };
+
+    // Helper: stable inputs
+    const baseInputs = ()=>({
+      age: 30,
+      fp: 70,
+      savings: 250000,
+      monthly: 4000,
+      income: 30000
+    });
+
+    log("Running…");
+
+    // Ensure we start from base scenario
+    if (typeof setScenario === "function") setScenario("base");
+
+    // 1) Monotonicity: more savings => earlier or equal stop age
+    (function(){
+      const x = baseInputs();
+      const a = solveStopAge(x.age, x.fp, x.savings, x.monthly, x.income);
+      const b = solveStopAge(x.age, x.fp, x.savings + 100000, x.monthly, x.income);
+      assert("monotonic_savings", b <= a, `expected b<=a; got a=${a}, b=${b}`);
+    })();
+
+    // 2) Monotonicity: more monthly investment => earlier or equal stop age
+    (function(){
+      const x = baseInputs();
+      const a = solveStopAge(x.age, x.fp, x.savings, x.monthly, x.income);
+      const b = solveStopAge(x.age, x.fp, x.savings, x.monthly + 1000, x.income);
+      assert("monotonic_monthly", b <= a, `expected b<=a; got a=${a}, b=${b}`);
+    })();
+
+    // 3) Monotonicity: higher target income => later or equal stop age
+    (function(){
+      const x = baseInputs();
+      const a = solveStopAge(x.age, x.fp, x.savings, x.monthly, x.income);
+      const b = solveStopAge(x.age, x.fp, x.savings, x.monthly, x.income + 5000);
+      assert("monotonic_income", b >= a, `expected b>=a; got a=${a}, b=${b}`);
+    })();
+
+    // 4) Edge: no savings and no monthly => cannot stop before fp (stop==fp)
+    (function(){
+      const x = baseInputs();
+      const s = solveStopAge(x.age, x.fp, 0, 0, x.income);
+      assert("edge_zero_funding", Math.round(s*12) === Math.round(x.fp*12), `expected stop==fp; got ${s}`);
+    })();
+
+    // 5) Scenario ordering: optimistic should not be worse than conservative (with same inputs)
+    (function(){
+      const x = baseInputs();
+      const cons = solveStopAge(x.age, x.fp, x.savings, x.monthly, x.income, SCENARIOS.conservative);
+      const opt  = solveStopAge(x.age, x.fp, x.savings, x.monthly, x.income, SCENARIOS.optimistic);
+      assert("scenario_ordering", opt <= cons, `expected optimistic<=conservative; got cons=${cons}, opt=${opt}`);
+    })();
+
+    // 6) extraMonthlyNeededForGoal: earlier goal requires >=0 extra, and tighter goal needs >= looser goal
+    (function(){
+      const x = baseInputs();
+      const goal1 = 55;
+      const goal2 = 50; // earlier (harder)
+      const e1 = extraMonthlyNeededForGoal(x.age, goal1, x.fp, x.savings, x.monthly, x.income);
+      const e2 = extraMonthlyNeededForGoal(x.age, goal2, x.fp, x.savings, x.monthly, x.income);
+      assert("extra_nonnegative", e1 >= 0 && e2 >= 0, `expected nonnegative; e1=${e1}, e2=${e2}`);
+      assert("extra_harder_goal", e2 >= e1, `expected e2>=e1; e1=${e1}, e2=${e2}`);
+    })();
+
+    log("OK — all tests passed.");
+    header.textContent = "Tidsløft · Self-test (PASS)";
+    header.style.color = "rgba(6,95,70,1)";
+  } catch (err){
+    try{
+      const panel = document.getElementById("selfTestPanel");
+      if (panel){
+        const header = panel.firstChild;
+        if (header){
+          header.textContent = "Tidsløft · Self-test (FAIL)";
+          header.style.color = "rgba(153,27,27,1)";
+        }
+        const body = panel.lastChild;
+        if (body) body.textContent = String(err && err.message ? err.message : err);
+      } else {
+        console.error(err);
+        alert("Self-test FAIL: " + (err && err.message ? err.message : err));
+      }
+    } catch(e2){
+      console.error(err);
+    }
+  }
+})(); 
+
+</script>
+</body>
+</html>
